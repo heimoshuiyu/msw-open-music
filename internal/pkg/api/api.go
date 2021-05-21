@@ -36,13 +36,13 @@ type ResetRequest struct {
 type SearchFilesRequest struct {
 	Filename string `json:"filename"`
 	Limit int64 `json:"limit"`
-	Offest int64 `json:"offest"`
+	Offset int64 `json:"offest"`
 }
 
 type SearchFoldersRequest struct {
 	Foldername string `json:"foldername"`
 	Limit int64 `json:"limit"`
-	Offest int64 `json:"offest"`
+	Offset int64 `json:"offest"`
 }
 
 type SearchFilesRespond struct {
@@ -184,7 +184,7 @@ func (api *API) HandleSearchFiles(w http.ResponseWriter, r *http.Request) {
 
 	searchFilesRespond := &SearchFilesRespond{}
 
-	searchFilesRespond.Files, err = api.Db.SearchFiles(searchFilesRequest.Filename, searchFilesRequest.Limit, searchFilesRequest.Limit)
+	searchFilesRespond.Files, err = api.Db.SearchFiles(searchFilesRequest.Filename, searchFilesRequest.Limit, searchFilesRequest.Offset)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
@@ -213,7 +213,7 @@ func (api *API) HandleSearchFolders(w http.ResponseWriter, r *http.Request) {
 
 	searchFoldersRespond := &SearchFoldersRespond{}
 
-	searchFoldersRespond.Folders, err = api.Db.SearchFolders(searchFoldersRequest.Foldername, searchFoldersRequest.Limit, searchFoldersRequest.Limit)
+	searchFoldersRespond.Folders, err = api.Db.SearchFolders(searchFoldersRequest.Foldername, searchFoldersRequest.Limit, searchFoldersRequest.Offset)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
@@ -293,6 +293,7 @@ func NewAPI(dbName string, Addr string) (*API, error) {
 	apiMux.HandleFunc("/reset", api.HandleReset)
 
 	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", apiMux))
+	mux.Handle("/web/", http.StripPrefix("/web", http.FileServer(http.Dir("web"))))
 
 	api.token = "pwd"
 

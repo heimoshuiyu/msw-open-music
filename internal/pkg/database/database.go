@@ -13,7 +13,8 @@ import (
 var initFilesTableQuery = `CREATE TABLE IF NOT EXISTS files (
 	id INTEGER PRIMARY KEY,
 	folder_id INTEGER NOT NULL,
-	filename TEXT NOT NULL
+	filename TEXT NOT NULL,
+	filesize INTEGER NOT NULL
 );`
 var initFoldersTableQuery = `CREATE TABLE IF NOT EXISTS folders (
 	id INTEGER PRIMARY KEY,
@@ -22,12 +23,12 @@ var initFoldersTableQuery = `CREATE TABLE IF NOT EXISTS folders (
 );`
 var insertFolderQuery = `INSERT INTO folders (folder, foldername) VALUES (?, ?);`
 var findFolderQuery = `SELECT id FROM folders WHERE folder = ? LIMIT 1;`
-var insertFileQuery = `INSERT INTO files (folder_id, filename) VALUES (?, ?);`
-var searchFilesQuery = `SELECT files.id, files.folder_id, files.filename, folders.foldername FROM files JOIN folders ON files.folder_id = folders.id WHERE filename LIKE ? LIMIT ? OFFSET ?;`
+var insertFileQuery = `INSERT INTO files (folder_id, filename, filesize) VALUES (?, ?, ?);`
+var searchFilesQuery = `SELECT files.id, files.folder_id, files.filename, folders.foldername, files.filesize FROM files JOIN folders ON files.folder_id = folders.id WHERE filename LIKE ? LIMIT ? OFFSET ?;`
 var getFolderQuery = `SELECT folder FROM folders WHERE id = ? LIMIT 1;`
 var dropFilesQuery = `DROP TABLE files;`
 var dropFolderQuery = `DROP TABLE folders;`
-var getFileQuery = `SELECT files.id, files.folder_id, files.filename, folders.foldername FROM files JOIN folders ON files.folder_id = folders.id WHERE files.id = ? LIMIT 1;`
+var getFileQuery = `SELECT files.id, files.folder_id, files.filename, folders.foldername, files.filesize FROM files JOIN folders ON files.folder_id = folders.id WHERE files.id = ? LIMIT 1;`
 var searchFoldersQuery = `SELECT id, folder, foldername FROM folders WHERE foldername LIKE ? LIMIT ? OFFSET ?;`
 
 type Database struct {
@@ -55,6 +56,7 @@ type File struct {
 	Folder_id int64 `json:"folder_id"`
 	Foldername string `json:"foldername"`
 	Filename string `json:"filename"`
+	Filesize int64 `json:"filesize"`
 }
 
 type Folder struct {
@@ -88,7 +90,7 @@ func (database *Database) GetFile(id int64) (*File, error) {
 	file := &File{
 		Db: database,
 	}
-	err := database.stmt.getFile.QueryRow(id).Scan(&file.ID, &file.Folder_id, &file.Filename, &file.Foldername)
+	err := database.stmt.getFile.QueryRow(id).Scan(&file.ID, &file.Folder_id, &file.Filename, &file.Foldername, &file.Filesize)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +147,7 @@ func (database *Database) Walk(root string, pattern []string) (error) {
 		log.Println("True", ext, info.Name())
 
 		// insert file, folder will aut created
-		err = database.Insert(path)
+		err = database.Insert(path, info.Size())
 		if err != nil {
 			return err
 		}
@@ -183,7 +185,7 @@ func (database *Database) SearchFiles(filename string, limit int64, offset int64
 		var file File = File{
 			Db: database,
 		}
-		err = rows.Scan(&file.ID, &file.Folder_id, &file.Filename, &file.Foldername)
+		err = rows.Scan(&file.ID, &file.Folder_id, &file.Filename, &file.Foldername, &file.Filesize)
 		if err != nil {
 			return nil, errors.New("Error scanning SearchFiles " + err.Error())
 		}
@@ -216,15 +218,15 @@ func (database *Database) InsertFolder(folder string) (int64, error) {
 	return lastInsertId, nil
 }
 
-func (database *Database) InsertFile(folderId int64, filename string) (error) {
-	_, err := database.stmt.insertFile.Exec(folderId, filename)
+func (database *Database) InsertFile(folderId int64, filename string, filesize int64) (error) {
+	_, err := database.stmt.insertFile.Exec(folderId, filename, filesize)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (database *Database) Insert(path string) (error) {
+func (database *Database) Insert(path string, filesize int64) (error) {
 	folder, filename := filepath.Split(path)
 	folderId, err := database.FindFolder(folder)
 	if err != nil {
@@ -233,7 +235,7 @@ func (database *Database) Insert(path string) (error) {
 			return err
 		}
 	}
-	err = database.InsertFile(folderId, filename)
+	err = database.InsertFile(folderId, filename, filesize)
 	if err != nil {
 		return err
 	}
