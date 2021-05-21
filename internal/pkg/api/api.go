@@ -8,6 +8,7 @@ import (
 	"msw-open-music/internal/pkg/database"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 type API struct {
@@ -36,21 +37,61 @@ type ResetRequest struct {
 type SearchFilesRequest struct {
 	Filename string `json:"filename"`
 	Limit int64 `json:"limit"`
-	Offset int64 `json:"offest"`
+	Offset int64 `json:"offset"`
 }
 
 type SearchFoldersRequest struct {
 	Foldername string `json:"foldername"`
 	Limit int64 `json:"limit"`
-	Offset int64 `json:"offest"`
+	Offset int64 `json:"offset"`
 }
 
-type SearchFilesRespond struct {
+type SearchFilesResponse struct {
 	Files []database.File `json:"files"`
 }
 
-type SearchFoldersRespond struct {
+type SearchFoldersResponse struct {
 	Folders []database.Folder `json:"folders"`
+}
+
+type GetFilesInFolderRequest struct {
+	Folder_id int64 `json:"folder_id"`
+	Limit int64 `json:"limit"`
+	Offset int64 `json:"offset"`
+}
+
+type GetFilesInFolderResponse struct {
+	Files *[]database.File `json:"files"`
+}
+
+func (api *API) HandleGetFilesInFolder(w http.ResponseWriter, r *http.Request) {
+	getFilesInFolderRequest := &GetFilesInFolderRequest{
+		Folder_id: -1,
+	}
+
+	err := json.NewDecoder(r.Body).Decode(getFilesInFolderRequest)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	// check empyt
+	if getFilesInFolderRequest.Folder_id < 0 {
+		api.HandleErrorString(w, r, `"folder_id" can't be none or negative`)
+		return
+	}
+
+	files, err := api.Db.GetFilesInFolder(getFilesInFolderRequest.Folder_id, getFilesInFolderRequest.Limit, getFilesInFolderRequest.Offset)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	getFilesInFolderResponse := &GetFilesInFolderResponse{
+		Files: &files,
+	}
+
+	json.NewEncoder(w).Encode(getFilesInFolderResponse)
 }
 
 func (api *API) CheckToken(token string) (error) {
@@ -182,15 +223,15 @@ func (api *API) HandleSearchFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	searchFilesRespond := &SearchFilesRespond{}
+	searchFilesResponse := &SearchFilesResponse{}
 
-	searchFilesRespond.Files, err = api.Db.SearchFiles(searchFilesRequest.Filename, searchFilesRequest.Limit, searchFilesRequest.Offset)
+	searchFilesResponse.Files, err = api.Db.SearchFiles(searchFilesRequest.Filename, searchFilesRequest.Limit, searchFilesRequest.Offset)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
 	}
 
-	json.NewEncoder(w).Encode(searchFilesRespond)
+	json.NewEncoder(w).Encode(searchFilesResponse)
 }
 
 func (api *API) HandleSearchFolders(w http.ResponseWriter, r *http.Request) {
@@ -211,19 +252,46 @@ func (api *API) HandleSearchFolders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	searchFoldersRespond := &SearchFoldersRespond{}
+	searchFoldersResponse := &SearchFoldersResponse{}
 
-	searchFoldersRespond.Folders, err = api.Db.SearchFolders(searchFoldersRequest.Foldername, searchFoldersRequest.Limit, searchFoldersRequest.Offset)
+	searchFoldersResponse.Folders, err = api.Db.SearchFolders(searchFoldersRequest.Foldername, searchFoldersRequest.Limit, searchFoldersRequest.Offset)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
 	}
 
-	json.NewEncoder(w).Encode(searchFoldersRespond)
+	json.NewEncoder(w).Encode(searchFoldersResponse)
 }
 
 type GetFileRequest struct {
 	ID int64 `json:"id"`
+}
+
+func (api *API) HandleGetFileDirect(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+	ids := q["id"]
+	if len(ids) == 0 {
+		api.HandleErrorString(w, r, `parameter "id" can't be empty`)
+		return
+	}
+	id, err := strconv.Atoi(ids[0])
+	if err != nil {
+		api.HandleErrorString(w, r, `parameter "id" should be an integer`)
+		return
+	}
+	file, err := api.Db.GetFile(int64(id))
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	path, err := file.Path()
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	http.ServeFile(w, r, path)
 }
 
 func (api *API) HandleGetFile(w http.ResponseWriter, r *http.Request) {
@@ -286,8 +354,10 @@ func NewAPI(dbName string, Addr string) (*API, error) {
 	// mount api
 	apiMux.HandleFunc("/hello", api.HandleOK)
 	apiMux.HandleFunc("/get_file", api.HandleGetFile)
+	apiMux.HandleFunc("/get_file_direct", api.HandleGetFileDirect)
 	apiMux.HandleFunc("/search_files", api.HandleSearchFiles)
 	apiMux.HandleFunc("/search_folders", api.HandleSearchFolders)
+	apiMux.HandleFunc("/get_files_in_folder", api.HandleGetFilesInFolder)
 	// below needs token
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)

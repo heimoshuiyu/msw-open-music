@@ -30,6 +30,7 @@ var dropFilesQuery = `DROP TABLE files;`
 var dropFolderQuery = `DROP TABLE folders;`
 var getFileQuery = `SELECT files.id, files.folder_id, files.filename, folders.foldername, files.filesize FROM files JOIN folders ON files.folder_id = folders.id WHERE files.id = ? LIMIT 1;`
 var searchFoldersQuery = `SELECT id, folder, foldername FROM folders WHERE foldername LIKE ? LIMIT ? OFFSET ?;`
+var getFilesInFolderQuery = `SELECT id, filename, filesize FROM files WHERE folder_id = ? LIMIT ? OFFSET ?;`
 
 type Database struct {
 	sqlConn *sql.DB
@@ -48,6 +49,7 @@ type Stmt struct {
 	dropFolder *sql.Stmt
 	getFile *sql.Stmt
 	searchFolders *sql.Stmt
+	getFilesInFolder *sql.Stmt
 }
 
 type File struct {
@@ -64,6 +66,27 @@ type Folder struct {
 	ID int64 `json:"id"`
 	Folder string `json:"folder"`
 	Foldername string `json:"foldername"`
+}
+
+func (database *Database) GetFilesInFolder(folder_id int64, limit int64, offset int64) ([]File, error) {
+	rows, err := database.stmt.getFilesInFolder.Query(folder_id, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	files := make([]File, 0)
+	for rows.Next() {
+		file := File{
+			Db: database,
+			Folder_id: folder_id,
+		}
+		err = rows.Scan(&file.ID, &file.Filename, &file.Filesize)
+		if err != nil {
+			return nil, err
+		}
+		files = append(files, file)
+	}
+	return files, nil
 }
 
 func (database *Database) SearchFolders(foldername string, limit int64, offset int64) ([]Folder, error) {
@@ -319,6 +342,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init searchFolder stmt
 	stmt.searchFolders, err = sqlConn.Prepare(searchFoldersQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init getFilesInFolder stmt
+	stmt.getFilesInFolder, err = sqlConn.Prepare(getFilesInFolderQuery)
 	if err != nil {
 		return nil, err
 	}
