@@ -19,6 +19,10 @@ html {
 }
 .nav-link {
 	color: rgb(229, 232, 245);
-	text-decoration: none;
 	padding: 1em;
+}
+a.router-link-active {
+	color: deeppink;
+	background-color: lightgray;
+	border-radius: 0.39em 0.39em 0 0;
 }
