@@ -124,9 +124,11 @@ const component_search_folders = {
 }
 
 const component_manage= {
+	props: ['token'],
+	emits: ['set_token'],
 	data() {
 		return {
-			token: "",
+			token_tmp: "",
 			root: "",
 			pattern: [".flac", ".mp3"],
 			pattern_tmp: "",
@@ -139,7 +141,7 @@ const component_manage= {
 <tbody>
 <tr>
 	<td>Token</td>
-	<td><input type="text" v-model="token" /></td>
+	<td><input type="text" v-model="token_tmp" @change="emit_set_token" /></td>
 </tr>
 <tr>
 	<td>Root</td>
@@ -168,6 +170,9 @@ const component_manage= {
 </div>
 `,
 	methods: {
+		emit_set_token() {
+			this.$emit('set_token', this.token_tmp)
+		},
 		add_pattern() {
 			this.pattern.push(this.pattern_tmp)
 			this.pattern_tmp = ""
@@ -464,9 +469,13 @@ const app = Vue.createApp({
 	data() {
 		return {
 			playing_audio_file: {},
+			token: "default token",
 		}
 	},
 	methods: {
+		set_token(token) {
+			this.token = token
+		},
 		play_audio(file) {
 			console.log(file)
 			this.playing_audio_file = file
