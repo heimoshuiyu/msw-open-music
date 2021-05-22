@@ -1,5 +1,5 @@
 const component_search_folders = {
-	emits: ['play_audio'],
+	emits: ['play_audio', 'set_token'],
 	data() {
 		return {
 			search_foldernames: "",
@@ -431,7 +431,7 @@ const component_search_files = {
 }
 
 const component_get_random_files = {
-	emits: ['play_audio'],
+	emits: ['play_audio', 'set_token'],
 	data() {
 		return {
 			files: [],
