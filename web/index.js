@@ -199,6 +199,7 @@ const component_file = {
 <td>
 	<button @click="download_file(file)" :disabled="disabled">{{ computed_download_status }}</button>
 	<button @click="emit_play_audio">Play</button>
+	<button @click="emit_stream_audio">Stream</button>
 </td>
 `,
 	data() {
@@ -208,8 +209,13 @@ const component_file = {
 		}
 	},
 	methods: {
+		emit_stream_audio() {
+			this.file.play_back_type = 'stream',
+			this.$emit("play_audio", this.file)
+		},
 		emit_play_audio() {
 			console.log("pressed button")
+			this.file.play_back_type = 'raw'
 			this.$emit("play_audio", this.file)
 		},
 		download_file(file) {
@@ -274,7 +280,11 @@ const component_audio_player = {
 `,
 	computed: {
 		computed_playing_audio_file_url() {
-			return '/api/v1/get_file_direct?id=' + this.file.id
+			if (this.file.play_back_type === 'raw') {
+				return '/api/v1/get_file_direct?id=' + this.file.id
+			} else if (this.file.play_back_type === 'stream') {
+				return '/api/v1/get_file_stream?id=' + this.file.id
+			}
 		},
 		computed_show() {
 			return this.file.id ? true : false

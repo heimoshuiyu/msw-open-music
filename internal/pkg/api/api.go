@@ -8,6 +8,7 @@ import (
 	"msw-open-music/internal/pkg/database"
 	"net/http"
 	"os"
+	"os/exec"
 	"strconv"
 )
 
@@ -283,6 +284,46 @@ type GetFileRequest struct {
 	ID int64 `json:"id"`
 }
 
+func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+	ids := q["id"]
+	if len(ids) == 0 {
+		api.HandleErrorString(w, r, `parameter "id" can't be empty`)
+		return
+	}
+	id, err := strconv.Atoi(ids[0])
+	if err != nil {
+		api.HandleErrorString(w, r, `parameter "id" should be an integer`)
+		return
+	}
+	file, err := api.Db.GetFile(int64(id))
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	path, err := file.Path()
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	cmd := exec.Command("ffmpeg",
+		"-i", path,
+		"-c:a", "libopus",
+		"-ab", "128k",
+		"-vn",
+		"-f", "matroska",
+		"-",
+	)
+	cmd.Stdout = w
+	err = cmd.Run()
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+}
+
 func (api *API) HandleGetFileDirect(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	ids := q["id"]
@@ -375,6 +416,7 @@ func NewAPI(dbName string, Addr string) (*API, error) {
 	apiMux.HandleFunc("/search_folders", api.HandleSearchFolders)
 	apiMux.HandleFunc("/get_files_in_folder", api.HandleGetFilesInFolder)
 	apiMux.HandleFunc("/get_random_files", api.HandleGetRandomFiles)
+	apiMux.HandleFunc("/get_file_stream", api.HandleGetFileStream)
 	// below needs token
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)
