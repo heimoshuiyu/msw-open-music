@@ -11,7 +11,18 @@ html {
 	box-shadow: 0 0 8px #393939;
 }
 .title {
-	margin-left: 2em;
+	margin-left: 1em;
+	display: flex;
+	align-items: center;
+}
+.title-text {
+	margin-left: 1em;
+	margin-right: 1em;
+}
+.logo {
+	width: 39px;
+	height: 39px;
+	border-radius: 6px;
 }
 .nav {
 	display: flex;
