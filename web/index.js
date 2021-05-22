@@ -143,10 +143,10 @@ const component_update_database = {
 	<td><input type="text" v-model="pattern_tmp" /></td>
 </tr>
 <tr>
-	<td><strong>Pattern List</strong></td>
+	<td colspan="2"><strong>Pattern List</strong></td>
 </tr>
 <tr v-for="p in pattern">
-	<td>{{ p }}</td>
+	<td colspan="2">{{ p }}</td>
 </tr>
 <tr>
 	<td><button @click="update_database">Update</button></td>
