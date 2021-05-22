@@ -347,8 +347,48 @@ const component_search_files = {
 	},
 }
 
+const component_get_random_files = {
+	emits: ['play_audio'],
+	data() {
+		return {
+			files: [],
+		}
+	},
+	template: `
+<button @click="get_random_files">Refresh</button>
+<table>
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>Filename</th>
+			<th>Folder Name</th>
+			<th>Size</th>
+			<th>Action</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr v-for="file in files">
+			<component-file :file=file @play_audio="$emit('play_audio', file)"></component-file>
+		</tr>
+	</tbody>
+</table>
+`,
+	mounted() {
+		this.get_random_files()
+	},
+	methods: {
+		get_random_files() {
+			axios.get('/api/v1/get_random_files'
+			).then(response => {
+				this.files = response.data.files;
+			})
+		}
+	},
+}
+
 const routes = [
-	{ path: '/', component: component_search_files},
+	{ path: '/', component: component_get_random_files},
+	{ path: '/search_files', component: component_search_files},
 	{ path: '/search_folders', component: component_search_folders},
 	{ path: '/update_database', component: component_update_database},
 ]
@@ -376,6 +416,7 @@ app.component('component-update-database', component_update_database)
 app.component('component-file', component_file)
 app.component('component-audio-player', component_audio_player)
 app.component('component-search-files', component_search_files)
+app.component('component-get-random-files', component_get_random_files)
 
 app.use(router)
 
