@@ -25,14 +25,12 @@ const component_search_folders = {
 <table>
 <thead>
 <tr>
-	<th>ID</th>
 	<th>Folder Name</th>
 	<th>Action</th>
 </tr>
 </thead>
 <tbody>
 <tr v-for="folder in folders">
-	<td>{{ folder.id }}</td>
 	<td>{{ folder.foldername }}</td>
 	<td><button @click="view_folder(folder)">View</button></td>
 </tr>
@@ -47,7 +45,6 @@ const component_search_folders = {
 <table>
 	<thead>
 		<tr>
-			<th>ID</th>
 			<th>Filename</th>
 			<th>Folder Name</th>
 			<th>Size</th>
@@ -192,7 +189,6 @@ const component_file = {
 	props: ['file'],
 	emits: ['play_audio'],
 	template: `
-<td>{{ file.id }}</td>
 <td>{{ file.filename }}</td>
 <td>{{ file.foldername }}</td>
 <td>{{ computed_readable_size }}</td>
@@ -294,7 +290,6 @@ const component_search_files = {
 <table>
 	<thead>
 		<tr>
-			<th>ID</th>
 			<th>Filename</th>
 			<th>Folder Name</th>
 			<th>Size</th>
@@ -359,7 +354,6 @@ const component_get_random_files = {
 <table>
 	<thead>
 		<tr>
-			<th>ID</th>
 			<th>Filename</th>
 			<th>Folder Name</th>
 			<th>Size</th>
