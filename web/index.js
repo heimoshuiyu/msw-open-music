@@ -123,7 +123,7 @@ const component_search_folders = {
 	},
 }
 
-const component_update_database = {
+const component_manage= {
 	data() {
 		return {
 			token: "",
@@ -453,7 +453,7 @@ const routes = [
 	{ path: '/', component: component_get_random_files},
 	{ path: '/search_files', component: component_search_files},
 	{ path: '/search_folders', component: component_search_folders},
-	{ path: '/update_database', component: component_update_database},
+	{ path: '/manage', component: component_manage},
 ]
 const router = VueRouter.createRouter({
 	history: VueRouter.createWebHashHistory(),
@@ -475,7 +475,7 @@ const app = Vue.createApp({
 })
 
 app.component('component-search-folders', component_search_folders)
-app.component('component-update-database', component_update_database)
+app.component('component-manage', component_manage)
 app.component('component-file', component_file)
 app.component('component-audio-player', component_audio_player)
 app.component('component-search-files', component_search_files)
