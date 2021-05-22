@@ -143,6 +143,7 @@ func (database *Database) GetFile(id int64) (*File, error) {
 }
 
 func (database *Database) ResetFiles() (error) {
+	log.Println("[db] Reset files")
 	var err error
 	_, err = database.stmt.dropFiles.Exec()
 	if err != nil {
@@ -156,6 +157,7 @@ func (database *Database) ResetFiles() (error) {
 }
 
 func (database *Database) ResetFolder() (error) {
+	log.Println("[db] Reset folders")
 	var err error
 	_, err = database.stmt.dropFolder.Exec()
 	if err != nil {
@@ -173,7 +175,7 @@ func (database *Database) Walk(root string, pattern []string) (error) {
 	for _, v := range pattern {
 		patternDict[v] = true
 	}
-	log.Println(patternDict)
+	log.Println("[db] Walk", root, patternDict)
 	return filepath.Walk(root, func (path string, info os.FileInfo, err error) (error) {
 		if err != nil {
 			return err
@@ -186,10 +188,8 @@ func (database *Database) Walk(root string, pattern []string) (error) {
 		// check pattern
 		ext := filepath.Ext(info.Name())
 		if _, ok := patternDict[ext]; !ok {
-			log.Println("False", ext, info.Name())
 			return nil
 		}
-		log.Println("True", ext, info.Name())
 
 		// insert file, folder will aut created
 		err = database.Insert(path, info.Size())

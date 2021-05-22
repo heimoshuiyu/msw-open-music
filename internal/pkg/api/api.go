@@ -78,6 +78,7 @@ func (api *API) HandleGetRandomFiles(w http.ResponseWriter, r *http.Request) {
 	getRandomFilesResponse := &GetRandomFilesResponse{
 		Files: &files,
 	}
+	log.Println("[api] Get random files")
 	json.NewEncoder(w).Encode(getRandomFilesResponse)
 }
 
@@ -108,18 +109,20 @@ func (api *API) HandleGetFilesInFolder(w http.ResponseWriter, r *http.Request) {
 		Files: &files,
 	}
 
+	log.Println("[api] Get files in folder", getFilesInFolderRequest.Folder_id)
+
 	json.NewEncoder(w).Encode(getFilesInFolderResponse)
 }
 
-func (api *API) CheckToken(token string) (error) {
+func (api *API) CheckToken(w http.ResponseWriter, r *http.Request, token string) (error) {
 	if token != api.token {
-		return errors.New("token not matched")
+		err := errors.New("token not matched")
+		log.Println("[api] [Warning] Token not matched", token)
+		api.HandleErrorCode(w, r, err, 403)
+		return err
 	}
+	log.Println("[api] Token passed")
 	return nil
-}
-
-func (api *API) HandleTokenNotMatch(w http.ResponseWriter, r *http.Request) {
-	api.HandleErrorStringCode(w, r, "token not match", 403)
 }
 
 func (api *API) HandleError(w http.ResponseWriter, r *http.Request, err error) {
@@ -135,7 +138,7 @@ func (api *API) HandleErrorString(w http.ResponseWriter, r *http.Request, errorS
 }
 
 func (api *API) HandleErrorStringCode(w http.ResponseWriter, r *http.Request, errorString string, code int) {
-	log.Println("Handle Error", errorString)
+	log.Println("[api] [Error]", code, errorString)
 	errStatus := &Status{
 		Status: errorString,
 	}
@@ -152,9 +155,8 @@ func (api *API) HandleReset(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check token
-	err = api.CheckToken(resetRequest.Token)
+	err = api.CheckToken(w, r, resetRequest.Token)
 	if err != nil {
-		api.HandleTokenNotMatch(w, r)
 		return
 	}
 
@@ -182,9 +184,8 @@ func (api *API) HandleWalk(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check token match
-	err = api.CheckToken(walkRequest.Token)
+	err = api.CheckToken(w, r, walkRequest.Token)
 	if err != nil {
-		api.HandleTokenNotMatch(w, r)
 		return
 	}
 
@@ -248,6 +249,8 @@ func (api *API) HandleSearchFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("[api] Search files", searchFilesRequest.Filename, searchFilesRequest.Limit, searchFilesRequest.Offset)
+
 	json.NewEncoder(w).Encode(searchFilesResponse)
 }
 
@@ -276,6 +279,8 @@ func (api *API) HandleSearchFolders(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
+
+	log.Println("[api] Search folders", searchFoldersRequest.Foldername, searchFoldersRequest.Limit, searchFoldersRequest.Offset)
 
 	json.NewEncoder(w).Encode(searchFoldersResponse)
 }
@@ -307,6 +312,8 @@ func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
+
+	log.Println("[api] Stream file", path)
 
 	cmd := exec.Command("ffmpeg",
 		"-i", path,
@@ -348,6 +355,8 @@ func (api *API) HandleGetFileDirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("[api] Get direct raw file", path)
+
 	http.ServeFile(w, r, path)
 }
 
@@ -379,6 +388,8 @@ func (api *API) HandleGetFile(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
+
+	log.Println("[api] Get pipe raw file", path)
 
 	src, err := os.Open(path)
 	if err != nil {
