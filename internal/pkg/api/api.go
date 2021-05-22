@@ -64,6 +64,22 @@ type GetFilesInFolderResponse struct {
 	Files *[]database.File `json:"files"`
 }
 
+type GetRandomFilesResponse struct {
+	Files *[]database.File `json:"files"`
+}
+
+func (api *API) HandleGetRandomFiles(w http.ResponseWriter, r *http.Request) {
+	files, err := api.Db.GetRandomFiles(10);
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+	getRandomFilesResponse := &GetRandomFilesResponse{
+		Files: &files,
+	}
+	json.NewEncoder(w).Encode(getRandomFilesResponse)
+}
+
 func (api *API) HandleGetFilesInFolder(w http.ResponseWriter, r *http.Request) {
 	getFilesInFolderRequest := &GetFilesInFolderRequest{
 		Folder_id: -1,
@@ -358,6 +374,7 @@ func NewAPI(dbName string, Addr string) (*API, error) {
 	apiMux.HandleFunc("/search_files", api.HandleSearchFiles)
 	apiMux.HandleFunc("/search_folders", api.HandleSearchFolders)
 	apiMux.HandleFunc("/get_files_in_folder", api.HandleGetFilesInFolder)
+	apiMux.HandleFunc("/get_random_files", api.HandleGetRandomFiles)
 	// below needs token
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)

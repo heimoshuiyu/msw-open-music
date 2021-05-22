@@ -31,6 +31,7 @@ var dropFolderQuery = `DROP TABLE folders;`
 var getFileQuery = `SELECT files.id, files.folder_id, files.filename, folders.foldername, files.filesize FROM files JOIN folders ON files.folder_id = folders.id WHERE files.id = ? LIMIT 1;`
 var searchFoldersQuery = `SELECT id, folder, foldername FROM folders WHERE foldername LIKE ? LIMIT ? OFFSET ?;`
 var getFilesInFolderQuery = `SELECT id, filename, filesize FROM files WHERE folder_id = ? LIMIT ? OFFSET ?;`
+var getRandomFilesQuery = `SELECT files.id, files.folder_id, files.filename, folders.foldername, files.filesize FROM files JOIN folders on files.folder_id = folders.id ORDER BY RANDOM() LIMIT ?;`
 
 type Database struct {
 	sqlConn *sql.DB
@@ -50,6 +51,7 @@ type Stmt struct {
 	getFile *sql.Stmt
 	searchFolders *sql.Stmt
 	getFilesInFolder *sql.Stmt
+	getRandomFiles *sql.Stmt
 }
 
 type File struct {
@@ -66,6 +68,26 @@ type Folder struct {
 	ID int64 `json:"id"`
 	Folder string `json:"folder"`
 	Foldername string `json:"foldername"`
+}
+
+func (database *Database) GetRandomFiles(limit int64) ([]File, error) {
+	rows, err := database.stmt.getRandomFiles.Query(limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	files := make([]File, 0)
+	for rows.Next() {
+		file := File{
+			Db: database,
+		}
+		err = rows.Scan(&file.ID, &file.Folder_id, &file.Filename, &file.Foldername, &file.Filesize)
+		if err != nil {
+			return nil, err
+		}
+		files = append(files, file)
+	}
+	return files, nil
 }
 
 func (database *Database) GetFilesInFolder(folder_id int64, limit int64, offset int64) ([]File, error) {
@@ -348,6 +370,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init getFilesInFolder stmt
 	stmt.getFilesInFolder, err = sqlConn.Prepare(getFilesInFolderQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init getRandomFiles
+	stmt.getRandomFiles, err = sqlConn.Prepare(getRandomFilesQuery)
 	if err != nil {
 		return nil, err
 	}
