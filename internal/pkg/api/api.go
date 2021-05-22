@@ -236,8 +236,7 @@ func (api *API) HandleSearchFiles(w http.ResponseWriter, r *http.Request) {
 		api.HandleErrorString(w, r, `"filename" can't be empty`)
 		return
 	}
-	if searchFilesRequest.Limit == 0 {
-		api.HandleErrorString(w, r, `"limit" can't be zero`)
+	if api.CheckLimit(w, r, searchFilesRequest.Limit) != nil {
 		return
 	}
 
@@ -254,6 +253,16 @@ func (api *API) HandleSearchFiles(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(searchFilesResponse)
 }
 
+func (api *API) CheckLimit(w http.ResponseWriter, r *http.Request, limit int64) (error) {
+	if limit <= 0 || limit > 10 {
+		log.Println("[api] [Warning] Limit error", limit)
+		err := errors.New(`"limit" can't be zero or more than 10`)
+		api.HandleError(w, r, err)
+		return err
+	}
+	return nil
+}
+
 func (api *API) HandleSearchFolders(w http.ResponseWriter, r *http.Request) {
 	searchFoldersRequest := &SearchFoldersRequest{}
 	err := json.NewDecoder(r.Body).Decode(searchFoldersRequest)
@@ -267,8 +276,7 @@ func (api *API) HandleSearchFolders(w http.ResponseWriter, r *http.Request) {
 		api.HandleErrorString(w, r, `"foldername" can't be empty`)
 		return
 	}
-	if searchFoldersRequest.Limit == 0 {
-		api.HandleErrorString(w, r, `"limit" can't be zero`)
+	if api.CheckLimit(w, r, searchFoldersRequest.Limit) != nil {
 		return
 	}
 
