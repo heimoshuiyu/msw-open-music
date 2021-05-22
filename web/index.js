@@ -53,7 +53,7 @@ const component_search_folders = {
 	</thead>
 	<tbody>
 		<tr v-for="file in files_in_folder">
-			<component-file :file=file @play_audio="$emit('play_audio', file)"></component-file>
+			<component-file :file=file @play_audio="$emit('play_audio', $event)"></component-file>
 		</tr>
 	</tbody>
 </table>
@@ -274,7 +274,7 @@ const component_file = {
 	<button @click="dialog">Dialog</button>
 	<component-file-dialog
 		@close_dialog="close_dialog"
-		@play_audio="$emit('play_audio', this.file)"
+		@play_audio="$emit('play_audio', $event)"
 		:show_dialog="show_dialog"
 		:file="file"
 	></component-file-dialog>
@@ -367,7 +367,7 @@ const component_search_files = {
 	</thead>
 	<tbody>
 		<tr v-for="file in files">
-			<component-file :file=file @play_audio="$emit('play_audio', file)"></component-file>
+			<component-file :file=file @play_audio="$emit('play_audio', $event)"></component-file>
 		</tr>
 	</tbody>
 </table>
@@ -431,7 +431,7 @@ const component_get_random_files = {
 	</thead>
 	<tbody>
 		<tr v-for="file in files">
-			<component-file :file=file @play_audio="$emit('play_audio', file)"></component-file>
+			<component-file :file=file @play_audio="$emit('play_audio', $event)"></component-file>
 		</tr>
 	</tbody>
 </table>
