@@ -189,19 +189,17 @@ const component_update_database = {
 	},
 }
 
-const component_file = {
-	props: ['file'],
-	emits: ['play_audio'],
+const component_file_dialog = {
+	props: ['file', 'show_dialog'],
+	emits: ['play_audio', 'close_dialog'],
 	template: `
-<td>{{ file.filename }}</td>
-<td>{{ file.foldername }}</td>
-<td>{{ computed_readable_size }}</td>
-<td>
+<dialog open v-if="show_dialog">
 	<button @click="download_file(file)" :disabled="disabled">{{ computed_download_status }}</button>
 	<button @click="emit_play_audio">Play</button>
 	<button @click="emit_stream_audio">Stream</button>
-</td>
-`,
+	<button @click="emit_close_dialog">Close</button>
+</dialog>
+	`,
 	data() {
 		return {
 			download_loaded: 0,
@@ -209,6 +207,9 @@ const component_file = {
 		}
 	},
 	methods: {
+		emit_close_dialog() {
+			this.$emit('close_dialog')
+		},
 		emit_stream_audio() {
 			this.file.play_back_type = 'stream',
 			this.$emit("play_audio", this.file)
@@ -250,6 +251,42 @@ const component_file = {
 				return Math.round(this.download_loaded / this.file.filesize * 100) + '%'
 			}
 		},
+	},
+}
+
+const component_file = {
+	props: ['file'],
+	emits: ['play_audio'],
+	template: `
+<td>{{ file.filename }}</td>
+<td>{{ file.foldername }}</td>
+<td>{{ computed_readable_size }}</td>
+<td>
+	<button @click="dialog">Dialog</button>
+	<component-file-dialog
+		@close_dialog="close_dialog"
+		@play_audio="$emit('play_audio', this.file)"
+		:show_dialog="show_dialog"
+		:file="file"
+	></component-file-dialog>
+</td>
+`,
+	data() {
+		return {
+			download_loaded: 0,
+			disabled: false,
+			show_dialog: false,
+		}
+	},
+	methods: {
+		close_dialog() {
+			this.show_dialog = false
+		},
+		dialog() {
+			this.show_dialog = true
+		},
+	},
+	computed: {
 		computed_readable_size() {
 			let filesize = this.file.filesize
 			if (filesize < 1024) {
@@ -425,6 +462,7 @@ app.component('component-file', component_file)
 app.component('component-audio-player', component_audio_player)
 app.component('component-search-files', component_search_files)
 app.component('component-get-random-files', component_get_random_files)
+app.component('component-file-dialog', component_file_dialog)
 
 app.use(router)
 
