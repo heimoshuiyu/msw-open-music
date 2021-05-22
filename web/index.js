@@ -15,7 +15,7 @@ const component_search_folders = {
 	},
 	template: `
 <div class="search_toolbar">
-<input type="text" v-model="search_foldernames" />
+<input type="text" v-model="search_foldernames" placeholder="Enter folder name" />
 <button @click="first_search_folders">Search Folders</Button>
 <button @click="last_page">Last Page</button>
 <span>{{ offset }}~{{ offset + folders.length }}</span>
@@ -134,7 +134,7 @@ const component_token = {
 	template: `
 <table><tbody><tr>
 <td>Token</td>
-<td><input type="text" v-model="token_tmp" @change="emit_set_token" /></td>
+<td><input type="text" v-model="token_tmp" @change="emit_set_token" placeholder="token" /></td>
 </tr></tbody></table>
 `,
 	methods: {
@@ -162,11 +162,11 @@ const component_manage= {
 <tbody>
 <tr>
 	<td>Root</td>
-	<td><input type="text" v-model="root" /></td>
+	<td><input type="text" v-model="root" placeholder="/path/to/root" /></td>
 </tr>
 <tr>
 	<td><button @click="add_pattern">Add Pattern</button></td>
-	<td><input type="text" v-model="pattern_tmp" /></td>
+	<td><input type="text" v-model="pattern_tmp" placeholder=".wav" /></td>
 </tr>
 <tr>
 	<td colspan="2"><strong>Pattern List</strong></td>
@@ -370,7 +370,7 @@ const component_search_files = {
 	emits: ['play_audio'],
 	template: `
 <div>
-<input type="text" name="filename" v-model="search_filenames" />
+<input type="text" name="filename" v-model="search_filenames" placeholder="Enter filename" />
 <button @click="first_search_files">Search</button>
 <button @click="last_page">Last Page</button>
 <span>{{ offset }}~{{ offset + files.length }}</span>
