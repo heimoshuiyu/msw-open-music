@@ -1,0 +1,24 @@
+html {
+	font-size: 1em;
+}
+.base {
+	display: grid;
+	grid-row-gap: 1em;
+}
+.header {
+	color: white;
+	background-color: rgb(63, 81, 181);
+	box-shadow: 0 0 8px #393939;
+}
+.title {
+	margin-left: 2em;
+}
+.nav {
+	display: flex;
+	justify-content: space-evenly;
+}
+.nav-link {
+	color: rgb(229, 232, 245);
+	text-decoration: none;
+	padding: 1em;
+}

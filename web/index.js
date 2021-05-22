@@ -4,6 +4,7 @@ const component_search_folders = {
 		return {
 			search_foldernames: "",
 			folders: [],
+			folder: {},
 			offset: 0,
 			limit: 10,
 			folder_offset: 0,
@@ -13,14 +14,15 @@ const component_search_folders = {
 		}
 	},
 	template: `
+<div class="search_toolbar">
 <input type="text" v-model="search_foldernames" />
 <button @click="first_search_folders">Search Folders</Button>
-
 <button @click="last_page">Last Page</button>
 <span>{{ offset }}~{{ offset + folders.length }}</span>
 <button @click="next_page">Next Page</button>
+</div>
 
-<table border="1">
+<table>
 <thead>
 <tr>
 	<th>ID</th>
@@ -32,12 +34,17 @@ const component_search_folders = {
 <tr v-for="folder in folders">
 	<td>{{ folder.id }}</td>
 	<td>{{ folder.foldername }}</td>
-	<td><button @click="get_files_in_folder(folder)">View</button></td>
+	<td><button @click="view_folder(folder)">View</button></td>
 </tr>
 </tbody>
 </table>
 
-<table border="1">
+<div class="search_toolbar">
+<button @click="folder_last_page">Last Page</button>
+<span>{{ folder_offset }}~{{ folder_offset + files_in_folder.length }}</span>
+<button @click="folder_next_page">Next Page</button>
+</div>
+<table>
 	<thead>
 		<tr>
 			<th>ID</th>
@@ -55,9 +62,25 @@ const component_search_folders = {
 </table>
 `,
 	methods: {
-		get_files_in_folder(folder) {
+		folder_last_page() {
+			this.folder_offset = this.folder_offset - this.folder_limit
+			if (this.folder_offset < 0) {
+				this.folder_offset = 0
+				return
+			}
+			this.get_files_in_folder()
+		},
+		folder_next_page() {
+			this.folder_offset = this.folder_offset + this.folder_limit
+			this.get_files_in_folder()
+		},
+		view_folder(folder) {
+			this.folder = folder
+			this.get_files_in_folder()
+		},
+		get_files_in_folder() {
 			axios.post('/api/v1/get_files_in_folder', {
-				folder_id: folder.id,
+				folder_id: this.folder.id,
 				limit: this.folder_limit,
 				offset: this.folder_offset,
 			}).then((response) => {
@@ -103,7 +126,8 @@ const component_update_database = {
 		}
 	},
 	template: `
-<table border="1">
+<div>
+<table>
 <tbody>
 <tr>
 	<td>Token</td>
@@ -133,6 +157,7 @@ const component_update_database = {
 </tr>
 </tbody>
 </table>
+</div>
 `,
 	methods: {
 		add_pattern() {
@@ -184,6 +209,7 @@ const component_file = {
 	},
 	methods: {
 		emit_play_audio() {
+			console.log("pressed button")
 			this.$emit("play_audio", this.file)
 		},
 		download_file(file) {
@@ -259,12 +285,13 @@ const component_audio_player = {
 const component_search_files = {
 	emits: ['play_audio'],
 	template: `
+<div>
 <input type="text" name="filename" v-model="search_filenames" />
 <button @click="first_search_files">Search</button>
 <button @click="last_page">Last Page</button>
 <span>{{ offset }}~{{ offset + files.length }}</span>
 <button @click="next_page">Next Page</button>
-<table border="1">
+<table>
 	<thead>
 		<tr>
 			<th>ID</th>
@@ -280,6 +307,7 @@ const component_search_files = {
 		</tr>
 	</tbody>
 </table>
+</div>
 `,
 	data() {
 		return {
@@ -320,9 +348,9 @@ const component_search_files = {
 }
 
 const routes = [
-	{ path: '/', component: component_search_files },
-	{ path: '/search_folders', component: component_search_folders, },
-	{ path: '/update_database', component: component_update_database },
+	{ path: '/', component: component_search_files},
+	{ path: '/search_folders', component: component_search_folders},
+	{ path: '/update_database', component: component_update_database},
 ]
 const router = VueRouter.createRouter({
 	history: VueRouter.createWebHashHistory(),
@@ -347,7 +375,7 @@ app.component('component-search-folders', component_search_folders)
 app.component('component-update-database', component_update_database)
 app.component('component-file', component_file)
 app.component('component-audio-player', component_audio_player)
-app.component('component-search_files', component_search_files)
+app.component('component-search-files', component_search_files)
 
 app.use(router)
 

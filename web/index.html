@@ -2,19 +2,23 @@
 
 <head>
 	<meta charset="utf-8" />
-	<link rel="stylesheet" href="mdl/material.min.css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+	<link rel="stylesheet" href="water.css" />
+	<link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-	<div id="app">
-		<nav>
-			<h3>MSW Open Music Project</h3>
-			<span><router-link to="/">Search Files</router-link></span>
-			<span><router-link to="/search_folders">Search Folders</router-link></span>
-			<span><router-link to="/update_database">Manage</router-link></span>
-		</nav>
+	<div id="app" class="base">
+		<header class="header">
+			<h3 class="title">MSW Open Music Project</h3>
+			<nav class="nav">
+				<router-link class="nav-link" to="/">Files</router-link>
+				<router-link class="nav-link" to="/search_folders">Folders</router-link>
+				<router-link class="nav-link" to="/update_database">Manage</router-link>
+			</nav>
+		</header>
 		<main>
-			<router-view></router-view>
+			<router-view @play_audio="play_audio"></router-view>
 		</main>
 		<footer>
 			<component-audio-player :file=playing_audio_file></component-audio-player>
@@ -25,6 +29,5 @@
 <script src="vue-router.js"></script>
 <script src="axios.min.js"></script>
 <script src="index.js"></script>
-<script src="mdl/material.min.js"></script>
 
 </html>
