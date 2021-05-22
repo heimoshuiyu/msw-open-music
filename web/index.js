@@ -123,12 +123,32 @@ const component_search_folders = {
 	},
 }
 
+const component_token = {
+	progs: ['token'],
+	emits: ['set_token'],
+	data() {
+		return {
+			token_tmp: "",
+		}
+	},
+	template: `
+<table><tbody><tr>
+<td>Token</td>
+<td><input type="text" v-model="token_tmp" @change="emit_set_token" /></td>
+</tr></tbody></table>
+`,
+	methods: {
+		emit_set_token() {
+			this.$emit('set_token', this.token_tmp)
+		},
+	},
+}
+
 const component_manage= {
 	props: ['token'],
 	emits: ['set_token'],
 	data() {
 		return {
-			token_tmp: "",
 			root: "",
 			pattern: [".flac", ".mp3"],
 			pattern_tmp: "",
@@ -137,12 +157,9 @@ const component_manage= {
 	},
 	template: `
 <div>
+<component-token :token="token" @set_token="$emit('set_token', $event)"></component-token>
 <table>
 <tbody>
-<tr>
-	<td>Token</td>
-	<td><input type="text" v-model="token_tmp" @change="emit_set_token" /></td>
-</tr>
 <tr>
 	<td>Root</td>
 	<td><input type="text" v-model="root" /></td>
@@ -170,9 +187,6 @@ const component_manage= {
 </div>
 `,
 	methods: {
-		emit_set_token() {
-			this.$emit('set_token', this.token_tmp)
-		},
 		add_pattern() {
 			this.pattern.push(this.pattern_tmp)
 			this.pattern_tmp = ""
@@ -490,6 +504,7 @@ app.component('component-audio-player', component_audio_player)
 app.component('component-search-files', component_search_files)
 app.component('component-get-random-files', component_get_random_files)
 app.component('component-file-dialog', component_file_dialog)
+app.component('component-token', component_token)
 
 app.use(router)
 
