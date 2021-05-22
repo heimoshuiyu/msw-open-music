@@ -58,6 +58,13 @@ const component_search_folders = {
 	</tbody>
 </table>
 `,
+	mounted() {
+		if (this.$route.query.folder_id) {
+			this.folder.id = parseInt(this.$route.query.folder_id)
+			this.folder.foldername = this.$route.query.foldername
+			this.get_files_in_folder()
+		}
+	},
 	methods: {
 		folder_last_page() {
 			this.folder_offset = this.folder_offset - this.folder_limit
@@ -258,8 +265,8 @@ const component_file = {
 	props: ['file'],
 	emits: ['play_audio'],
 	template: `
-<td>{{ file.filename }}</td>
-<td>{{ file.foldername }}</td>
+<td @click="dialog">{{ file.filename }}</td>
+<td @click="show_folder">{{ file.foldername }}</td>
 <td>{{ computed_readable_size }}</td>
 <td>
 	<button @click="dialog">Dialog</button>
@@ -279,6 +286,15 @@ const component_file = {
 		}
 	},
 	methods: {
+		show_folder() {
+			this.$router.push({
+				path: '/search_folders',
+				query: {
+					folder_id: this.file.folder_id,
+					foldername: this.file.foldername,
+				}
+			})
+		},
 		close_dialog() {
 			this.show_dialog = false
 		},
