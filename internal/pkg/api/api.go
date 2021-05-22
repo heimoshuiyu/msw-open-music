@@ -16,6 +16,7 @@ type API struct {
 	Db *database.Database
 	Server http.Server
 	token string
+	APIConfig APIConfig
 }
 
 type Status struct {
@@ -408,10 +409,16 @@ func (api *API) HandleGetFile(w http.ResponseWriter, r *http.Request) {
 	io.Copy(w, src)
 }
 
-func NewAPI(dbName string, Addr string) (*API, error) {
+type APIConfig struct {
+	DatabaseName string
+	Addr string
+	Token string
+}
+
+func NewAPI(apiConfig APIConfig) (*API, error) {
 	var err error
 
-	db, err := database.NewDatabase(dbName)
+	db, err := database.NewDatabase(apiConfig.DatabaseName)
 	if err != nil {
 		return nil, err
 	}
@@ -422,9 +429,10 @@ func NewAPI(dbName string, Addr string) (*API, error) {
 	api := &API{
 		Db: db,
 		Server: http.Server{
-			Addr: Addr,
+			Addr: apiConfig.Addr,
 			Handler: mux,
 		},
+		APIConfig: apiConfig,
 	}
 
 	// mount api
@@ -443,7 +451,7 @@ func NewAPI(dbName string, Addr string) (*API, error) {
 	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", apiMux))
 	mux.Handle("/web/", http.StripPrefix("/web", http.FileServer(http.Dir("web"))))
 
-	api.token = "pwd"
+	api.token = apiConfig.Token
 
 	return api, nil
 }
