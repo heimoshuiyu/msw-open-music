@@ -201,6 +201,8 @@ const component_file_dialog = {
 	emits: ['play_audio', 'close_dialog'],
 	template: `
 <dialog open v-if="show_dialog">
+	<p>{{ file.filename }}</p>
+	<p>Download 使用 Axios 异步下载<br />Play 调用网页播放器播放源文件<br />Stream 将串流播放稍低码率的文件</p>
 	<button @click="download_file(file)" :disabled="disabled">{{ computed_download_status }}</button>
 	<button @click="emit_play_audio">Play</button>
 	<button @click="emit_stream_audio">Stream</button>
