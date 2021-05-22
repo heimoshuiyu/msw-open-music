@@ -81,7 +81,11 @@ const component_search_folders = {
 				limit: this.folder_limit,
 				offset: this.folder_offset,
 			}).then((response) => {
-				this.files_in_folder = response.data.files
+				var files = response.data.files
+				for (var key in files) {
+					files[key].foldername = this.folder.foldername
+				}
+				this.files_in_folder = files
 			})
 		},
 		last_page() {
