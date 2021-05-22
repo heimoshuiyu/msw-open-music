@@ -2,15 +2,29 @@
 
 <head>
 	<meta charset="utf-8" />
+	<link rel="stylesheet" href="mdl/material.min.css" />
 </head>
 
 <body>
 	<div id="app">
-		<root-component></root-component>
+		<nav>
+			<h3>MSW Open Music Project</h3>
+			<span><router-link to="/">Search Files</router-link></span>
+			<span><router-link to="/search_folders">Search Folders</router-link></span>
+			<span><router-link to="/update_database">Manage</router-link></span>
+		</nav>
+		<main>
+			<router-view></router-view>
+		</main>
+		<footer>
+			<component-audio-player :file=playing_audio_file></component-audio-player>
+		</footer>
 	</div>
 </body>
 <script src="vue.js"></script>
+<script src="vue-router.js"></script>
 <script src="axios.min.js"></script>
 <script src="index.js"></script>
+<script src="mdl/material.min.js"></script>
 
 </html>

@@ -1,31 +1,4 @@
-const app = Vue.createApp({
-	data() {
-		return {
-		}
-	},
-})
-
-app.component('root-component', {
-	data() {
-		return {
-			playing_audio_file: {},
-		}
-	},
-	template: `
-<component-audio-player :file=playing_audio_file></component-audio-player>
-<component-search-folders @play_audio="play_audio"></component-search-folders>
-<component-search-files @play_audio="play_audio"></component-search-files>
-<component-update-database></component-update-database>
-`,
-	methods: {
-		play_audio(file) {
-			console.log(file)
-			this.playing_audio_file = file
-		},
-	},
-})
-
-app.component('component-search-folders', {
+const component_search_folders = {
 	emits: ['play_audio'],
 	data() {
 		return {
@@ -117,9 +90,9 @@ app.component('component-search-folders', {
 			})
 		},
 	},
-})
+}
 
-app.component('component-update-database', {
+const component_update_database = {
 	data() {
 		return {
 			token: "",
@@ -188,9 +161,9 @@ app.component('component-update-database', {
 			})
 		}
 	},
-})
+}
 
-app.component('component-file', {
+const component_file = {
 	props: ['file'],
 	emits: ['play_audio'],
 	template: `
@@ -261,9 +234,9 @@ app.component('component-file', {
 			}
 		},
 	},
-})
+}
 
-app.component('component-audio-player', {
+const component_audio_player = {
 	data() {
 		return {
 		}
@@ -281,9 +254,9 @@ app.component('component-audio-player', {
 			return this.file.id ? true : false
 		},
 	},
-})
+}
 
-app.component('component-search-files', {
+const component_search_files = {
 	emits: ['play_audio'],
 	template: `
 <input type="text" name="filename" v-model="search_filenames" />
@@ -344,5 +317,38 @@ app.component('component-search-files', {
 			this.search_files()
 		},
 	},
+}
+
+const routes = [
+	{ path: '/', component: component_search_files },
+	{ path: '/search_folders', component: component_search_folders, },
+	{ path: '/update_database', component: component_update_database },
+]
+const router = VueRouter.createRouter({
+	history: VueRouter.createWebHashHistory(),
+	routes,
 })
+
+const app = Vue.createApp({
+	data() {
+		return {
+			playing_audio_file: {},
+		}
+	},
+	methods: {
+		play_audio(file) {
+			console.log(file)
+			this.playing_audio_file = file
+		},
+	},
+})
+
+app.component('component-search-folders', component_search_folders)
+app.component('component-update-database', component_update_database)
+app.component('component-file', component_file)
+app.component('component-audio-player', component_audio_player)
+app.component('component-search_files', component_search_files)
+
+app.use(router)
+
 app.mount('#app')
