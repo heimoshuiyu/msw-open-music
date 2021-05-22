@@ -349,8 +349,11 @@ const component_audio_player = {
 	},
 	props: ["file"],
 	template: `
-<video v-if="computed_show" :src="computed_playing_audio_file_url" controls autoplay>
+<div v-if="computed_show">
+<span>{{ file.filename }} / {{ file.foldername }}</span>
+<video :src="computed_playing_audio_file_url" controls autoplay>
 </video>
+</div>
 `,
 	computed: {
 		computed_playing_audio_file_url() {
