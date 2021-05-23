@@ -281,7 +281,7 @@ const component_file_dialog = {
 			this.$emit('close_dialog')
 		},
 		emit_stream_audio() {
-			this.file.play_back_type = 'stream',
+			this.file.play_back_type = 'stream'
 			this.$emit("play_audio", this.file)
 			this.emit_close_dialog()
 		},
@@ -331,7 +331,7 @@ const component_file = {
 	props: ['file'],
 	emits: ['play_audio'],
 	template: `
-<td class="clickable" @click="dialog">{{ file.filename }}</td>
+<td class="clickable" @click="click_filename">{{ file.filename }}</td>
 <td class="clickable" @click="show_folder">{{ file.foldername }}</td>
 <td>{{ computed_readable_size }}</td>
 <td>
@@ -352,6 +352,15 @@ const component_file = {
 		}
 	},
 	methods: {
+		click_filename() {
+			if (this.show_dialog) {
+				this.file.play_back_type = 'stream'
+				this.$emit('play_audio', this.file)
+				this.show_dialog = false
+			} else {
+				this.show_dialog = true
+			}
+		},
 		show_folder() {
 			this.$router.push({
 				path: '/search_folders',
