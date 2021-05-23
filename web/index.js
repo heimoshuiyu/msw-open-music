@@ -552,11 +552,22 @@ const component_stream_config = {
 	},
 	template: `
 <div>
+<table>
+<tbody>
+<tr>
+<td>
 <select v-model="selected_ffmpeg_config">
 	<option v-for="ffmpeg_config in ffmpeg_config_list" :value="ffmpeg_config">
 		{{ ffmpeg_config.name }}
 	</option>
 </select>
+</td>
+<td>
+<span>{{ selected_ffmpeg_config.args }}</span>
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 `,
 	mounted() {
