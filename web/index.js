@@ -398,7 +398,7 @@ const component_audio_player = {
 	template: `
 <div>
 <div v-if="computed_show">
-<span>{{ file.filename }} / {{ file.foldername }}</span><br />
+<span>{{ file.filename }} / <div class="clickable" @click="show_folder">{{ file.foldername }}</div></span><br />
 <input type="checkbox" v-model="loop" />
 <label>Loop</label><br />
 <video v-if="computed_show" class="audio-player" :src="computed_playing_audio_file_url" controls autoplay :loop="loop">
@@ -408,6 +408,15 @@ const component_audio_player = {
 </div>
 `,
 	methods: {
+		show_folder() {
+			this.$router.push({
+				path: '/search_folders',
+				query: {
+					folder_id: this.file.folder_id,
+					foldername: this.file.foldername,
+				}
+			})
+		},
 		set_ffmpeg_config(ffmpeg_config) {
 			this.ffmpeg_config = ffmpeg_config
 		},

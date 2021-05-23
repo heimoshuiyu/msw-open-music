@@ -44,3 +44,6 @@ a.router-link-active {
 td.clickable {
 	cursor: pointer;
 }
+div.clickable {
+	cursor: pointer;
+}
