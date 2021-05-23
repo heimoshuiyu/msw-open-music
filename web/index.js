@@ -465,6 +465,7 @@ const component_search_files = {
 
 const component_get_random_files = {
 	emits: ['play_audio', 'set_token'],
+	props: ['token'],
 	data() {
 		return {
 			files: [],
