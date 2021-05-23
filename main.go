@@ -18,11 +18,18 @@ func init() {
 
 func main() {
 	flag.Parse()
-	apiConfig := api.APIConfig{
-		DatabaseName: DatabaseName,
-		Addr: Listen,
-		Token: Token,
+	apiConfig := api.NewAPIConfig()
+	apiConfig.FfmpegConfigs["libopus 128k"] = &api.FfmpegConfig{
+		Name: "libopus 128k",
+		Args: "-c:a libopus -ab 128k",
 	}
+	apiConfig.FfmpegConfigs["libopus 256k"] = &api.FfmpegConfig{
+		Name: "libopus 256k",
+		Args: "-c:a libopus -ab 256k",
+	}
+	apiConfig.DatabaseName = DatabaseName
+	apiConfig.Addr = Listen
+	apiConfig.Token = Token
 	api, err := api.NewAPI(apiConfig)
 	if err != nil {
 		log.Fatal(err)

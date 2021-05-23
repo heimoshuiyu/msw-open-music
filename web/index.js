@@ -149,10 +149,6 @@ const component_manage= {
 	emits: ['set_token'],
 	data() {
 		return {
-			root: "",
-			pattern: [".flac", ".mp3"],
-			pattern_tmp: "",
-			s: "",
 		}
 	},
 	template: `
@@ -161,6 +157,22 @@ const component_manage= {
 <p>本站是 MSW Project 的一个应用，希望以个人之力分享被隐藏在历史中的音乐。</p>
 <p>自己是V家厨，喜欢的p主包括 wonder-k, buzzG, *luna 等，但却因为种种原因淹没在主流音乐APP的曲库中。本站的初衷是为了让那些知名度低的 VOCALOID / ACG / 东方曲，能够被更多有缘人听到，同时有一个跨平台的工具，能够在低网速的条件下享受硬盘中的无损音乐。</p>
 <component-token :token="token" @set_token="$emit('set_token', $event)"></component-token>
+<component-manage-database :token="token"></component-manage-database>
+</div>
+`,
+}
+const component_manage_database = {
+	props: ['token'],
+	data() {
+		return {
+			root: "",
+			pattern: [".flac", ".mp3"],
+			pattern_tmp: "",
+			s: "",
+		}
+	},
+	template: `
+<div>
 <table>
 <tbody>
 <tr>
@@ -352,24 +364,33 @@ const component_audio_player = {
 	data() {
 		return {
 			loop: true,
+			ffmpeg_config: {},
 		}
 	},
 	props: ["file"],
 	template: `
+<div>
 <div v-if="computed_show">
 <span>{{ file.filename }} / {{ file.foldername }}</span><br />
 <input type="checkbox" v-model="loop" />
 <label>Loop</label><br />
-<video class="audio-player" :src="computed_playing_audio_file_url" controls autoplay :loop="loop">
+<video v-if="computed_show" class="audio-player" :src="computed_playing_audio_file_url" controls autoplay :loop="loop">
 </video>
 </div>
+<component-stream-config @set_ffmpeg_config="set_ffmpeg_config"></component-stream-config>
+</div>
 `,
+	methods: {
+		set_ffmpeg_config(ffmpeg_config) {
+			this.ffmpeg_config = ffmpeg_config
+		},
+	},
 	computed: {
 		computed_playing_audio_file_url() {
 			if (this.file.play_back_type === 'raw') {
 				return '/api/v1/get_file_direct?id=' + this.file.id
 			} else if (this.file.play_back_type === 'stream') {
-				return '/api/v1/get_file_stream?id=' + this.file.id
+				return '/api/v1/get_file_stream?id=' + this.file.id + '&config=' + this.ffmpeg_config.name
 			}
 		},
 		computed_show() {
@@ -480,6 +501,46 @@ const component_get_random_files = {
 	},
 }
 
+const component_stream_config = {
+	emits: ['set_ffmpeg_config'],
+	data() {
+		return {
+			ffmpeg_config_list: [],
+			selected_ffmpeg_config: {},
+		}
+	},
+	template: `
+<div>
+<select v-model="selected_ffmpeg_config">
+	<option v-for="ffmpeg_config in ffmpeg_config_list" :value="ffmpeg_config">
+		{{ ffmpeg_config.name }}
+	</option>
+</select>
+</div>
+`,
+	mounted() {
+		axios.get('/api/v1/get_ffmpeg_config_list',
+		).then(response => {
+			var ffmpeg_configs = response.data.ffmpeg_configs
+			var tmp_list = []
+			for (var key in ffmpeg_configs) {
+				tmp_list.push(ffmpeg_configs[key])
+			}
+			tmp_list.sort()
+			this.ffmpeg_config_list = tmp_list
+			this.selected_ffmpeg_config = this.ffmpeg_config_list[0]
+		}).catch(err => {
+			this.ffmpeg_config_list = [{name: 'No avaliable config'}]
+			this.selected_ffmpeg_config = this.ffmpeg_config_list[0]
+		})
+	},
+	watch: {
+		selected_ffmpeg_config(n, o) {
+			this.$emit('set_ffmpeg_config', this.selected_ffmpeg_config)
+		},
+	},
+}
+
 const routes = [
 	{ path: '/', component: component_get_random_files},
 	{ path: '/search_files', component: component_search_files},
@@ -517,6 +578,8 @@ app.component('component-search-files', component_search_files)
 app.component('component-get-random-files', component_get_random_files)
 app.component('component-file-dialog', component_file_dialog)
 app.component('component-token', component_token)
+app.component('component-stream-config', component_stream_config)
+app.component('component-manage-database', component_manage_database)
 
 app.use(router)
 

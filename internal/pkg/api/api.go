@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 )
 
 type API struct {
@@ -17,6 +18,20 @@ type API struct {
 	Server http.Server
 	token string
 	APIConfig APIConfig
+}
+
+type FfmpegConfigs struct {
+	FfmpegConfigs map[string]*FfmpegConfig `json:"ffmpeg_configs"`
+}
+
+type AddFfmpegConfigRequest struct {
+	Token string `json:"token"`
+	FfmpegConfig FfmpegConfig `json:"ffmpeg_config"`
+}
+
+type FfmpegConfig struct {
+	Name string `json:"name"`
+	Args string `json:"args"`
 }
 
 type Status struct {
@@ -310,6 +325,12 @@ func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
 		api.HandleErrorString(w, r, `parameter "id" should be an integer`)
 		return
 	}
+	configs := q["config"]
+	if len(configs) == 0 {
+		api.HandleErrorString(w, r, `parameter "config" can't be empty`)
+		return
+	}
+	configName := configs[0]
 	file, err := api.Db.GetFile(int64(id))
 	if err != nil {
 		api.HandleError(w, r, err)
@@ -322,16 +343,19 @@ func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("[api] Stream file", path)
+	log.Println("[api] Stream file", path, configName)
 
-	cmd := exec.Command("ffmpeg",
-		"-i", path,
-		"-c:a", "libopus",
-		"-ab", "128k",
-		"-vn",
-		"-f", "matroska",
-		"-",
-	)
+	ffmpegConfig, ok := api.APIConfig.FfmpegConfigs[configName]
+	if !ok {
+		api.HandleErrorStringCode(w, r, `ffmpeg config not found`, 404)
+		return
+	}
+	args := strings.Split(ffmpegConfig.Args, " ")
+	startArgs := []string {"-i", path}
+	endArgs := []string {"-vn", "-f", "matroska", "-"}
+	ffmpegArgs := append(startArgs, args...)
+	ffmpegArgs = append(ffmpegArgs, endArgs...)
+	cmd := exec.Command("ffmpeg", ffmpegArgs...)
 	cmd.Stdout = w
 	err = cmd.Run()
 	if err != nil {
@@ -409,10 +433,56 @@ func (api *API) HandleGetFile(w http.ResponseWriter, r *http.Request) {
 	io.Copy(w, src)
 }
 
+func (api *API) HandleGetFfmpegConfigs(w http.ResponseWriter, r *http.Request) {
+	log.Println("[api] Get ffmpeg config list")
+	ffmpegConfigs:= &FfmpegConfigs{
+		FfmpegConfigs: api.APIConfig.FfmpegConfigs,
+	}
+	json.NewEncoder(w).Encode(&ffmpegConfigs)
+}
+
+func (api *API) HandleAddFfmpegConfig(w http.ResponseWriter, r *http.Request) {
+	addFfmpegConfigRequest := AddFfmpegConfigRequest{}
+	err := json.NewDecoder(r.Body).Decode(&addFfmpegConfigRequest)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	// check token
+	err = api.CheckToken(w, r, addFfmpegConfigRequest.Token)
+	if err != nil {
+		return
+	}
+
+	// check name and args not null
+	if addFfmpegConfigRequest.FfmpegConfig.Name == "" {
+		api.HandleErrorString(w, r, `"ffmpeg_config.name" can't be empty`)
+		return
+	}
+	if addFfmpegConfigRequest.FfmpegConfig.Args == "" {
+		api.HandleErrorString(w, r, `"ffmpeg_config.args" can't be empty`)
+		return
+	}
+
+	log.Println("[api] Add ffmpeg config")
+
+	api.APIConfig.FfmpegConfigs[addFfmpegConfigRequest.FfmpegConfig.Name] = &addFfmpegConfigRequest.FfmpegConfig
+	api.HandleOK(w, r)
+}
+
+func NewAPIConfig() (APIConfig) {
+	apiConfig := APIConfig{
+		FfmpegConfigs: make(map[string]*FfmpegConfig),
+	}
+	return apiConfig
+}
+
 type APIConfig struct {
-	DatabaseName string
-	Addr string
-	Token string
+	DatabaseName string `json:"database_name"`
+	Addr string `json:"addr"`
+	Token string `json:"token"`
+	FfmpegConfigs map[string]*FfmpegConfig `json:"ffmpeg_configs"`
 }
 
 func NewAPI(apiConfig APIConfig) (*API, error) {
@@ -444,9 +514,11 @@ func NewAPI(apiConfig APIConfig) (*API, error) {
 	apiMux.HandleFunc("/get_files_in_folder", api.HandleGetFilesInFolder)
 	apiMux.HandleFunc("/get_random_files", api.HandleGetRandomFiles)
 	apiMux.HandleFunc("/get_file_stream", api.HandleGetFileStream)
+	apiMux.HandleFunc("/get_ffmpeg_config_list", api.HandleGetFfmpegConfigs)
 	// below needs token
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)
+	apiMux.HandleFunc("/add_ffmpeg_config", api.HandleAddFfmpegConfig)
 
 	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", apiMux))
 	mux.Handle("/web/", http.StripPrefix("/web", http.FileServer(http.Dir("web"))))

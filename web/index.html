@@ -26,7 +26,7 @@
 			</nav>
 		</header>
 		<main>
-			<router-view @set_token="set_token" @play_audio="play_audio"></router-view>
+			<router-view :token="token" @set_token="set_token" @play_audio="play_audio"></router-view>
 		</main>
 		<footer>
 			<component-audio-player :file=playing_audio_file></component-audio-player>
