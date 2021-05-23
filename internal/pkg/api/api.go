@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"io"
@@ -11,6 +12,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type API struct {
@@ -471,6 +473,42 @@ func (api *API) HandleAddFfmpegConfig(w http.ResponseWriter, r *http.Request) {
 	api.HandleOK(w, r)
 }
 
+type FeedbackRequest struct {
+	Feedback string `json:"feedback"`
+}
+
+func (api *API) HandleFeedback(w http.ResponseWriter, r *http.Request) {
+	feedbackRequest := &FeedbackRequest{}
+	err :=json.NewDecoder(r.Body).Decode(feedbackRequest)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	// check empty feedback
+	if feedbackRequest.Feedback == "" {
+		api.HandleErrorString(w, r, `"feedback" can't be empty`)
+		return
+	}
+
+	log.Println("[api] Feedback", feedbackRequest.Feedback)
+
+	headerBuff := &bytes.Buffer{}
+	err = r.Header.Write(headerBuff)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+	header := headerBuff.String()
+
+	err = api.Db.InsertFeedback(time.Now().Unix(), feedbackRequest.Feedback, header)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+	api.HandleOK(w, r)
+}
+
 func NewAPIConfig() (APIConfig) {
 	apiConfig := APIConfig{
 		FfmpegConfigs: make(map[string]*FfmpegConfig),
@@ -515,6 +553,7 @@ func NewAPI(apiConfig APIConfig) (*API, error) {
 	apiMux.HandleFunc("/get_random_files", api.HandleGetRandomFiles)
 	apiMux.HandleFunc("/get_file_stream", api.HandleGetFileStream)
 	apiMux.HandleFunc("/get_ffmpeg_config_list", api.HandleGetFfmpegConfigs)
+	apiMux.HandleFunc("/feedback", api.HandleFeedback)
 	// below needs token
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)

@@ -21,6 +21,12 @@ var initFoldersTableQuery = `CREATE TABLE IF NOT EXISTS folders (
 	folder TEXT NOT NULL,
 	foldername TEXT NOT NULL
 );`
+var initFeedbacksTableQuery = `CREATE TABLE IF NOT EXISTS feedbacks (
+	id INTEGER PRIMARY KEY,
+	time INTEGER NOT NULL,
+	feedback TEXT NOT NULL,
+	header TEXT NOT NULL
+);`
 var insertFolderQuery = `INSERT INTO folders (folder, foldername) VALUES (?, ?);`
 var findFolderQuery = `SELECT id FROM folders WHERE folder = ? LIMIT 1;`
 var insertFileQuery = `INSERT INTO files (folder_id, filename, filesize) VALUES (?, ?, ?);`
@@ -32,6 +38,7 @@ var getFileQuery = `SELECT files.id, files.folder_id, files.filename, folders.fo
 var searchFoldersQuery = `SELECT id, folder, foldername FROM folders WHERE foldername LIKE ? LIMIT ? OFFSET ?;`
 var getFilesInFolderQuery = `SELECT id, filename, filesize FROM files WHERE folder_id = ? LIMIT ? OFFSET ?;`
 var getRandomFilesQuery = `SELECT files.id, files.folder_id, files.filename, folders.foldername, files.filesize FROM files JOIN folders on files.folder_id = folders.id ORDER BY RANDOM() LIMIT ?;`
+var insertFeedbackQuery = `INSERT INTO feedbacks (time, feedback, header) VALUES (?, ?, ?);`
 
 type Database struct {
 	sqlConn *sql.DB
@@ -41,6 +48,7 @@ type Database struct {
 type Stmt struct {
 	initFilesTable *sql.Stmt
 	initFoldersTable *sql.Stmt
+	initFeedbacksTable *sql.Stmt
 	insertFolder *sql.Stmt
 	insertFile *sql.Stmt
 	findFolder *sql.Stmt
@@ -52,6 +60,7 @@ type Stmt struct {
 	searchFolders *sql.Stmt
 	getFilesInFolder *sql.Stmt
 	getRandomFiles *sql.Stmt
+	insertFeedback *sql.Stmt
 }
 
 type File struct {
@@ -68,6 +77,14 @@ type Folder struct {
 	ID int64 `json:"id"`
 	Folder string `json:"folder"`
 	Foldername string `json:"foldername"`
+}
+
+func (database *Database) InsertFeedback(time int64, feedback string, header string) (error) {
+	_, err := database.stmt.insertFeedback.Exec(time, feedback, header)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (database *Database) GetRandomFiles(limit int64) ([]File, error) {
@@ -304,12 +321,22 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 		return nil, err
 	}
 
+	// init feedbacks tables
+	stmt.initFeedbacksTable, err = sqlConn.Prepare(initFeedbacksTableQuery)
+	if err != nil {
+		return nil, err
+	}
+
 	// run init statement
 	_, err = stmt.initFilesTable.Exec()
 	if err != nil {
 		return nil, err
 	}
 	_, err = stmt.initFoldersTable.Exec()
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initFeedbacksTable.Exec()
 	if err != nil {
 		return nil, err
 	}
@@ -376,6 +403,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init getRandomFiles
 	stmt.getRandomFiles, err = sqlConn.Prepare(getRandomFilesQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init insertFeedback
+	stmt.insertFeedback, err = sqlConn.Prepare(insertFeedbackQuery)
 	if err != nil {
 		return nil, err
 	}
