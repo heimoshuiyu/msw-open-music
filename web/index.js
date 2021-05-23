@@ -292,8 +292,8 @@ const component_file = {
 	props: ['file'],
 	emits: ['play_audio'],
 	template: `
-<td @click="dialog">{{ file.filename }}</td>
-<td @click="show_folder">{{ file.foldername }}</td>
+<td class="clickable" @click="dialog">{{ file.filename }}</td>
+<td class="clickable" @click="show_folder">{{ file.foldername }}</td>
 <td>{{ computed_readable_size }}</td>
 <td>
 	<button @click="dialog">Dialog</button>

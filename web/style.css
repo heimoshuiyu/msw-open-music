@@ -41,3 +41,6 @@ a.router-link-active {
 	height: 39px;
 	width: 100%;
 }
+td.clickable {
+	cursor: pointer;
+}
