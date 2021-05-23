@@ -61,7 +61,6 @@ const component_search_folders = {
 	mounted() {
 		if (this.$route.query.folder_id) {
 			this.folder.id = parseInt(this.$route.query.folder_id)
-			this.folder.foldername = this.$route.query.foldername
 			this.get_files_in_folder()
 		}
 	},
@@ -88,11 +87,7 @@ const component_search_folders = {
 				limit: this.folder_limit,
 				offset: this.folder_offset,
 			}).then((response) => {
-				var files = response.data.files
-				for (var key in files) {
-					files[key].foldername = this.folder.foldername
-				}
-				this.files_in_folder = files
+				this.files_in_folder = response.data.files
 			})
 		},
 		last_page() {
@@ -366,7 +361,6 @@ const component_file = {
 				path: '/search_folders',
 				query: {
 					folder_id: this.file.folder_id,
-					foldername: this.file.foldername,
 				}
 			})
 		},
@@ -422,7 +416,6 @@ const component_audio_player = {
 				path: '/search_folders',
 				query: {
 					folder_id: this.file.folder_id,
-					foldername: this.file.foldername,
 				}
 			})
 		},

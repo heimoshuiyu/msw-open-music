@@ -36,7 +36,7 @@ var dropFilesQuery = `DROP TABLE files;`
 var dropFolderQuery = `DROP TABLE folders;`
 var getFileQuery = `SELECT files.id, files.folder_id, files.filename, folders.foldername, files.filesize FROM files JOIN folders ON files.folder_id = folders.id WHERE files.id = ? LIMIT 1;`
 var searchFoldersQuery = `SELECT id, folder, foldername FROM folders WHERE foldername LIKE ? LIMIT ? OFFSET ?;`
-var getFilesInFolderQuery = `SELECT id, filename, filesize FROM files WHERE folder_id = ? LIMIT ? OFFSET ?;`
+var getFilesInFolderQuery = `SELECT files.id, files.filename, files.filesize, folders.foldername FROM files JOIN folders ON files.folder_id = folders.id WHERE folder_id = ? LIMIT ? OFFSET ?;`
 var getRandomFilesQuery = `SELECT files.id, files.folder_id, files.filename, folders.foldername, files.filesize FROM files JOIN folders on files.folder_id = folders.id ORDER BY RANDOM() LIMIT ?;`
 var insertFeedbackQuery = `INSERT INTO feedbacks (time, feedback, header) VALUES (?, ?, ?);`
 
@@ -119,7 +119,7 @@ func (database *Database) GetFilesInFolder(folder_id int64, limit int64, offset 
 			Db: database,
 			Folder_id: folder_id,
 		}
-		err = rows.Scan(&file.ID, &file.Filename, &file.Filesize)
+		err = rows.Scan(&file.ID, &file.Filename, &file.Filesize, &file.Foldername)
 		if err != nil {
 			return nil, err
 		}
