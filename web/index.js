@@ -351,13 +351,16 @@ const component_file = {
 const component_audio_player = {
 	data() {
 		return {
+			loop: true,
 		}
 	},
 	props: ["file"],
 	template: `
 <div v-if="computed_show">
-<span>{{ file.filename }} / {{ file.foldername }}</span>
-<video class="audio-player" :src="computed_playing_audio_file_url" controls autoplay>
+<span>{{ file.filename }} / {{ file.foldername }}</span><br />
+<input type="checkbox" v-model="loop" />
+<label>Loop</label><br />
+<video class="audio-player" :src="computed_playing_audio_file_url" controls autoplay :loop="loop">
 </video>
 </div>
 `,
