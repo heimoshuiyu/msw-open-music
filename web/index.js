@@ -1,5 +1,6 @@
 const component_search_folders = {
 	emits: ['play_audio', 'set_token'],
+	props: ['token'],
 	data() {
 		return {
 			search_foldernames: "",
@@ -439,6 +440,7 @@ const component_audio_player = {
 
 const component_search_files = {
 	emits: ['play_audio'],
+	props: ['token'],
 	template: `
 <div>
 <input type="text" name="filename" v-model="search_filenames" placeholder="Enter filename" />
