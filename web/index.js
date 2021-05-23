@@ -31,7 +31,7 @@ const component_search_folders = {
 </thead>
 <tbody>
 <tr v-for="folder in folders">
-	<td>{{ folder.foldername }}</td>
+	<td class="clickable" @click="view_folder(folder)">{{ folder.foldername }}</td>
 	<td><button @click="view_folder(folder)">View</button></td>
 </tr>
 </tbody>
