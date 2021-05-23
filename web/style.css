@@ -37,7 +37,7 @@ a.router-link-active {
 	background-color: lightgray;
 	border-radius: 0.39em 0.39em 0 0;
 }
-video {
+.audio-player {
 	height: 39px;
 	width: 100%;
 }

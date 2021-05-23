@@ -357,7 +357,7 @@ const component_audio_player = {
 	template: `
 <div v-if="computed_show">
 <span>{{ file.filename }} / {{ file.foldername }}</span>
-<video :src="computed_playing_audio_file_url" controls autoplay>
+<video class="audio-player" :src="computed_playing_audio_file_url" controls autoplay>
 </video>
 </div>
 `,
