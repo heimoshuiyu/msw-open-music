@@ -244,11 +244,13 @@ const component_file_dialog = {
 		emit_stream_audio() {
 			this.file.play_back_type = 'stream',
 			this.$emit("play_audio", this.file)
+			this.emit_close_dialog()
 		},
 		emit_play_audio() {
 			console.log("pressed button")
 			this.file.play_back_type = 'raw'
 			this.$emit("play_audio", this.file)
+			this.emit_close_dialog()
 		},
 		download_file(file) {
 			this.disabled = true
@@ -271,6 +273,7 @@ const component_file_dialog = {
 				link.click();
 				this.download_loaded = 0
 				this.disabled = false
+				this.emit_close_dialog()
 			})
 		},
 	},
@@ -323,7 +326,7 @@ const component_file = {
 			this.show_dialog = false
 		},
 		dialog() {
-			this.show_dialog = true
+			this.show_dialog = this.show_dialog ? false : true
 		},
 	},
 	computed: {
