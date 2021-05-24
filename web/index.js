@@ -1,3 +1,53 @@
+const component_share = {
+	emits: ['play_audio', 'set_token'],
+	props: ['token'],
+	template: `
+<div class="page">
+<h3>Share with others!</h3>
+<p>Share link: <a :href="computed_share_link">{{ computed_share_link }}</a></p>
+<table>
+<thead>
+<tr>
+	<th>Filename</th>
+	<th>Folder Name</th>
+	<th>Size</th>
+	<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<component-file :file=file @play_audio="$emit('play_audio', $event)"></component-file>
+</tr>
+</tbody>
+</table>
+</div>
+`,
+	computed: {
+		computed_share_link() {
+			return window.location.href
+		},
+	},
+	data() {
+		return {
+			file: {},
+		}
+	},
+	mounted() {
+		if (this.$route.query.id) {
+			this.get_file_info()
+		}
+	},
+	methods: {
+		get_file_info() {
+			axios.post('/api/v1/get_file_info', {
+				id: parseInt(this.$route.query.id),
+			}).then((response) => {
+				this.file = response.data
+			})
+		},
+	},
+}
+
 const component_search_folders = {
 	emits: ['play_audio', 'set_token'],
 	props: ['token'],
@@ -288,6 +338,7 @@ const component_file_dialog = {
 	<button @click="download_file(file)" :disabled="disabled">{{ computed_download_status }}</button>
 	<button @click="emit_play_audio">Play</button>
 	<button @click="emit_stream_audio">Stream</button>
+	<button @click="share">Share</button>
 	<button @click="emit_close_dialog">Close</button>
 </dialog>
 	`,
@@ -298,6 +349,14 @@ const component_file_dialog = {
 		}
 	},
 	methods: {
+		share() {
+			this.$router.push({
+				path: '/share',
+				query: {
+					id: this.file.id,
+				},
+			})
+		},
 		emit_close_dialog() {
 			this.$emit('close_dialog')
 		},
@@ -387,7 +446,7 @@ const component_file = {
 				path: '/search_folders',
 				query: {
 					folder_id: this.file.folder_id,
-				}
+				},
 			})
 		},
 		close_dialog() {
@@ -655,6 +714,7 @@ const routes = [
 	{ path: '/search_files', component: component_search_files},
 	{ path: '/search_folders', component: component_search_folders},
 	{ path: '/manage', component: component_manage},
+	{ path: '/share', component: component_share},
 ]
 const router = VueRouter.createRouter({
 	history: VueRouter.createWebHashHistory(),
@@ -689,6 +749,7 @@ app.component('component-file-dialog', component_file_dialog)
 app.component('component-token', component_token)
 app.component('component-stream-config', component_stream_config)
 app.component('component-manage-database', component_manage_database)
+app.component('component-share', component_share)
 
 app.use(router)
 

@@ -315,6 +315,36 @@ type GetFileRequest struct {
 	ID int64 `json:"id"`
 }
 
+func (api *API) HandleGetFileInfo(w http.ResponseWriter, r *http.Request) {
+	getFileRequest := &GetFileRequest{
+		ID: -1,
+	}
+
+	err := json.NewDecoder(r.Body).Decode(getFileRequest)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	// check empty
+	if getFileRequest.ID < 0 {
+		api.HandleErrorString(w, r, `"id" can't be none or negative`)
+		return
+	}
+
+	file, err := api.Db.GetFile(getFileRequest.ID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(file)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+}
+
 func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	ids := q["id"]
@@ -396,23 +426,23 @@ func (api *API) HandleGetFileDirect(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) HandleGetFile(w http.ResponseWriter, r *http.Request) {
-	getFilesRequest := &GetFileRequest{
+	getFileRequest := &GetFileRequest{
 		ID: -1,
 	}
 
-	err := json.NewDecoder(r.Body).Decode(getFilesRequest)
+	err := json.NewDecoder(r.Body).Decode(getFileRequest)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
 	}
 
 	// check empty
-	if getFilesRequest.ID < 0 {
+	if getFileRequest.ID < 0 {
 		api.HandleErrorString(w, r, `"id" can't be none or negative`)
 		return
 	}
 
-	file, err := api.Db.GetFile(getFilesRequest.ID)
+	file, err := api.Db.GetFile(getFileRequest.ID)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
@@ -554,6 +584,7 @@ func NewAPI(apiConfig APIConfig) (*API, error) {
 	apiMux.HandleFunc("/get_file_stream", api.HandleGetFileStream)
 	apiMux.HandleFunc("/get_ffmpeg_config_list", api.HandleGetFfmpegConfigs)
 	apiMux.HandleFunc("/feedback", api.HandleFeedback)
+	apiMux.HandleFunc("/get_file_info", api.HandleGetFileInfo)
 	// below needs token
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)
