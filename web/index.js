@@ -1,3 +1,53 @@
+const component_share = {
+	emits: ['play_audio', 'set_token'],
+	props: ['token'],
+	template: `
+<div class="page">
+<h3>Share with others!</h3>
+<p>Share link: <a :href="computed_share_link">{{ computed_share_link }}</a> , or share this page directly.</p>
+<table>
+<thead>
+<tr>
+	<th>Filename</th>
+	<th>Folder Name</th>
+	<th>Size</th>
+	<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<component-file :file=file @play_audio="$emit('play_audio', $event)"></component-file>
+</tr>
+</tbody>
+</table>
+</div>
+`,
+	computed: {
+		computed_share_link() {
+			return window.location.href
+		},
+	},
+	data() {
+		return {
+			file: {},
+		}
+	},
+	mounted() {
+		if (this.$route.query.id) {
+			this.get_file_info()
+		}
+	},
+	methods: {
+		get_file_info() {
+			axios.post('/api/v1/get_file_info', {
+				id: parseInt(this.$route.query.id),
+			}).then((response) => {
+				this.file = response.data
+			})
+		},
+	},
+}
+
 const component_search_folders = {
 	emits: ['play_audio', 'set_token'],
 	props: ['token'],
@@ -288,6 +338,7 @@ const component_file_dialog = {
 	<button @click="download_file(file)" :disabled="disabled">{{ computed_download_status }}</button>
 	<button @click="emit_play_audio">Play</button>
 	<button @click="emit_stream_audio">Stream</button>
+	<button @click="share">Share</button>
 	<button @click="emit_close_dialog">Close</button>
 </dialog>
 	`,
@@ -298,6 +349,15 @@ const component_file_dialog = {
 		}
 	},
 	methods: {
+		share() {
+			this.$router.push({
+				path: '/share',
+				query: {
+					id: this.file.id,
+				},
+			})
+			this.emit_close_dialog()
+		},
 		emit_close_dialog() {
 			this.$emit('close_dialog')
 		},
@@ -387,7 +447,7 @@ const component_file = {
 				path: '/search_folders',
 				query: {
 					folder_id: this.file.folder_id,
-				}
+				},
 			})
 		},
 		close_dialog() {
@@ -421,13 +481,26 @@ const component_audio_player = {
 		return {
 			loop: true,
 			ffmpeg_config: {},
+			show_dialog: false,
 		}
 	},
 	props: ["file"],
 	template: `
 <div>
 <div v-if="computed_show">
-<span>{{ file.filename }} / <div class="clickable" @click="show_folder">{{ file.foldername }}</div></span><br />
+<h5>Player Status</h5>
+<component-file-dialog
+	@close_dialog="close_dialog"
+	@play_audio="$emit('play_audio', $event)"
+	:show_dialog="show_dialog"
+	:file="file"
+></component-file-dialog>
+<span>
+	<button @click="dialog">{{ file.filename }}</button>
+	<button @click="show_folder">{{ file.foldername }}</button> 
+	<button>{{ computed_readable_size }}</button>
+</span>
+<br />
 <input type="checkbox" v-model="loop" />
 <label>Loop</label><br />
 <video v-if="computed_show" class="audio-player" :src="computed_playing_audio_file_url" controls autoplay :loop="loop">
@@ -437,6 +510,12 @@ const component_audio_player = {
 </div>
 `,
 	methods: {
+		dialog() {
+			this.show_dialog = this.show_dialog ? false : true
+		},
+		close_dialog() {
+			this.show_dialog = false
+		},
 		show_folder() {
 			this.$router.push({
 				path: '/search_folders',
@@ -450,6 +529,21 @@ const component_audio_player = {
 		},
 	},
 	computed: {
+		computed_readable_size() {
+			let filesize = this.file.filesize
+			if (filesize < 1024) {
+				return filesize
+			}
+			if (filesize < 1024 * 1024) {
+				return Math.round(filesize / 1024) + 'K'
+			}
+			if (filesize < 1024 * 1024 * 1024) {
+				return Math.round(filesize / 1024 / 1024) + 'M'
+			}
+			if (filesize < 1024 * 1024 * 1024 * 1024) {
+				return Math.round(filesize / 1024 / 1024 / 1024) + 'G'
+			}
+		},
 		computed_playing_audio_file_url() {
 			if (this.file.play_back_type === 'raw') {
 				return '/api/v1/get_file_direct?id=' + this.file.id
@@ -655,6 +749,7 @@ const routes = [
 	{ path: '/search_files', component: component_search_files},
 	{ path: '/search_folders', component: component_search_folders},
 	{ path: '/manage', component: component_manage},
+	{ path: '/share', component: component_share},
 ]
 const router = VueRouter.createRouter({
 	history: VueRouter.createWebHashHistory(),
@@ -689,6 +784,7 @@ app.component('component-file-dialog', component_file_dialog)
 app.component('component-token', component_token)
 app.component('component-stream-config', component_stream_config)
 app.component('component-manage-database', component_manage_database)
+app.component('component-share', component_share)
 
 app.use(router)
 
