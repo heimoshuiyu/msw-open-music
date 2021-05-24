@@ -12,15 +12,30 @@ const component_search_folders = {
 			folder_limit: 10,
 			files_in_folder: [],
 			playing_audio_file: {},
+			is_loading: false,
 		}
+	},
+	computed: {
+		computed_folders_page() {
+			if (this.is_loading) {
+				return 'Loading...'
+			}
+			return this.offset + ' ~ ' + (this.offset + this.folders.length)
+		},
+		computed_files_page() {
+			if (this.is_loading) {
+				return 'Loading...'
+			}
+			return this.folder_offset + ' ~ ' + (this.folder_offset + this.files_in_folder.length)
+		},
 	},
 	template: `
 <div class="page">
 <div class="search_toolbar">
-<input type="text" v-model="search_foldernames" placeholder="Enter folder name" />
+<input type="text" @keyup.enter="first_search_folders" v-model="search_foldernames" placeholder="Enter folder name" />
 <button @click="first_search_folders">Search Folders</Button>
 <button @click="last_page">Last Page</button>
-<span>{{ offset }}~{{ offset + folders.length }}</span>
+<span>{{ computed_folders_page }}</span>
 <button @click="next_page">Next Page</button>
 </div>
 
@@ -41,7 +56,7 @@ const component_search_folders = {
 
 <div class="search_toolbar">
 <button @click="folder_last_page">Last Page</button>
-<span>{{ folder_offset }}~{{ folder_offset + files_in_folder.length }}</span>
+<span>{{ computed_files_page }}</span>
 <button @click="folder_next_page">Next Page</button>
 </div>
 <table>
@@ -85,11 +100,13 @@ const component_search_folders = {
 			this.get_files_in_folder()
 		},
 		get_files_in_folder() {
+			this.is_loading = true
 			axios.post('/api/v1/get_files_in_folder', {
 				folder_id: this.folder.id,
 				limit: this.folder_limit,
 				offset: this.folder_offset,
 			}).then((response) => {
+				this.is_loading = false
 				this.files_in_folder = response.data.files
 			})
 		},
@@ -110,11 +127,13 @@ const component_search_folders = {
 			this.search_folders()
 		},
 		search_folders() {
+			this. is_loading = true
 			axios.post('/api/v1/search_folders', {
 				foldername: this.search_foldernames,
 				limit: this.limit,
 				offset: this.offset,
 			}).then((response) => {
+				this.is_loading = false
 				this.folders = response.data.folders
 			})
 		},
@@ -447,13 +466,21 @@ const component_audio_player = {
 const component_search_files = {
 	emits: ['play_audio'],
 	props: ['token'],
+	computed: {
+		computed_files_page() {
+			if (this.is_loading) {
+				return 'Loading...'
+			}
+			return this.offset + ' ~ ' + (this.offset + this.files.length)
+		},
+	},
 	template: `
 <div class="page">
 <div class="search_toolbar">
-<input type="text" name="filename" v-model="search_filenames" placeholder="Enter filename" />
+<input type="text" name="filename" @keyup.enter="first_search_files" v-model="search_filenames" placeholder="Enter filename" />
 <button @click="first_search_files">Search</button>
 <button @click="last_page">Last Page</button>
-<span>{{ offset }}~{{ offset + files.length }}</span>
+<span>{{ computed_files_page }}</span>
 <button @click="next_page">Next Page</button>
 </div>
 <table>
@@ -480,6 +507,7 @@ const component_search_files = {
 			offset: 0,
 			limit: 10,
 			playing_audio_file: {},
+			is_loading: false,
 		}
 	},
 	methods: {
@@ -488,11 +516,13 @@ const component_search_files = {
 			this.search_files()
 		},
 		search_files() {
+			this.is_loading = true
 			axios.post('/api/v1/search_files', {
 				filename: this.search_filenames,
 				limit: this.limit,
 				offset: this.offset,
 			}).then((response) => {
+				this.is_loading = false
 				this.files = response.data.files
 			})
 		},
@@ -517,12 +547,21 @@ const component_get_random_files = {
 	data() {
 		return {
 			files: [],
+			is_loading: false,
 		}
+	},
+	computed: {
+		computed_refresh() {
+			if (this.is_loading) {
+				return 'Loading...'
+			}
+			return 'Refresh'
+		},
 	},
 	template: `
 <div class="page">
 <div class="search_toolbar">
-	<button @click="get_random_files">Refresh</button>
+	<button @click="get_random_files">{{ computed_refresh }}</button>
 </div>
 <table>
 	<thead>
@@ -546,8 +585,10 @@ const component_get_random_files = {
 	},
 	methods: {
 		get_random_files() {
+			this.is_loading = true
 			axios.get('/api/v1/get_random_files'
 			).then(response => {
+				this.is_loading = false
 				this.files = response.data.files;
 			})
 		}
