@@ -477,6 +477,7 @@ const component_file = {
 }
 
 const component_audio_player = {
+	emits: ['stop'],
 	data() {
 		return {
 			loop: true,
@@ -499,6 +500,7 @@ const component_audio_player = {
 	<button @click="dialog">{{ file.filename }}</button>
 	<button @click="show_folder">{{ file.foldername }}</button> 
 	<button>{{ computed_readable_size }}</button>
+	<button @click="emit_stop">Stop</button>
 </span>
 <br />
 <input type="checkbox" v-model="loop" />
@@ -510,6 +512,9 @@ const component_audio_player = {
 </div>
 `,
 	methods: {
+		emit_stop() {
+			this.$emit('stop')
+		},
 		dialog() {
 			this.show_dialog = this.show_dialog ? false : true
 		},
@@ -764,6 +769,9 @@ const app = Vue.createApp({
 		}
 	},
 	methods: {
+		stop() {
+			this.playing_audio_file = {}
+		},
 		set_token(token) {
 			this.token = token
 		},
