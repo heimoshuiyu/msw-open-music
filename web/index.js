@@ -481,13 +481,26 @@ const component_audio_player = {
 		return {
 			loop: true,
 			ffmpeg_config: {},
+			show_dialog: false,
 		}
 	},
 	props: ["file"],
 	template: `
 <div>
 <div v-if="computed_show">
-<span>{{ file.filename }} / <div class="clickable" @click="show_folder">{{ file.foldername }}</div></span><br />
+<h5>Player Status</h5>
+<component-file-dialog
+	@close_dialog="close_dialog"
+	@play_audio="$emit('play_audio', $event)"
+	:show_dialog="show_dialog"
+	:file="file"
+></component-file-dialog>
+<span>
+	<button @click="dialog">{{ file.filename }}</button>
+	<button @click="show_folder">{{ file.foldername }}</button> 
+	<button>{{ computed_readable_size }}</button>
+</span>
+<br />
 <input type="checkbox" v-model="loop" />
 <label>Loop</label><br />
 <video v-if="computed_show" class="audio-player" :src="computed_playing_audio_file_url" controls autoplay :loop="loop">
@@ -497,6 +510,12 @@ const component_audio_player = {
 </div>
 `,
 	methods: {
+		dialog() {
+			this.show_dialog = this.show_dialog ? false : true
+		},
+		close_dialog() {
+			this.show_dialog = false
+		},
 		show_folder() {
 			this.$router.push({
 				path: '/search_folders',
@@ -510,6 +529,21 @@ const component_audio_player = {
 		},
 	},
 	computed: {
+		computed_readable_size() {
+			let filesize = this.file.filesize
+			if (filesize < 1024) {
+				return filesize
+			}
+			if (filesize < 1024 * 1024) {
+				return Math.round(filesize / 1024) + 'K'
+			}
+			if (filesize < 1024 * 1024 * 1024) {
+				return Math.round(filesize / 1024 / 1024) + 'M'
+			}
+			if (filesize < 1024 * 1024 * 1024 * 1024) {
+				return Math.round(filesize / 1024 / 1024 / 1024) + 'G'
+			}
+		},
 		computed_playing_audio_file_url() {
 			if (this.file.play_back_type === 'raw') {
 				return '/api/v1/get_file_direct?id=' + this.file.id
