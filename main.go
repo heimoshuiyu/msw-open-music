@@ -1,39 +1,38 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"log"
 	"msw-open-music/internal/pkg/api"
+	"os"
 )
 
-var DatabaseName string
-var Listen string
-var Token string
+var APIConfigFilePath string
 
 func init() {
-	flag.StringVar(&DatabaseName, "db", "/tmp/music.sqlite3", "sqlite3 database file path")
-	flag.StringVar(&Listen, "listen", ":8080", "http server listening")
-	flag.StringVar(&Token, "token", "mikusavetheworld", "secret token")
+	flag.StringVar(&APIConfigFilePath, "apiconfig", "api_config.json", "API Config Json file")
 }
 
 func main() {
+	var err error
 	flag.Parse()
 	apiConfig := api.NewAPIConfig()
-	apiConfig.FfmpegConfigs["libopus 128k"] = &api.FfmpegConfig{
-		Name: "libopus 128k",
-		Args: "-c:a libopus -ab 128k",
+
+	apiConfigFile, err := os.Open(APIConfigFilePath)
+	if err != nil {
+		log.Fatal(err)
 	}
-	apiConfig.FfmpegConfigs["libopus 256k"] = &api.FfmpegConfig{
-		Name: "libopus 256k",
-		Args: "-c:a libopus -ab 256k",
+	err = json.NewDecoder(apiConfigFile).Decode(&apiConfig)
+	if err != nil {
+		log.Fatal(err)
 	}
-	apiConfig.DatabaseName = DatabaseName
-	apiConfig.Addr = Listen
-	apiConfig.Token = Token
+	apiConfigFile.Close()
+
 	api, err := api.NewAPI(apiConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Started")
+	log.Println("Starting", apiConfig.DatabaseName, apiConfig.Addr, apiConfig.Token)
 	log.Fatal(api.Server.ListenAndServe())
 }

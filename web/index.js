@@ -573,10 +573,14 @@ const component_stream_config = {
 	mounted() {
 		axios.get('/api/v1/get_ffmpeg_config_list',
 		).then(response => {
+			// 后端返回数据 ffmpeg_configs 是一个字典，name 作为 key，ffmpeg_config{} 作为 value
+			// 为方便前端，此处将 ffmpeg_configs 转为数组，并添加 name 到每个对象中
 			var ffmpeg_configs = response.data.ffmpeg_configs
 			var tmp_list = []
 			for (var key in ffmpeg_configs) {
-				tmp_list.push(ffmpeg_configs[key])
+				var ffmpeg_config = ffmpeg_configs[key]
+				ffmpeg_config.name = key
+				tmp_list.push(ffmpeg_config)
 			}
 			tmp_list.sort()
 			this.ffmpeg_config_list = tmp_list

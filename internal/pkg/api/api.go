@@ -28,11 +28,11 @@ type FfmpegConfigs struct {
 
 type AddFfmpegConfigRequest struct {
 	Token string `json:"token"`
+	Name string `json:"name"`
 	FfmpegConfig FfmpegConfig `json:"ffmpeg_config"`
 }
 
 type FfmpegConfig struct {
-	Name string `json:"name"`
 	Args string `json:"args"`
 }
 
@@ -458,7 +458,7 @@ func (api *API) HandleAddFfmpegConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check name and args not null
-	if addFfmpegConfigRequest.FfmpegConfig.Name == "" {
+	if addFfmpegConfigRequest.Name == "" {
 		api.HandleErrorString(w, r, `"ffmpeg_config.name" can't be empty`)
 		return
 	}
@@ -469,7 +469,7 @@ func (api *API) HandleAddFfmpegConfig(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("[api] Add ffmpeg config")
 
-	api.APIConfig.FfmpegConfigs[addFfmpegConfigRequest.FfmpegConfig.Name] = &addFfmpegConfigRequest.FfmpegConfig
+	api.APIConfig.FfmpegConfigs[addFfmpegConfigRequest.Name] = &addFfmpegConfigRequest.FfmpegConfig
 	api.HandleOK(w, r)
 }
 
