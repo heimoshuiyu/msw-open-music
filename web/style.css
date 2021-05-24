@@ -59,3 +59,8 @@ div.search_toolbar {
 	flex-wrap: wrap;
 	justify-content: flex-end;
 }
+div.feedback {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}

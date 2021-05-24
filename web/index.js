@@ -162,9 +162,11 @@ const component_manage= {
 <p>本站是 MSW Project 的一个应用，希望以个人之力分享被隐藏在历史中的音乐。</p>
 <p>自己是V家厨，喜欢的p主包括 wonder-k, buzzG, *luna 等，但却因为种种原因淹没在主流音乐APP的曲库中。本站的初衷是为了让那些知名度低的 VOCALOID / ACG / 东方曲，能够被更多有缘人听到，同时有一个跨平台的工具，能够在低网速的条件下享受硬盘中的无损音乐。</p>
 <p>站内音乐来自公开网络，仅供个人使用，如有侵权或建议请提交反馈</p>
-<input type="text" v-model="feedback" :disabled="submit_disabled" :placeholder="feedback_placeholder"/>
-<button @click="submit_feedback" :disabled="submit_disabled">{{ feedback_status }}</button>
-<label v-if="is_err">{{ err_msg }}</label>
+<div class="feedback">
+	<input type="text" v-model="feedback" :disabled="submit_disabled" :placeholder="feedback_placeholder"/>
+	<button @click="submit_feedback" :disabled="submit_disabled">{{ feedback_status }}</button>
+	<label v-if="is_err">{{ err_msg }}</label>
+</div>
 </div>
 <component-token :token="token" @set_token="$emit('set_token', $event)"></component-token>
 <component-manage-database :token="token"></component-manage-database>
