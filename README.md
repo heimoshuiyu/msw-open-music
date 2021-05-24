@@ -4,6 +4,8 @@
 
 Fork from `msw-file`，目前是一个音乐播放器。
 
+[toc]
+
 ## 编译 & 构建
 
 ### 编译后端
@@ -285,3 +287,15 @@ Fork from `msw-file`，目前是一个音乐播放器。
 - `/web/*` 返回程序同目录下 web 文件夹中的内容
 
   此 api 仅用于方便开发，项目根目录中 web 文件夹中的内容并不是生产用（for production）的 js 文件，这个 API 不应该用来提供前端的 web 服务，web 服务应该由其他程序负责（例如 apache caddy nginx 等）
+
+## 前端 API 文档
+
+前端只有少量 API ，允许用户直接打开链接就执行某些功能
+
+- `/web/#/share?id=39`
+
+  分享文件，id 是文件的唯一标识。
+
+- `/web/#/search_folders?folder_id=2614`
+
+  显示该文件夹中的文件， folder_id 是文件夹的唯一标识。
