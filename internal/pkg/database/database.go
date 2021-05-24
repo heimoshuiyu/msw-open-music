@@ -75,7 +75,7 @@ type File struct {
 type Folder struct {
 	Db *Database `json:"-"`
 	ID int64 `json:"id"`
-	Folder string `json:"folder"`
+	Folder string `json:"-"`
 	Foldername string `json:"foldername"`
 }
 
