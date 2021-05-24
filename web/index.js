@@ -356,6 +356,7 @@ const component_file_dialog = {
 					id: this.file.id,
 				},
 			})
+			this.emit_close_dialog()
 		},
 		emit_close_dialog() {
 			this.$emit('close_dialog')
