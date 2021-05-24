@@ -4,7 +4,7 @@ const component_share = {
 	template: `
 <div class="page">
 <h3>Share with others!</h3>
-<p>Share link: <a :href="computed_share_link">{{ computed_share_link }}</a></p>
+<p>Share link: <a :href="computed_share_link">{{ computed_share_link }}</a> , or share this page directly.</p>
 <table>
 <thead>
 <tr>
