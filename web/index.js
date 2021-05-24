@@ -15,6 +15,7 @@ const component_search_folders = {
 		}
 	},
 	template: `
+<div class="page">
 <div class="search_toolbar">
 <input type="text" v-model="search_foldernames" placeholder="Enter folder name" />
 <button @click="first_search_folders">Search Folders</Button>
@@ -58,6 +59,7 @@ const component_search_folders = {
 		</tr>
 	</tbody>
 </table>
+</div>
 `,
 	mounted() {
 		if (this.$route.query.folder_id) {
@@ -154,7 +156,8 @@ const component_manage= {
 		}
 	},
 	template: `
-<div>
+<div class="page">
+<div class="description">
 <h4>关于本站</h4>
 <p>本站是 MSW Project 的一个应用，希望以个人之力分享被隐藏在历史中的音乐。</p>
 <p>自己是V家厨，喜欢的p主包括 wonder-k, buzzG, *luna 等，但却因为种种原因淹没在主流音乐APP的曲库中。本站的初衷是为了让那些知名度低的 VOCALOID / ACG / 东方曲，能够被更多有缘人听到，同时有一个跨平台的工具，能够在低网速的条件下享受硬盘中的无损音乐。</p>
@@ -162,6 +165,7 @@ const component_manage= {
 <input type="text" v-model="feedback" :disabled="submit_disabled" :placeholder="feedback_placeholder"/>
 <button @click="submit_feedback" :disabled="submit_disabled">{{ feedback_status }}</button>
 <label v-if="is_err">{{ err_msg }}</label>
+</div>
 <component-token :token="token" @set_token="$emit('set_token', $event)"></component-token>
 <component-manage-database :token="token"></component-manage-database>
 </div>
@@ -442,12 +446,14 @@ const component_search_files = {
 	emits: ['play_audio'],
 	props: ['token'],
 	template: `
-<div>
+<div class="page">
+<div class="search_toolbar">
 <input type="text" name="filename" v-model="search_filenames" placeholder="Enter filename" />
 <button @click="first_search_files">Search</button>
 <button @click="last_page">Last Page</button>
 <span>{{ offset }}~{{ offset + files.length }}</span>
 <button @click="next_page">Next Page</button>
+</div>
 <table>
 	<thead>
 		<tr>
@@ -512,7 +518,10 @@ const component_get_random_files = {
 		}
 	},
 	template: `
-<button @click="get_random_files">Refresh</button>
+<div class="page">
+<div class="search_toolbar">
+	<button @click="get_random_files">Refresh</button>
+</div>
 <table>
 	<thead>
 		<tr>
@@ -528,6 +537,7 @@ const component_get_random_files = {
 		</tr>
 	</tbody>
 </table>
+</div>
 `,
 	mounted() {
 		this.get_random_files()
