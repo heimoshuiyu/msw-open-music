@@ -4,6 +4,8 @@
 
 Fork from `msw-file`，目前是一个音乐播放器。
 
+![demo1](demo1.jpg)
+
 [toc]
 
 ## 编译 & 构建
