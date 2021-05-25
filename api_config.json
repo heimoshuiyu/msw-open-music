@@ -2,6 +2,7 @@
 	"database_name": "/tmp/music.sqlite3",
 	"addr": ":8080",
 	"token": "!! config your very strong token here !!",
+	"ffmpeg_threads": 1,
 	"ffmpeg_configs": {
 		"0. OPUS 128k": {"args": "-c:a libopus -ab 128k"},
 		"OPUS 96k": {"args": "-c:a libopus -ab 96k"},

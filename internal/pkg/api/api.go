@@ -401,7 +401,7 @@ func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	args := strings.Split(ffmpegConfig.Args, " ")
-	startArgs := []string {"-i", path}
+	startArgs := []string {"-threads", strconv.FormatInt(api.APIConfig.FfmpegThreads, 10), "-i", path}
 	endArgs := []string {"-vn", "-f", "ogg", "-"}
 	ffmpegArgs := append(startArgs, args...)
 	ffmpegArgs = append(ffmpegArgs, endArgs...)
@@ -479,7 +479,7 @@ func (api *API) HandlePrepareFileStreamDirect(w http.ResponseWriter, r *http.Req
 
 	api.Tmpfs.Record(objPath)
 	args := strings.Split(ffmpegConfig.Args, " ")
-	startArgs := []string {"-i", srcPath}
+	startArgs := []string {"-threads", strconv.FormatInt(api.APIConfig.FfmpegThreads, 10), "-i", srcPath}
 	endArgs := []string {"-vn", "-y", objPath}
 	ffmpegArgs := append(startArgs, args...)
 	ffmpegArgs = append(ffmpegArgs, endArgs...)
@@ -673,6 +673,7 @@ type APIConfig struct {
 	DatabaseName string `json:"database_name"`
 	Addr string `json:"addr"`
 	Token string `json:"token"`
+	FfmpegThreads int64 `json:"ffmpeg_threads"`
 	FfmpegConfigs map[string]*FfmpegConfig `json:"ffmpeg_configs"`
 }
 

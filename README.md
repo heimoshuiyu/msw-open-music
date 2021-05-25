@@ -26,6 +26,8 @@ Fork from `msw-file`，目前是一个音乐播放器。
 
 初次使用请配置 `api_config.json`， **最重要的是配置 `token`** 。
 
+默认 ffmpeg 线程 `ffmpeg_threads` 为 1 ，大于 1 以上的值似乎对编码音频没有效果。
+
 #### api_config.json 说明
 
 - `database_name` 字符串类型，指定 sqlite3 单文件数据库的位置，如果不存在则会自动创建。
