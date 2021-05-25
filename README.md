@@ -39,6 +39,12 @@ Fork from `msw-file`，目前是一个音乐播放器。
 
 前端在调用后端 api 时使用的是绝对路径，例如 `/api/v1/hello`。如需更改，可以修改后端 `api.go` 中的 `apiMux` 和 `mux` 的相关属性。
 
+## 关于临时文件夹的说明
+
+前端播放器中勾选了 `Prepare` ，后端将转码文件到临时文件夹，然后直链提供文件。这有助于修复网路不稳定时 TCP 链接断开，stream 模式下 ffmpeg 中断输出并且不能断点续传的问题。
+
+临时文件夹管理器位于 `internal/pkg/tmpfs` 中，默认删除时间是 10 分钟。10分钟内如果没有对该临时文件的访问，则会删除此临时文件。
+
 ## 后端 API 文档
 
 说明中带有 `stream` 或 `流` 相关字样的，说明该 API 以 `io.Copy` 方式传输文件，不支持断点续传
@@ -51,7 +57,7 @@ Fork from `msw-file`，目前是一个音乐播放器。
 }
 ```
 
-
+### 公开 API
 
 - `/api/v1/hello` OK 测试
 
@@ -227,6 +233,57 @@ Fork from `msw-file`，目前是一个音乐播放器。
     ```
 
   - 返回 OK
+
+- `/api/v1/get_file_info` 获取单个文件的信息
+
+  - 请求示例
+
+    ```json
+    {
+        "ID": 123
+    }
+    ```
+
+  - 返回示例
+
+    ```json
+    {
+        "id": 30,
+        "folder_id": 100,
+        "folder_name": "wonderful",
+        "filename": "memories.flac",
+        "filesize": 1048576
+    },
+    ```
+
+- `/api/v1/get_file_stream_direct` 获取已提前转码好的文件，该 API 支持断点续传
+
+  - 请求示例
+
+    GET `/api/v1/get_file_stream_direct?id=123&config=OPUS 128k`
+
+- `/api/v1/prepare_file_stream_direct` 请求提前转码文件，该 API 将返回转码后的文件大小
+
+  - 请求示例
+
+    ```json
+    {
+        "id": 123,
+        "config_name": "OPUS 128k"
+    }
+    ```
+
+  - 返回示例
+
+    ```json
+    {
+        "filesize": 1973241
+    }
+    ```
+
+    
+
+### 需要 token 的 API
 
 - `/api/v1/walk` 遍历目录，并将文件和文件夹添加到数据库中
 
