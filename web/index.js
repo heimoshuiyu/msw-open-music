@@ -86,11 +86,11 @@ const component_search_folders = {
 <input type="text" @keyup.enter="first_search_folders" v-model="search_foldernames" placeholder="Enter folder name" />
 <button @click="first_search_folders">Search Folders</Button>
 <button @click="last_page">Last Page</button>
-<span>{{ computed_folders_page }}</span>
+<button disabled>{{ computed_folders_page }}</button>
 <button @click="next_page">Next Page</button>
 </div>
 
-<table>
+<table v-if="folders.length">
 <thead>
 <tr>
 	<th>Folder Name</th>
@@ -108,10 +108,10 @@ const component_search_folders = {
 <h3>Files in folder</h3>
 <div class="search_toolbar">
 <button @click="folder_last_page">Last Page</button>
-<span>{{ computed_files_page }}</span>
+<button disabled>{{ computed_files_page }}</button>
 <button @click="folder_next_page">Next Page</button>
 </div>
-<table>
+<table v-if="files_in_folder.length">
 	<thead>
 		<tr>
 			<th>Filename</th>
@@ -508,7 +508,7 @@ const component_audio_player = {
 <span v-if="computed_show">
 	<button @click="dialog">{{ file.filename }}</button>
 	<button @click="show_folder">{{ file.foldername }}</button> 
-	<button>{{ computed_readable_size }}</button>
+	<button disabled>{{ computed_readable_size }}</button>
 	<button @click="emit_stop">Stop</button>
 </span>
 <br />
@@ -634,10 +634,10 @@ const component_search_files = {
 <input type="text" name="filename" @keyup.enter="first_search_files" v-model="search_filenames" placeholder="Enter filename" />
 <button @click="first_search_files">Search</button>
 <button @click="last_page">Last Page</button>
-<span>{{ computed_files_page }}</span>
+<button disabled>{{ computed_files_page }}</button>
 <button @click="next_page">Next Page</button>
 </div>
-<table>
+<table v-if="files.length">
 	<thead>
 		<tr>
 			<th>Filename</th>
