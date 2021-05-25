@@ -577,7 +577,7 @@ const component_audio_player = {
 		file() {
 			// 如果没有勾选 prepare 则直接播放
 			// 否则进入 prepare 流程
-			if (this.prepare) {
+			if (this.prepare && this.file.play_back_type === 'stream') {
 				this.prepare_func()
 			} else {
 				this.playing_file = this.file
@@ -598,6 +598,9 @@ const component_audio_player = {
 			let filesize = this.playing_file.filesize
 			if (this.prepare) {
 				filesize = this.prepared_filesize
+			}
+			if (this.playing_file.play_back_type === 'raw') {
+				filesize = this.playing_file.filesize
 			}
 			if (filesize < 1024 * 1024) {
 				return filesize
