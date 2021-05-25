@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"msw-open-music/internal/pkg/database"
+	"msw-open-music/internal/pkg/tmpfs"
 	"net/http"
 	"os"
 	"os/exec"
@@ -20,6 +21,7 @@ type API struct {
 	Server http.Server
 	token string
 	APIConfig APIConfig
+	Tmpfs *tmpfs.Tmpfs
 }
 
 type FfmpegConfigs struct {
@@ -345,23 +347,39 @@ func (api *API) HandleGetFileInfo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
+func (api *API) CheckGetFileStream(w http.ResponseWriter, r *http.Request) (error) {
+	var err error
 	q := r.URL.Query()
 	ids := q["id"]
 	if len(ids) == 0 {
-		api.HandleErrorString(w, r, `parameter "id" can't be empty`)
-		return
+		err = errors.New(`parameter "id" can't be empty`)
+		api.HandleError(w, r, err)
+		return err
 	}
-	id, err := strconv.Atoi(ids[0])
+	_, err = strconv.Atoi(ids[0])
 	if err != nil {
-		api.HandleErrorString(w, r, `parameter "id" should be an integer`)
-		return
+		err = errors.New(`parameter "id" should be an integer`)
+		api.HandleError(w, r, err)
+		return err
 	}
 	configs := q["config"]
 	if len(configs) == 0 {
-		api.HandleErrorString(w, r, `parameter "config" can't be empty`)
+		err = errors.New(`parameter "config" can't be empty`)
+		api.HandleError(w, r, err)
+		return err
+	}
+	return nil
+}
+
+func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
+	err := api.CheckGetFileStream(w, r)
+	if err != nil {
 		return
 	}
+	q := r.URL.Query()
+	ids := q["id"]
+	id, err := strconv.Atoi(ids[0])
+	configs := q["config"]
 	configName := configs[0]
 	file, err := api.Db.GetFile(int64(id))
 	if err != nil {
@@ -384,7 +402,7 @@ func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
 	}
 	args := strings.Split(ffmpegConfig.Args, " ")
 	startArgs := []string {"-i", path}
-	endArgs := []string {"-vn", "-f", "matroska", "-"}
+	endArgs := []string {"-vn", "-f", "ogg", "-"}
 	ffmpegArgs := append(startArgs, args...)
 	ffmpegArgs = append(ffmpegArgs, endArgs...)
 	cmd := exec.Command("ffmpeg", ffmpegArgs...)
@@ -394,6 +412,111 @@ func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
+}
+
+type PrepareFileStreamDirectRequest struct {
+	ID int64 `json:"id"`
+	ConfigName string `json:"config_name"`
+}
+
+type PrepareFileStreamDirectResponse struct {
+	Filesize int64 `json:"filesize"`
+}
+
+func (api *API) HandlePrepareFileStreamDirect(w http.ResponseWriter, r *http.Request) {
+	prepareFileStreamDirectRequst := &PrepareFileStreamDirectRequest{
+		ID: -1,
+	}
+	err := json.NewDecoder(r.Body).Decode(prepareFileStreamDirectRequst)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	// check empty
+	if prepareFileStreamDirectRequst.ID < 0 {
+		api.HandleErrorString(w, r, `"id" can't be none or negative`)
+		return
+	}
+	if prepareFileStreamDirectRequst.ConfigName == "" {
+		api.HandleErrorString(w, r, `"config_name" can't be empty`)
+		return
+	}
+
+	file, err := api.Db.GetFile(prepareFileStreamDirectRequst.ID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+	srcPath, err := file.Path()
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	log.Println("[api] Prepare stream direct file", srcPath, prepareFileStreamDirectRequst.ConfigName)
+	ffmpegConfig, ok := api.APIConfig.FfmpegConfigs[prepareFileStreamDirectRequst.ConfigName]
+	if !ok {
+		api.HandleErrorStringCode(w, r, `ffmpeg config not found`, 404)
+		return
+	}
+	objPath := api.Tmpfs.GetObjFilePath(prepareFileStreamDirectRequst.ID, prepareFileStreamDirectRequst.ConfigName)
+
+	// check obj file exists
+	exists := api.Tmpfs.Exits(objPath)
+	if exists {
+		fileInfo, err := os.Stat(objPath)
+		if err != nil {
+			api.HandleError(w, r, err)
+			return
+		}
+		prepareFileStreamDirectResponse := &PrepareFileStreamDirectResponse{
+			Filesize: fileInfo.Size(),
+		}
+		json.NewEncoder(w).Encode(prepareFileStreamDirectResponse)
+			return
+	}
+
+	api.Tmpfs.Record(objPath)
+	args := strings.Split(ffmpegConfig.Args, " ")
+	startArgs := []string {"-i", srcPath}
+	endArgs := []string {"-vn", "-y", objPath}
+	ffmpegArgs := append(startArgs, args...)
+	ffmpegArgs = append(ffmpegArgs, endArgs...)
+	cmd := exec.Command("ffmpeg", ffmpegArgs...)
+	err = cmd.Run()
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	fileInfo, err := os.Stat(objPath)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+	prepareFileStreamDirectResponse := &PrepareFileStreamDirectResponse{
+		Filesize: fileInfo.Size(),
+	}
+	json.NewEncoder(w).Encode(prepareFileStreamDirectResponse)
+}
+
+func (api *API) HandleGetFileStreamDirect(w http.ResponseWriter, r *http.Request) {
+	err := api.CheckGetFileStream(w, r)
+	if err != nil {
+		return
+	}
+	q := r.URL.Query()
+	ids := q["id"]
+	id, err := strconv.Atoi(ids[0])
+	configs := q["config"]
+	configName := configs[0]
+
+	path := api.Tmpfs.GetObjFilePath(int64(id), configName)
+
+	log.Println("[api] Get direct cached file", path)
+
+	http.ServeFile(w, r, path)
 }
 
 func (api *API) HandleGetFileDirect(w http.ResponseWriter, r *http.Request) {
@@ -572,6 +695,7 @@ func NewAPI(apiConfig APIConfig) (*API, error) {
 		},
 		APIConfig: apiConfig,
 	}
+	api.Tmpfs = tmpfs.NewTmpfs()
 
 	// mount api
 	apiMux.HandleFunc("/hello", api.HandleOK)
@@ -585,6 +709,8 @@ func NewAPI(apiConfig APIConfig) (*API, error) {
 	apiMux.HandleFunc("/get_ffmpeg_config_list", api.HandleGetFfmpegConfigs)
 	apiMux.HandleFunc("/feedback", api.HandleFeedback)
 	apiMux.HandleFunc("/get_file_info", api.HandleGetFileInfo)
+	apiMux.HandleFunc("/get_file_stream_direct", api.HandleGetFileStreamDirect)
+	apiMux.HandleFunc("/prepare_file_stream_direct", api.HandlePrepareFileStreamDirect)
 	// below needs token
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)

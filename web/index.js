@@ -334,7 +334,11 @@ const component_file_dialog = {
 	template: `
 <dialog open v-if="show_dialog">
 	<p>{{ file.filename }}</p>
-	<p>Download 使用 Axios 异步下载<br />Play 调用网页播放器播放源文件<br />Stream 将串流播放稍低码率的文件</p>
+	<p>
+		Download 使用 Axios 异步下载<br />
+		Play 调用网页播放器播放源文件<br />
+		Stream 将串流播放稍低码率的文件<br />
+	</p>
 	<button @click="download_file(file)" :disabled="disabled">{{ computed_download_status }}</button>
 	<button @click="emit_play_audio">Play</button>
 	<button @click="emit_stream_audio">Stream</button>
@@ -477,12 +481,16 @@ const component_file = {
 }
 
 const component_audio_player = {
-	emits: ['stop'],
+	emits: ['stop', 'play_audio'],
 	data() {
 		return {
 			loop: true,
 			ffmpeg_config: {},
 			show_dialog: false,
+			is_preparing: false,
+			prepare: false,
+			prepared_filesize: 0,
+			playing_file: {},
 		}
 	},
 	props: ["file"],
@@ -504,8 +512,10 @@ const component_audio_player = {
 </span>
 <br />
 <input type="checkbox" v-model="loop" />
-<label>Loop</label><br />
-<video v-if="computed_show" class="audio-player" :src="computed_playing_audio_file_url" controls autoplay :loop="loop">
+<label>Loop</label>
+<input type="checkbox" v-model="prepare" />
+<label>Prepare</label><br />
+<video v-if="computed_video_show" class="audio-player" :src="computed_playing_audio_file_url" controls autoplay :loop="loop">
 </video>
 </div>
 <component-stream-config @set_ffmpeg_config="set_ffmpeg_config"></component-stream-config>
@@ -525,36 +535,78 @@ const component_audio_player = {
 			this.$router.push({
 				path: '/search_folders',
 				query: {
-					folder_id: this.file.folder_id,
+					folder_id: this.this_file.folder_id,
 				}
 			})
 		},
 		set_ffmpeg_config(ffmpeg_config) {
 			this.ffmpeg_config = ffmpeg_config
 		},
+		prepare_func() {
+			this.playing_file = {}
+			this.is_preparing = true
+			axios.post('/api/v1/prepare_file_stream_direct', {
+				id: this.file.id,
+				config_name: this.ffmpeg_config.name,
+			}).then(response => {
+				console.log(response.data)
+				this.prepared_filesize = response.data.filesize
+				this.is_preparing = false
+				var file = this.file
+				file.play_back_type = 'cached_stream'
+				file.filesize = response.data.filesize
+				this.playing_file = file
+			})
+		},
+	},
+	watch: {
+		file() {
+			// 如果没有勾选 prepare 则直接播放
+			// 否则进入 prepare 流程
+			if (this.prepare) {
+				this.prepare_func()
+			} else {
+				this.playing_file = this.file
+			}
+		},
+		ffmpeg_config() {
+			if (this.prepare) {
+				this.playing_file = {}
+				this.prepare_func()
+			}
+		},
 	},
 	computed: {
 		computed_readable_size() {
-			let filesize = this.file.filesize
-			if (filesize < 1024) {
+			if (this.is_preparing) {
+				return 'Preparing...'
+			}
+			let filesize = this.playing_file.filesize
+			if (filesize < 1024 * 1024) {
 				return filesize
 			}
-			if (filesize < 1024 * 1024) {
+			if (filesize < 1024 * 1024 * 1024) {
 				return Math.round(filesize / 1024) + 'K'
 			}
-			if (filesize < 1024 * 1024 * 1024) {
-				return Math.round(filesize / 1024 / 1024) + 'M'
-			}
 			if (filesize < 1024 * 1024 * 1024 * 1024) {
-				return Math.round(filesize / 1024 / 1024 / 1024) + 'G'
+				return Math.round(filesize / 1024 / 1024) + 'M'
 			}
 		},
 		computed_playing_audio_file_url() {
-			if (this.file.play_back_type === 'raw') {
-				return '/api/v1/get_file_direct?id=' + this.file.id
-			} else if (this.file.play_back_type === 'stream') {
-				return '/api/v1/get_file_stream?id=' + this.file.id + '&config=' + this.ffmpeg_config.name
+			if (this.playing_file.play_back_type === 'raw') {
+				return '/api/v1/get_file_direct?id=' + this.playing_file.id
+			} else if (this.playing_file.play_back_type === 'stream') {
+				if (this.prepare) {
+					this.prepare_func()
+				} else {
+					return '/api/v1/get_file_stream?id=' + this.playing_file.id + '&config=' + this.ffmpeg_config.name
+				}
+			} else if (this.playing_file.play_back_type === 'cached_stream') {
+					return '/api/v1/get_file_stream_direct?id=' + this.playing_file.id + '&config=' + this.ffmpeg_config.name
 			}
+		},
+		computed_video_show() {
+			return this.playing_file.id ? true : false
 		},
 		computed_show() {
 			return this.file.id ? true : false
