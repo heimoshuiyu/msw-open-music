@@ -1,0 +1,38 @@
+<html>
+
+<body>
+	<h1>title</h1>
+	<audio id="player" autoplay controls></audio>
+</body>
+
+</html>
+<script>
+	var video = document.getElementById("player")
+
+	var url = "/api/v1/get_file_stream?id=38508&config=0. OPUS 128k"
+
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", url, true);
+	xhr.responseType = "arraybuffer";
+
+	xhr.onload = function (oEvent) {
+
+		var blob = new Blob([oEvent.target.response]);
+
+		video.src = URL.createObjectURL(blob);
+
+		//video.play()  if you want it to play on load
+	};
+
+	xhr.onprogress = function (oEvent) {
+		console.log(oEvent.loaded)
+
+		if (oEvent.lengthComputable) {
+			var percentComplete = oEvent.loaded / oEvent.total;
+			// do something with this
+			console.log(percentComplete);
+		}
+	}
+
+	xhr.send();
+</script>
