@@ -498,7 +498,6 @@ const component_audio_player = {
 	props: ["file"],
 	template: `
 <div>
-<div v-if="computed_show">
 <h5>Player Status</h5>
 <component-file-dialog
 	@close_dialog="close_dialog"
@@ -506,7 +505,7 @@ const component_audio_player = {
 	:show_dialog="show_dialog"
 	:file="file"
 ></component-file-dialog>
-<span>
+<span v-if="computed_show">
 	<button @click="dialog">{{ file.filename }}</button>
 	<button @click="show_folder">{{ file.foldername }}</button> 
 	<button>{{ computed_readable_size }}</button>
@@ -519,7 +518,6 @@ const component_audio_player = {
 <label>Prepare</label><br />
 <video v-if="computed_video_show" class="audio-player" :src="computed_playing_audio_file_url" controls autoplay :loop="loop">
 </video>
-</div>
 <component-stream-config @set_ffmpeg_config="set_ffmpeg_config"></component-stream-config>
 </div>
 `,
