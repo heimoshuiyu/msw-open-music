@@ -536,7 +536,7 @@ const component_audio_player = {
 			this.$router.push({
 				path: '/search_folders',
 				query: {
-					folder_id: this.this_file.folder_id,
+					folder_id: this.file.folder_id,
 				}
 			})
 		},
@@ -555,7 +555,6 @@ const component_audio_player = {
 				this.is_preparing = false
 				var file = this.file
 				file.play_back_type = 'cached_stream'
-				file.filesize = response.data.filesize
 				this.playing_file = file
 			})
 		},
@@ -583,6 +582,9 @@ const component_audio_player = {
 				return 'Preparing...'
 			}
 			let filesize = this.playing_file.filesize
+			if (this.prepare) {
+				filesize = this.prepared_filesize
+			}
 			if (filesize < 1024 * 1024) {
 				return filesize
 			}
