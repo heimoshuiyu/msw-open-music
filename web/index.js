@@ -602,15 +602,14 @@ const component_audio_player = {
 			if (this.playing_file.play_back_type === 'raw') {
 				filesize = this.playing_file.filesize
 			}
-			if (filesize < 1024 * 1024) {
-				return filesize
-			}
 			if (filesize < 1024 * 1024 * 1024) {
-				return Math.round(filesize / 1024) + 'K'
+				filesize = Math.round(filesize / 1024) + 'K'
 			}
 			if (filesize < 1024 * 1024 * 1024 * 1024) {
-				return Math.round(filesize / 1024 / 1024) + 'M'
+				filesize = Math.round(filesize / 1024 / 1024) + 'M'
 			}
+			// add separater to number
+			return filesize.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 		},
 		computed_playing_audio_file_url() {
 			if (this.playing_file.play_back_type === 'raw') {
