@@ -63,6 +63,7 @@ const component_search_folders = {
 			files_in_folder: [],
 			playing_audio_file: {},
 			is_loading: false,
+			error_status: "",
 		}
 	},
 	computed: {
@@ -70,11 +71,17 @@ const component_search_folders = {
 			if (this.is_loading) {
 				return 'Loading...'
 			}
+			if (this.error_status) {
+				return this.error_status
+			}
 			return this.offset + ' ~ ' + (this.offset + this.folders.length)
 		},
 		computed_files_page() {
 			if (this.is_loading) {
 				return 'Loading...'
+			}
+			if (this.error_status) {
+				return this.error_status
 			}
 			return this.folder_offset + ' ~ ' + (this.folder_offset + this.files_in_folder.length)
 		},
@@ -158,8 +165,12 @@ const component_search_folders = {
 				limit: this.folder_limit,
 				offset: this.folder_offset,
 			}).then((response) => {
-				this.is_loading = false
+				this.error_status = ""
 				this.files_in_folder = response.data.files
+			}).catch((error) => {
+				this.error_status = error.response.data.status
+			}).finally(() => {
+				this.is_loading = false
 			})
 		},
 		last_page() {
@@ -179,14 +190,18 @@ const component_search_folders = {
 			this.search_folders()
 		},
 		search_folders() {
-			this. is_loading = true
+			this.is_loading = true
 			axios.post('/api/v1/search_folders', {
 				foldername: this.search_foldernames,
 				limit: this.limit,
 				offset: this.offset,
 			}).then((response) => {
-				this.is_loading = false
+				this.error_status = ""
 				this.folders = response.data.folders
+			}).catch((error) => {
+				this.error_status = error.response.data.status
+			}).finally(() => {
+				this.is_loading = false
 			})
 		},
 	},
@@ -624,6 +639,9 @@ const component_search_files = {
 			if (this.is_loading) {
 				return 'Loading...'
 			}
+			if (this.error_status) {
+				return this.error_status
+			}
 			return this.offset + ' ~ ' + (this.offset + this.files.length)
 		},
 	},
@@ -662,6 +680,7 @@ const component_search_files = {
 			limit: 10,
 			playing_audio_file: {},
 			is_loading: false,
+			error_status: "",
 		}
 	},
 	methods: {
@@ -676,8 +695,12 @@ const component_search_files = {
 				limit: this.limit,
 				offset: this.offset,
 			}).then((response) => {
-				this.is_loading = false
+				this.error_status = ""
 				this.files = response.data.files
+			}).catch((error) => {
+				this.error_status = error.response.data.status
+			}).finally(() => {
+				this.is_loading = false
 			})
 		},
 		last_page() {
