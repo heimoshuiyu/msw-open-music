@@ -81,6 +81,7 @@ const component_search_folders = {
 	},
 	template: `
 <div class="page">
+<h3>Search Folders</h3>
 <div class="search_toolbar">
 <input type="text" @keyup.enter="first_search_folders" v-model="search_foldernames" placeholder="Enter folder name" />
 <button @click="first_search_folders">Search Folders</Button>
@@ -104,6 +105,7 @@ const component_search_folders = {
 </tbody>
 </table>
 
+<h3>Files in folder</h3>
 <div class="search_toolbar">
 <button @click="folder_last_page">Last Page</button>
 <span>{{ computed_files_page }}</span>
@@ -630,6 +632,7 @@ const component_search_files = {
 	},
 	template: `
 <div class="page">
+<h3>Search Files</h3>
 <div class="search_toolbar">
 <input type="text" name="filename" @keyup.enter="first_search_files" v-model="search_filenames" placeholder="Enter filename" />
 <button @click="first_search_files">Search</button>
@@ -715,7 +718,7 @@ const component_get_random_files = {
 	template: `
 <div class="page">
 <div class="search_toolbar">
-	<button @click="get_random_files">{{ computed_refresh }}</button>
+	<button class="refresh" @click="get_random_files">{{ computed_refresh }}</button>
 </div>
 <table>
 	<thead>

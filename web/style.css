@@ -58,9 +58,13 @@ div.search_toolbar {
 	flex-direction: row;
 	flex-wrap: wrap;
 	justify-content: flex-end;
+	width: 100%;
 }
 div.feedback {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
+}
+button.refresh {
+	width: 100%;
 }
