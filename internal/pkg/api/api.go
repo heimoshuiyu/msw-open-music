@@ -677,7 +677,7 @@ type APIConfig struct {
 	FfmpegConfigs map[string]*FfmpegConfig `json:"ffmpeg_configs"`
 }
 
-func NewAPI(apiConfig APIConfig) (*API, error) {
+func NewAPI(apiConfig APIConfig, tmpfsConfig tmpfs.TmpfsConfig) (*API, error) {
 	var err error
 
 	db, err := database.NewDatabase(apiConfig.DatabaseName)
@@ -696,7 +696,7 @@ func NewAPI(apiConfig APIConfig) (*API, error) {
 		},
 		APIConfig: apiConfig,
 	}
-	api.Tmpfs = tmpfs.NewTmpfs()
+	api.Tmpfs = tmpfs.NewTmpfs(tmpfsConfig)
 
 	// mount api
 	apiMux.HandleFunc("/hello", api.HandleOK)

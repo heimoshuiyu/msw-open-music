@@ -1,0 +1,23 @@
+{
+	"api": {
+		"database_name": "music.sqlite3",
+		"addr": ":8080",
+		"token": "!! config your very strong token here !!",
+		"ffmpeg_threads": 1,
+		"ffmpeg_configs": {
+			"0. OPUS 128k": {"args": "-c:a libopus -ab 128k"},
+			"1. OPUS 96k": {"args": "-c:a libopus -ab 96k"},
+			"2. OPUS 256k": {"args": "-c:a libopus -ab 256k"},
+			"3. OPUS 320k": {"args": "-c:a libopus -ab 320k"},
+			"4. OPUS 512k": {"args": "-c:a libopus -ab 512k"},
+			"5. AAC 128k": {"args": "-c:a aac -ab 128k"},
+			"6. AAC 256k": {"args": "-c:a aac -ab 256k"},
+			"7. 全损音质 32k": {"args": "-c:a libopus -ab 32k"}
+		}
+	},
+	"tmpfs": {
+		"file_life_time": 600,
+		"cleaner_internal": 1,
+		"root": "/tmp/"
+	}
+}

@@ -5,34 +5,44 @@ import (
 	"flag"
 	"log"
 	"msw-open-music/internal/pkg/api"
+	"msw-open-music/internal/pkg/tmpfs"
 	"os"
 )
 
-var APIConfigFilePath string
+var ConfigFilePath string
 
 func init() {
-	flag.StringVar(&APIConfigFilePath, "apiconfig", "api_config.json", "API Config Json file")
+	flag.StringVar(&ConfigFilePath, "config", "config.json", "backend config file path")
+}
+
+type Config struct {
+	APIConfig api.APIConfig `json:"api"`
+	TmpfsConfig tmpfs.TmpfsConfig `json:"tmpfs"`
 }
 
 func main() {
 	var err error
 	flag.Parse()
-	apiConfig := api.NewAPIConfig()
 
-	apiConfigFile, err := os.Open(APIConfigFilePath)
+	config := Config{}
+	configFile, err := os.Open(ConfigFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = json.NewDecoder(apiConfigFile).Decode(&apiConfig)
+	err = json.NewDecoder(configFile).Decode(&config)
 	if err != nil {
 		log.Fatal(err)
 	}
-	apiConfigFile.Close()
+	configFile.Close()
 
-	api, err := api.NewAPI(apiConfig)
+	api, err := api.NewAPI(config.APIConfig, config.TmpfsConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Starting", apiConfig.DatabaseName, apiConfig.Addr, apiConfig.Token)
+	log.Println("Starting",
+		config.APIConfig.DatabaseName,
+		config.APIConfig.Addr,
+		config.APIConfig.Token,
+	)
 	log.Fatal(api.Server.ListenAndServe())
 }

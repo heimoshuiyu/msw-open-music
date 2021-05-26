@@ -11,22 +11,29 @@ import (
 
 type Tmpfs struct {
 	record map[string]int64
-	Root string
-	FileLifeTime int64
-	CleanerInternal int64
+	Config TmpfsConfig
 	wg sync.WaitGroup
 }
 
 func (tmpfs *Tmpfs) GetObjFilePath(id int64, configName string) (string) {
-	return filepath.Join(tmpfs.Root, strconv.FormatInt(id, 10) + "." + configName + ".ogg")
+	return filepath.Join(tmpfs.Config.Root, strconv.FormatInt(id, 10) + "." + configName + ".ogg")
 }
 
-func NewTmpfs() *Tmpfs {
+type TmpfsConfig struct {
+	FileLifeTime int64 `json:"file_life_time"`
+	CleanerInternal int64 `json:"cleaner_internal"`
+	Root string `json:"root"`
+}
+
+func NewTmpfsConfig() (*TmpfsConfig) {
+	config := &TmpfsConfig{}
+	return config
+}
+
+func NewTmpfs(config TmpfsConfig) *Tmpfs {
 	tmpfs := &Tmpfs{
 		record: make(map[string]int64),
-		FileLifeTime: 10*60, // ! important
-		CleanerInternal: 1,
-		Root: "/tmp/",
+		Config: config,
 	}
 	tmpfs.wg.Add(1)
 	go tmpfs.Cleaner()
@@ -47,7 +54,7 @@ func (tmpfs *Tmpfs) Cleaner() {
 	for {
 		now := time.Now().Unix()
 		for key, value := range tmpfs.record {
-			if now - value > tmpfs.FileLifeTime {
+			if now - value > tmpfs.Config.FileLifeTime {
 				err = os.Remove(key)
 				if err != nil {
 					log.Println("[tmpfs] Failed to remove file", err)

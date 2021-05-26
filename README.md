@@ -26,16 +26,19 @@ Fork from `msw-file`，目前是一个音乐播放器。
 
 ### 后端使用
 
-初次使用请配置 `api_config.json`， **最重要的是配置 `token`** 。
+初次使用请配置 `config.json`， **最重要的是配置 `token`** 。
 
 默认 ffmpeg 线程 `ffmpeg_threads` 为 1 ，大于 1 以上的值似乎对编码音频没有效果。
 
-#### api_config.json 说明
+#### config.json 说明
 
 - `database_name` 字符串类型，指定 sqlite3 单文件数据库的位置，如果不存在则会自动创建。
 - `addr` api 服务监听端口，该参数会被传入 `http.Serve.Addr`
 - `token` 字符串，作为管理密码
 - `ffmpeg_configs`，字典，其键是 ffmpeg 配置的名称，其值是放入 `ffmpeg -i input.mp3 -vn [此处] -f matroska -` 的参数，类型是字符串。 **注意：** 前端会按键名来排序配置列表，并以列表中的第一项作为默认配置。
+- `file_life_time` 临时文件生存时间，超过该时间没有访问该临时文件，tmpfs 将删除此文件。
+- `cleaner_internal` 清理器的检查间隔。
+- `root` 存放该临时文件目录， **Windows 用户请替换成合适的目录。**
 
 ### 前端使用
 
