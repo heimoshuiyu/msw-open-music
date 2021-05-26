@@ -246,7 +246,7 @@ const component_manage= {
 <div class="description">
 <h4>关于本站</h4>
 <p>一只随处可见的 葱厨&车万人 想听 TA 屯在硬盘里的音乐。</p>
-<p>一点点说明：下方播放器的 Prepare 模式，勾选后以 stream 模式播放的文件将提前在服务器端转码，服务器将保留临时文件10分钟，如果你的网络不稳定，经常播放到一半就中断，可以尝试勾选 prepare。</p>
+<p>一点点说明：下方播放器的 Raw 模式即不转码直接播放源文件，支持断点续传；Prepare 模式：勾选后播放的文件将提前在服务器端转码，然后以支持断点续传的方式提供，如果你的网络不稳定，经常播放到一半就中断，可以尝试勾选 Prepare。</p>
 <p>站内音乐来自公开网络，仅供个人使用，如有侵权或建议请提交反馈</p>
 <div class="feedback">
 	<input type="text" v-model="feedback" :disabled="submit_disabled" :placeholder="feedback_placeholder"/>
@@ -353,12 +353,10 @@ const component_file_dialog = {
 	<p>{{ file.filename }}</p>
 	<p>
 		Download 使用 Axios 异步下载<br />
-		Play 调用网页播放器播放源文件<br />
-		Stream 将串流播放稍低码率的文件<br />
+		Play 调用网页播放器播放<br />
 	</p>
 	<button @click="download_file(file)" :disabled="disabled">{{ computed_download_status }}</button>
 	<button @click="emit_play_audio">Play</button>
-	<button @click="emit_stream_audio">Stream</button>
 	<button @click="share">Share</button>
 	<button @click="emit_close_dialog">Close</button>
 </dialog>
@@ -382,14 +380,8 @@ const component_file_dialog = {
 		emit_close_dialog() {
 			this.$emit('close_dialog')
 		},
-		emit_stream_audio() {
-			this.file.play_back_type = 'stream'
-			this.$emit("play_audio", this.file)
-			this.emit_close_dialog()
-		},
 		emit_play_audio() {
 			console.log("pressed button")
-			this.file.play_back_type = 'raw'
 			this.$emit("play_audio", this.file)
 			this.emit_close_dialog()
 		},
@@ -506,6 +498,8 @@ const component_audio_player = {
 			show_dialog: false,
 			is_preparing: false,
 			prepare: false,
+			raw: false,
+			playing_url: "",
 			prepared_filesize: 0,
 			playing_file: {},
 		}
@@ -529,9 +523,11 @@ const component_audio_player = {
 <br />
 <input type="checkbox" v-model="loop" />
 <label>Loop</label>
-<input type="checkbox" v-model="prepare" />
-<label>Prepare</label><br />
-<video v-if="computed_video_show" class="audio-player" :src="computed_playing_audio_file_url" controls autoplay :loop="loop">
+<input type="checkbox" v-model="raw" />
+<label>Raw</label>
+<input v-show="!raw" type="checkbox" v-model="prepare" />
+<label v-show="!raw">Prepare</label><br />
+<video v-if="computed_video_show" class="audio-player" :src="playing_url" controls autoplay :loop="loop">
 </video>
 <component-stream-config @set_ffmpeg_config="set_ffmpeg_config"></component-stream-config>
 </div>
@@ -568,20 +564,44 @@ const component_audio_player = {
 				this.prepared_filesize = response.data.filesize
 				this.is_preparing = false
 				var file = this.file
-				file.play_back_type = 'cached_stream'
 				this.playing_file = file
+				this.set_playing_url()
+				console.log('axios done', this.playing_file)
 			})
+		},
+		set_playing_url() {
+			if (this.raw) {
+				console.log('computed raw rul')
+				this.playing_url = '/api/v1/get_file_direct?id=' + this.playing_file.id
+			} else {
+				if (this.prepare) {
+					console.log('empty playing_file, start prepare')
+					this.playing_url = '/api/v1/get_file_stream_direct?id=' + this.playing_file.id + '&config=' + this.ffmpeg_config.name
+				} else {
+					console.log('computed stream url')
+					this.playing_url = '/api/v1/get_file_stream?id=' + this.playing_file.id + '&config=' + this.ffmpeg_config.name
+				}
+			}
 		},
 	},
 	watch: {
 		file() {
 			// 如果没有勾选 prepare 则直接播放
 			// 否则进入 prepare 流程
-			if (this.prepare && this.file.play_back_type === 'stream') {
+			this.playing_file = {}
+			if (this.prepare && !this.raw) {
 				this.prepare_func()
 			} else {
 				this.playing_file = this.file
+				this.set_playing_url()
 			}
+		},
+		raw() {
+			this.set_playing_url()
+		},
+		prepare() {
+			this.playing_file = {}
+			this.prepare_func()
 		},
 		ffmpeg_config() {
 			if (this.prepare) {
@@ -599,7 +619,7 @@ const component_audio_player = {
 			if (this.prepare) {
 				filesize = this.prepared_filesize
 			}
-			if (this.playing_file.play_back_type === 'raw') {
+			if (this.raw) {
 				filesize = this.playing_file.filesize
 			}
 			if (filesize < 1024 * 1024 * 1024) {
@@ -611,21 +631,11 @@ const component_audio_player = {
 			// add separater to number
 			return filesize.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 		},
-		computed_playing_audio_file_url() {
-			if (this.playing_file.play_back_type === 'raw') {
-				return '/api/v1/get_file_direct?id=' + this.playing_file.id
-			} else if (this.playing_file.play_back_type === 'stream') {
-				if (this.prepare) {
-					this.prepare_func()
-				} else {
-					return '/api/v1/get_file_stream?id=' + this.playing_file.id + '&config=' + this.ffmpeg_config.name
-				}
-			} else if (this.playing_file.play_back_type === 'cached_stream') {
-					return '/api/v1/get_file_stream_direct?id=' + this.playing_file.id + '&config=' + this.ffmpeg_config.name
-			}
-		},
 		computed_video_show() {
-			return this.playing_file.id ? true : false
+			if (this.playing_file.id && this.playing_url) {
+				return true
+			}
+			return false
 		},
 		computed_show() {
 			return this.file.id ? true : false
