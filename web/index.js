@@ -600,7 +600,11 @@ const component_audio_player = {
 			}
 		},
 		raw() {
-			this.set_playing_url()
+			if (this.prepare) {
+				this.prepare_func()
+			} else {
+				this.set_playing_url()
+			}
 		},
 		prepare() {
 			this.playing_file = {}
