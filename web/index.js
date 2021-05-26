@@ -502,6 +502,7 @@ const component_audio_player = {
 			playing_url: "",
 			prepared_filesize: 0,
 			playing_file: {},
+			error_status: "",
 		}
 	},
 	props: ["file"],
@@ -518,6 +519,7 @@ const component_audio_player = {
 	<button @click="dialog">{{ file.filename }}</button>
 	<button @click="show_folder">{{ file.foldername }}</button> 
 	<button disabled>{{ computed_readable_size }}</button>
+	<button v-if="error_status" @click="retry">Retry</button>
 	<button @click="emit_stop">Stop</button>
 </span>
 <br />
@@ -564,12 +566,19 @@ const component_audio_player = {
 				config_name: this.ffmpeg_config.name,
 			}).then(response => {
 				console.log(response.data)
+				this.error_status = ''
 				this.prepared_filesize = response.data.filesize
 				this.is_preparing = false
 				var file = this.file
 				this.playing_file = file
 				this.set_playing_url()
 				console.log('axios done', this.playing_file)
+			}).catch((err) => {
+				if (err.response) {
+					this.error_status = err.response.data.status
+				} else {
+					this.error_status = "Network error"
+				}
 			})
 		},
 		set_playing_url() {
@@ -586,9 +595,7 @@ const component_audio_player = {
 				}
 			}
 		},
-	},
-	watch: {
-		file() {
+		setup_player() {
 			// 如果没有勾选 prepare 则直接播放
 			// 否则进入 prepare 流程
 			this.playing_file = {}
@@ -598,6 +605,14 @@ const component_audio_player = {
 				this.playing_file = this.file
 				this.set_playing_url()
 			}
+		},
+		retry() {
+			this.setup_player()
+		},
+	},
+	watch: {
+		file() {
+			this.setup_player()
 		},
 		raw() {
 			if (this.prepare) {
@@ -618,7 +633,13 @@ const component_audio_player = {
 		},
 	},
 	computed: {
+		computed_can_retry() {
+			return this.error_status ? true : false
+		},
 		computed_readable_size() {
+			if (this.error_status) {
+				return this.error_status
+			}
 			if (this.is_preparing) {
 				return 'Preparing...'
 			}
