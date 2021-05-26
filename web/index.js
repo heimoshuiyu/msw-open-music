@@ -568,7 +568,6 @@ const component_audio_player = {
 				console.log(response.data)
 				this.error_status = ''
 				this.prepared_filesize = response.data.filesize
-				this.is_preparing = false
 				var file = this.file
 				this.playing_file = file
 				this.set_playing_url()
@@ -579,6 +578,8 @@ const component_audio_player = {
 				} else {
 					this.error_status = "Network error"
 				}
+			}).finally(() => {
+				this.is_preparing = false
 			})
 		},
 		set_playing_url() {
@@ -637,11 +638,11 @@ const component_audio_player = {
 			return this.error_status ? true : false
 		},
 		computed_readable_size() {
-			if (this.error_status) {
-				return this.error_status
-			}
 			if (this.is_preparing) {
 				return 'Preparing...'
+			}
+			if (this.error_status) {
+				return this.error_status
 			}
 			let filesize = this.playing_file.filesize
 			if (this.prepare) {
