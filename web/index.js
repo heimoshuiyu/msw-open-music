@@ -554,6 +554,9 @@ const component_audio_player = {
 			this.ffmpeg_config = ffmpeg_config
 		},
 		prepare_func() {
+			if (!this.file.id) {
+				return
+			}
 			this.playing_file = {}
 			this.is_preparing = true
 			axios.post('/api/v1/prepare_file_stream_direct', {
