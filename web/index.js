@@ -12,7 +12,6 @@ const component_share = {
 	<th>Filename</th>
 	<th>Folder Name</th>
 	<th>Size</th>
-	<th>Action</th>
 </tr>
 </thead>
 <tbody>
