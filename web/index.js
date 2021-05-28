@@ -521,7 +521,7 @@ const component_audio_player = {
 			error_status: "",
 		}
 	},
-	props: ["file"],
+	props: ['file', 'token'],
 	template: `
 <div>
 <h5>Player Status</h5>
@@ -548,6 +548,7 @@ const component_audio_player = {
 <video v-if="computed_video_show" class="audio-player" :src="playing_url" controls autoplay :loop="loop">
 </video>
 <component-stream-config @set_ffmpeg_config="set_ffmpeg_config"></component-stream-config>
+<p>{{ token }}</p>
 </div>
 `,
 	methods: {

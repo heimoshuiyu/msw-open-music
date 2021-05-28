@@ -29,8 +29,7 @@
 			<router-view :token="token" @set_token="set_token" @play_audio="play_audio"></router-view>
 		</main>
 		<footer>
-			<component-audio-player @stop="stop" @play_audio="play_audio" :file=playing_audio_file></component-audio-player>
-			<p>{{ token }}</p>
+			<component-audio-player :token="token" @stop="stop" @play_audio="play_audio" :file=playing_audio_file></component-audio-player>
 		</footer>
 	</div>
 </body>
