@@ -513,6 +513,9 @@ func (api *API) HandleGetFileStreamDirect(w http.ResponseWriter, r *http.Request
 	configName := configs[0]
 
 	path := api.Tmpfs.GetObjFilePath(int64(id), configName)
+	if api.Tmpfs.Exits(path) {
+		api.Tmpfs.Record(path)
+	}
 
 	log.Println("[api] Get direct cached file", path)
 
