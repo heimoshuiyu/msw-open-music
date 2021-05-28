@@ -4,6 +4,7 @@ const component_share = {
 	template: `
 <div class="page">
 <h3>Share with others!</h3>
+<p v-if="error_status">{{ error_status }}</p>
 <p>Share link: <a :href="computed_share_link">{{ computed_share_link }}</a> , or share this page directly.</p>
 <table>
 <thead>
@@ -30,6 +31,7 @@ const component_share = {
 	data() {
 		return {
 			file: {},
+			error_status: "",
 		}
 	},
 	mounted() {
@@ -43,6 +45,12 @@ const component_share = {
 				id: parseInt(this.$route.query.id),
 			}).then((response) => {
 				this.file = response.data
+			}).catch((error) => {
+				if (error.response) {
+					this.error_status = error.response.data.status
+				} else {
+					this.error_status = 'Network error'
+				}
 			})
 		},
 	},
@@ -168,7 +176,11 @@ const component_search_folders = {
 				this.error_status = ""
 				this.files_in_folder = response.data.files
 			}).catch((error) => {
-				this.error_status = error.response.data.status
+				if (error.response) {
+					this.error_status = error.response.data.status
+				} else {
+					this.error_status = 'Network error'
+				}
 			}).finally(() => {
 				this.is_loading = false
 			})
@@ -199,7 +211,11 @@ const component_search_folders = {
 				this.error_status = ""
 				this.folders = response.data.folders
 			}).catch((error) => {
-				this.error_status = error.response.data.status
+				if (error.response) {
+					this.error_status = error.response.data.status
+				} else {
+					this.error_status = 'Network error'
+				}
 			}).finally(() => {
 				this.is_loading = false
 			})
@@ -627,10 +643,7 @@ const component_audio_player = {
 			this.prepare_func()
 		},
 		ffmpeg_config() {
-			if (this.prepare) {
-				this.playing_file = {}
-				this.prepare_func()
-			}
+			this.setup_player()
 		},
 	},
 	computed: {
@@ -739,7 +752,11 @@ const component_search_files = {
 				this.error_status = ""
 				this.files = response.data.files
 			}).catch((error) => {
-				this.error_status = error.response.data.status
+				if (error.response) {
+					this.error_status = error.response.data.status
+				} else {
+					this.error_status = 'Network error'
+				}
 			}).finally(() => {
 				this.is_loading = false
 			})
@@ -766,10 +783,14 @@ const component_get_random_files = {
 		return {
 			files: [],
 			is_loading: false,
+			error_status: "",
 		}
 	},
 	computed: {
 		computed_refresh() {
+			if (this.error_status) {
+				return this.error_status
+			}
 			if (this.is_loading) {
 				return 'Loading...'
 			}
@@ -806,8 +827,16 @@ const component_get_random_files = {
 			this.is_loading = true
 			axios.get('/api/v1/get_random_files'
 			).then(response => {
-				this.is_loading = false
+				this.error_status = ""
 				this.files = response.data.files;
+			}).catch((error) => {
+				if (error.response) {
+					this.error_status = error.response.data.status
+				} else {
+					this.error_status = 'Network error'
+				}
+			}).finally(() => {
+				this.is_loading = false
 			})
 		}
 	},
