@@ -132,7 +132,6 @@ const component_search_folders = {
 			<th>Filename</th>
 			<th>Folder Name</th>
 			<th>Size</th>
-			<th>Action</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -443,9 +442,7 @@ const component_file = {
 	template: `
 <td class="clickable" @click="click_filename">{{ file.filename }}</td>
 <td class="clickable" @click="show_folder">{{ file.foldername }}</td>
-<td>{{ computed_readable_size }}</td>
-<td>
-	<button class="dialog" @click="dialog">Dialog</button>
+<td>{{ computed_readable_size }}
 	<component-file-dialog
 		@close_dialog="close_dialog"
 		@play_audio="$emit('play_audio', $event)"
@@ -716,7 +713,6 @@ const component_search_files = {
 			<th>Filename</th>
 			<th>Folder Name</th>
 			<th>Size</th>
-			<th>Action</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -809,7 +805,6 @@ const component_get_random_files = {
 			<th>Filename</th>
 			<th>Folder Name</th>
 			<th>Size</th>
-			<th>Action</th>
 		</tr>
 	</thead>
 	<tbody>
