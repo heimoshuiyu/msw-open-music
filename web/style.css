@@ -68,3 +68,7 @@ div.feedback {
 button.refresh {
 	width: 100%;
 }
+button.dialog {
+	padding-right: 1em;
+	padding-left: 1em;
+}

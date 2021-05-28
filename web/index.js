@@ -445,7 +445,7 @@ const component_file = {
 <td class="clickable" @click="show_folder">{{ file.foldername }}</td>
 <td>{{ computed_readable_size }}</td>
 <td>
-	<button @click="dialog">Dialog</button>
+	<button class="dialog" @click="dialog">Dialog</button>
 	<component-file-dialog
 		@close_dialog="close_dialog"
 		@play_audio="$emit('play_audio', $event)"
