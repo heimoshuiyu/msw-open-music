@@ -10,7 +10,9 @@ However, in the era of digital copyright, there are still many advantages to get
 
 Some people don't like streaming platforms. They like to collect music (download or buy CDs) and save it on their computers. But as more and more music is collected (over 70,000 songs and in total size of 800GB), it becomes very difficult to manage files. It is difficult for them to find where the songs they want to listen to are saved. Also, lossless music files are large and difficult to play online.
 
-So we decided to develop a project based on database knowledge to help people who have collected a lot of music to enjoy their music simply.
+As long as there no such "Self-hosted music streaming platform" software available, we decided to develop a project based on database knowledge to help people who have collected a lot of music to enjoy their music simply.
+
+We will handle various relevant types of data in our database. Including song name, album name, file size, update date, rating, comment, user information, etc. They are highly relevant, so using a relational database will be a good choice.
 
 The features of the project we designed are as follows:
 
