@@ -5,7 +5,6 @@ import (
 	"flag"
 	"log"
 	"msw-open-music/internal/pkg/api"
-	"msw-open-music/internal/pkg/tmpfs"
 	"os"
 )
 
@@ -15,16 +14,12 @@ func init() {
 	flag.StringVar(&ConfigFilePath, "config", "config.json", "backend config file path")
 }
 
-type Config struct {
-	APIConfig api.APIConfig `json:"api"`
-	TmpfsConfig tmpfs.TmpfsConfig `json:"tmpfs"`
-}
 
 func main() {
 	var err error
 	flag.Parse()
 
-	config := Config{}
+	config := api.Config{}
 	configFile, err := os.Open(ConfigFilePath)
 	if err != nil {
 		log.Fatal(err)
@@ -35,7 +30,7 @@ func main() {
 	}
 	configFile.Close()
 
-	api, err := api.NewAPI(config.APIConfig, config.TmpfsConfig)
+	api, err := api.NewAPI(config)
 	if err != nil {
 		log.Fatal(err)
 	}

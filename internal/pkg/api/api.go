@@ -24,8 +24,8 @@ type API struct {
 	Tmpfs *tmpfs.Tmpfs
 }
 
-type FfmpegConfigs struct {
-	FfmpegConfigs map[string]*FfmpegConfig `json:"ffmpeg_configs"`
+type FfmpegConfigList struct {
+	FfmpegConfigList []FfmpegConfig `json:"ffmpeg_config_list"`
 }
 
 type AddFfmpegConfigRequest struct {
@@ -35,6 +35,7 @@ type AddFfmpegConfigRequest struct {
 }
 
 type FfmpegConfig struct {
+	Name string `json:"name"`
 	Args string `json:"args"`
 }
 
@@ -371,6 +372,19 @@ func (api *API) CheckGetFileStream(w http.ResponseWriter, r *http.Request) (erro
 	return nil
 }
 
+func (api *API) GetFfmpegConfig(configName string) (FfmpegConfig, bool) {
+	ffmpegConfig := FfmpegConfig{}
+	for _, f := range api.APIConfig.FfmpegConfigList {
+		if f.Name == configName {
+			ffmpegConfig = f
+		}
+	}
+	if ffmpegConfig.Name == "" {
+		return ffmpegConfig, false
+	}
+	return ffmpegConfig, true
+}
+
 func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
 	err := api.CheckGetFileStream(w, r)
 	if err != nil {
@@ -395,7 +409,7 @@ func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("[api] Stream file", path, configName)
 
-	ffmpegConfig, ok := api.APIConfig.FfmpegConfigs[configName]
+	ffmpegConfig, ok := api.GetFfmpegConfig(configName)
 	if !ok {
 		api.HandleErrorStringCode(w, r, `ffmpeg config not found`, 404)
 		return
@@ -455,7 +469,7 @@ func (api *API) HandlePrepareFileStreamDirect(w http.ResponseWriter, r *http.Req
 	}
 
 	log.Println("[api] Prepare stream direct file", srcPath, prepareFileStreamDirectRequst.ConfigName)
-	ffmpegConfig, ok := api.APIConfig.FfmpegConfigs[prepareFileStreamDirectRequst.ConfigName]
+	ffmpegConfig, ok := api.GetFfmpegConfig(prepareFileStreamDirectRequst.ConfigName)
 	if !ok {
 		api.HandleErrorStringCode(w, r, `ffmpeg config not found`, 404)
 		return
@@ -593,10 +607,10 @@ func (api *API) HandleGetFile(w http.ResponseWriter, r *http.Request) {
 
 func (api *API) HandleGetFfmpegConfigs(w http.ResponseWriter, r *http.Request) {
 	log.Println("[api] Get ffmpeg config list")
-	ffmpegConfigs:= &FfmpegConfigs{
-		FfmpegConfigs: api.APIConfig.FfmpegConfigs,
+	ffmpegConfigList:= &FfmpegConfigList{
+		FfmpegConfigList: api.APIConfig.FfmpegConfigList,
 	}
-	json.NewEncoder(w).Encode(&ffmpegConfigs)
+	json.NewEncoder(w).Encode(&ffmpegConfigList)
 }
 
 func (api *API) HandleAddFfmpegConfig(w http.ResponseWriter, r *http.Request) {
@@ -625,7 +639,8 @@ func (api *API) HandleAddFfmpegConfig(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("[api] Add ffmpeg config")
 
-	api.APIConfig.FfmpegConfigs[addFfmpegConfigRequest.Name] = &addFfmpegConfigRequest.FfmpegConfig
+	api.APIConfig.FfmpegConfigList = append(api.APIConfig.FfmpegConfigList, addFfmpegConfigRequest.FfmpegConfig)
+
 	api.HandleOK(w, r)
 }
 
@@ -666,9 +681,7 @@ func (api *API) HandleFeedback(w http.ResponseWriter, r *http.Request) {
 }
 
 func NewAPIConfig() (APIConfig) {
-	apiConfig := APIConfig{
-		FfmpegConfigs: make(map[string]*FfmpegConfig),
-	}
+	apiConfig := APIConfig{}
 	return apiConfig
 }
 
@@ -677,11 +690,19 @@ type APIConfig struct {
 	Addr string `json:"addr"`
 	Token string `json:"token"`
 	FfmpegThreads int64 `json:"ffmpeg_threads"`
-	FfmpegConfigs map[string]*FfmpegConfig `json:"ffmpeg_configs"`
+	FfmpegConfigList []FfmpegConfig `json:"ffmpeg_config_list"`
 }
 
-func NewAPI(apiConfig APIConfig, tmpfsConfig tmpfs.TmpfsConfig) (*API, error) {
+type Config struct {
+	APIConfig APIConfig `json:"api"`
+	TmpfsConfig tmpfs.TmpfsConfig `json:"tmpfs"`
+}
+
+func NewAPI(config Config) (*API, error) {
 	var err error
+
+	apiConfig := config.APIConfig
+	tmpfsConfig := config.TmpfsConfig
 
 	db, err := database.NewDatabase(apiConfig.DatabaseName)
 	if err != nil {
