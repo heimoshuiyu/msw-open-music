@@ -742,7 +742,7 @@ func NewAPI(config Config) (*API, error) {
 	apiMux.HandleFunc("/add_ffmpeg_config", api.HandleAddFfmpegConfig)
 
 	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", apiMux))
-	mux.Handle("/web/", http.StripPrefix("/web", http.FileServer(http.Dir("web"))))
+	mux.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("web/build"))))
 
 	api.token = apiConfig.Token
 
