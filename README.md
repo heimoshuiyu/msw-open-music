@@ -12,15 +12,17 @@ Fork from `msw-file`，目前是一个音乐播放器。
 
 ### 编译后端
 
-`go build`
+`make linux` 或 `make windows`
 
 如无任何输出，说明构建成功，可执行程序位于 `msw-open-music`
 
 ### 构建前端
 
-`make`
+`make web`
 
-说明：`Makefile` 脚本中的代码会在 `dist` 目录生成用于生产环境的前端 web 文件。这个脚本做的事情是简单地将 `vue` `vue-router` 等 js 文件替换成生产版本。并使用 `minify` 工具处理 `css` 和 `html` 文件。
+这条命令会在 `web` 目录终安装 `node_modules` 模块，并执行 `build` 脚本。
+
+构建好的静态网页位于 `web/build` 中
 
 ## 使用
 
@@ -35,7 +37,7 @@ Fork from `msw-file`，目前是一个音乐播放器。
 - `database_name` 字符串类型，指定 sqlite3 单文件数据库的位置，如果不存在则会自动创建。
 - `addr` api 服务监听端口，该参数会被传入 `http.Serve.Addr`
 - `token` 字符串，作为管理密码
-- `ffmpeg_configs`，字典，其键是 ffmpeg 配置的名称，其值是放入 `ffmpeg -i input.mp3 -vn [此处] -f matroska -` 的参数，类型是字符串。 **注意：** 前端会按键名来排序配置列表，并以列表中的第一项作为默认配置。
+- `ffmpeg_config_list` 列表，包含 `ffmpegConfig` 对象
 - `file_life_time` 临时文件生存时间，超过该时间没有访问该临时文件，tmpfs 将删除此文件。
 - `cleaner_internal` 清理器的检查间隔。
 - `root` 存放该临时文件目录， **Windows 用户请替换成合适的目录。**
@@ -43,8 +45,6 @@ Fork from `msw-file`，目前是一个音乐播放器。
 ### 前端使用
 
 前端文件引用均使用相对路径，将前端文件放到同一目录下即可。
-
-前端在调用后端 api 时使用的是绝对路径，例如 `/api/v1/hello`。如需更改，可以修改后端 `api.go` 中的 `apiMux` 和 `mux` 的相关属性。
 
 ## 关于临时文件夹的说明
 
@@ -55,6 +55,7 @@ Fork from `msw-file`，目前是一个音乐播放器。
 ## Change log
 
 - `v1.0.0` 首个版本
+- `v1.1.0` 使用 react 和 webpack 构建前端
 
 ## 后端 API 文档
 
@@ -292,8 +293,6 @@ Fork from `msw-file`，目前是一个音乐播放器。
     }
     ```
 
-    
-
 ### 需要 token 的 API
 
 - `/api/v1/walk` 遍历目录，并将文件和文件夹添加到数据库中
@@ -352,18 +351,16 @@ Fork from `msw-file`，目前是一个音乐播放器。
 
   - 返回 OK
 
-- `/web/*` 返回程序同目录下 web 文件夹中的内容
-
-  此 api 仅用于方便开发，项目根目录中 web 文件夹中的内容并不是生产用（for production）的 js 文件，这个 API 不应该用来提供前端的 web 服务，web 服务应该由其他程序负责（例如 apache caddy nginx 等）
+- `/*` 返回程序同目录下 `web/build` 文件夹中的内容
 
 ## 前端 API 文档
 
 前端只有少量 API ，允许用户直接打开链接就执行某些功能
 
-- `/web/#/share?id=39`
+- `/#/share/39`
 
-  分享文件，id 是文件的唯一标识。
+  分享文件
 
-- `/web/#/search_folders?folder_id=2614`
+- `/#/search-folders/2614`
 
-  显示该文件夹中的文件， folder_id 是文件夹的唯一标识。
+  显示该文件夹中的文件
