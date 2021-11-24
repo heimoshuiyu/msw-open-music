@@ -9,14 +9,9 @@ function FileDialog(props) {
 
   let navigate = useNavigate();
 
-  if (!props.showStatus) {
-    return null;
-  }
-
   return (
-    <dialog open>
+    <dialog open={props.showStatus}>
       <p>{props.file.filename}</p>
-      <FileDialog file={props.file} />
       <p>
         Download 使用 Axios 异步下载
         <br />
@@ -32,10 +27,14 @@ function FileDialog(props) {
       >
         Play
       </button>
-      <button onClick={() => {
-        navigate(`/share/${props.file.id}`)
-        props.setShowStatus(false);
-      }}>Share</button>
+      <button
+        onClick={() => {
+          navigate(`/share/${props.file.id}`);
+          props.setShowStatus(false);
+        }}
+      >
+        Share
+      </button>
       <button onClick={() => props.setShowStatus(false)}>Close</button>
     </dialog>
   );
