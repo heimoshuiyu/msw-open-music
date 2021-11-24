@@ -10,8 +10,13 @@ function GetRandomFiles(props) {
     fetch("/api/v1/get_random_files")
       .then((response) => response.json())
       .then((data) => {
-        setIsLoading(false);
         setFiles(data.files);
+      })
+      .catch((error) => {
+        alert("get_random_files error: " + error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }
 

@@ -14,6 +14,9 @@ function FfmpegConfig(props) {
         if (data.ffmpeg_config_list.length > 0) {
           props.setSelectedFfmpegConfig(data.ffmpeg_config_list[0]);
         }
+      })
+      .catch((error) => {
+        alert("get_ffmpeg_config_list error: " + error);
       });
   }, []);
 

@@ -32,9 +32,14 @@ function SearchFiles(props) {
     })
       .then((response) => response.json())
       .then((data) => {
-        setIsLoading(false);
         const files = data.files ? data.files : [];
         setFiles(files);
+      })
+      .catch((error) => {
+        alert("get_files_in_folder error: " + error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }
 

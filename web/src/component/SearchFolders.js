@@ -27,7 +27,6 @@ function SearchFolders(props) {
     })
       .then((response) => response.json())
       .then((data) => {
-        setIsLoading(false);
         let folders;
         if (data.folders) {
           folders = data.folders;
@@ -35,6 +34,12 @@ function SearchFolders(props) {
           folders = [];
         }
         setFolders(folders);
+      })
+      .catch((error) => {
+        alert("search_folders error: " + error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }
 

@@ -16,6 +16,9 @@ function Share(props) {
       .then((response) => response.json())
       .then((data) => {
         setFile([data]);
+      })
+      .catch((error) => {
+        alert("get_file_info error: " + error);
       });
   }, [params]);
   return (
