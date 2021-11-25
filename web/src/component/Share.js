@@ -23,7 +23,11 @@ function Share(props) {
   }, [params]);
   return (
     <div className="page">
-      <h3>Share with others! {params.id}</h3>
+      <h3>Share with others!</h3>
+      <p>
+        👇 Click the filename below to enjoy music!
+        <br />
+      </p>
       <p>
         Share link: <a href={window.location.href}>{window.location.href}</a>
       </p>
