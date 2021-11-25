@@ -1,67 +1,76 @@
 # MSW Open Music Project
 
-## 简介
+## Introduction
 
-Fork from `msw-file`，目前是一个音乐播放器。
+A light weight personal music streaming platform.
 
 ![demo1](demo1.jpg)
 
 [toc]
 
-## 编译 & 构建
+## How to build
 
-### 编译后端
+### Build the back-end server
 
-`make linux` 或 `make windows`
+`make linux` or `make windows`
 
-如无任何输出，说明构建成功，可执行程序位于 `msw-open-music`
+The executable file is named `msw-open-music` or `msw-open-music.exe`
 
-### 构建前端
+### Build the font-end web pages
 
-`make web`
+To build production web page `make web`
 
-这条命令会在 `web` 目录终安装 `node_modules` 模块，并执行 `build` 脚本。
+This command will go into `web` directory and install `node_modules`. Then execute `npm run build` command. The built web pages is under `web/build` directory.
 
-构建好的静态网页位于 `web/build` 中
+To start the development, run `cd web` and `npm start`
 
-## 使用
+## Usage
 
-### 后端使用
+Start back-end server. Server will listen on 8080 port.
 
-初次使用请配置 `config.json`， **最重要的是配置 `token`** 。
+Build the font-end web page, then go to <http://127.0.0.1:8080>
 
-默认 ffmpeg 线程 `ffmpeg_threads` 为 1 ，大于 1 以上的值似乎对编码音频没有效果。
+By default:
 
-#### config.json 说明
+- URL matched `/api/*` will process by back-end server.
+- Others URL matched `/*` will be served files under `web/build/`
 
-- `database_name` 字符串类型，指定 sqlite3 单文件数据库的位置，如果不存在则会自动创建。
-- `addr` api 服务监听端口，该参数会被传入 `http.Serve.Addr`
-- `token` 字符串，作为管理密码
-- `ffmpeg_config_list` 列表，包含 `ffmpegConfig` 对象
-- `file_life_time` 临时文件生存时间，超过该时间没有访问该临时文件，tmpfs 将删除此文件。
-- `cleaner_internal` 清理器的检查间隔。
-- `root` 存放该临时文件目录， **Windows 用户请替换成合适的目录。**
+### Run back-end server
 
-### 前端使用
+Configuration file is  `config.json`， **Please modify your `token`** 。
 
-前端文件引用均使用相对路径，将前端文件放到同一目录下即可。
+Default `ffmpeg_threads` is 1. Seems value larger than 1 will not increase the audio encode speed.
 
-## 关于临时文件夹的说明
+#### config.json description
 
-前端播放器中勾选了 `Prepare` ，后端将转码文件到临时文件夹，然后直链提供文件。这有助于修复网路不稳定时 TCP 链接断开，stream 模式下 ffmpeg 中断输出并且不能断点续传的问题。
+- `database_name` string type. The filename of `sqlite3` database. Will create if that file doesn't exist.
+- `addr` string type. The listen address and port.
+- `token` string type. Password.
+- `ffmpeg_config_list` list type, include `ffmpegConfig` object.
+- `file_life_time` integer type (second). Life time for temporary file. If the temporary file is not accessed for more than this time, back-end server will delete this file.
+- `cleaner_internal` integer type (second). Interval for `tmpfs` checking temporary file.
+- `root` string type. Directory to store temporary files. Default is `/tmp`, **please modify this directory if you are using Windows.**
 
-临时文件夹管理器位于 `internal/pkg/tmpfs` 中，默认删除时间是 10 分钟。10分钟内如果没有对该临时文件的访问，则会删除此临时文件。
+### Run font-end web page
+
+Open your web browser to <http://127.0.0.1:8080> you will see the web pages.
+
+## About tmpfs
+
+If the `Prepare` mode is enabled in the font-wed player, back-end server will convert the whole file into the temporary folder, then serve file using native method. This can avoid ffmpeg pipe break problem cause by unstable network connection while streaming audio.
+
+The default temporary folder is `/tmp`, which is a `tmpfs` file system in Linux operating system. Default life time for temporary files is 600 seconds (10 minutes). If the temporary file is not accessed for more than this time, back-end server will delete this file.
 
 ## Change log
 
-- `v1.0.0` 首个版本
-- `v1.1.0` 使用 react 和 webpack 构建前端
+- `v1.0.0` First version. Ready to use in production environment.
+- `v1.1.0` Use `React` to rewrite the font-end web pages (Previous using `Vue`).
 
-## 后端 API 文档
+## Back-end API references
 
-说明中带有 `stream` 或 `流` 相关字样的，说明该 API 以 `io.Copy` 方式传输文件，不支持断点续传
+API named `stream` means it transfer data using `io.Copy`, which **DO NOT** support continue getting a partially-downloaded audio.
 
-无需返回数据的 API 将返回 OK，某些 API 可能会在 `status` 字段中返回详细的执行信息。
+API does not need to respond any data will return the following JSON object.
 
 ```json
 {
@@ -69,13 +78,15 @@ Fork from `msw-file`，目前是一个音乐播放器。
 }
 ```
 
-### 公开 API
+### Anonymous API
 
-- `/api/v1/hello` OK 测试
+Anonymous API can be called by anonymous.
 
-- `/api/v1/get_file` 以流方式获取文件
+- `/api/v1/hello` Just for test purpose.
 
-  - 请求示例
+- `/api/v1/get_file` Get a file with `stream` mode.
+
+  - Request example
 
     ```json
     {
@@ -83,15 +94,15 @@ Fork from `msw-file`，目前是一个音乐播放器。
     }
     ```
 
-- `/api/v1/get_file_direct` http 标准方式获取文件，支持断点续传，由 `http.ServeFile` 实现
+- `/api/v1/get_file_direct` Get a file with standart `http` methods, implement by `http.ServeFile` method.
 
-  - 请求示例
+  - Request example
 
     `/api/v1/get_file_direct?id=30`
 
-- `/api/v1/search_files` 搜索文件
+- `/api/v1/search_files` Search files by filename.
 
-  - 请求示例
+  - Request example
 
     ```json
     {
@@ -101,13 +112,13 @@ Fork from `msw-file`，目前是一个音乐播放器。
     }
     ```
 
-    搜索所有文件名中包含 "miku" 的文件
+    Search all files' name like `%miku%`. `%` is the wildcard in SQL. For example, `"filename": "miku%hatsune"` can match `hatsune miku`.
 
-    `limit` 限制返回结果的数量，该值必须在 0~10 之间
+    `limit` Numbers of files in the respond. Should be within 1 - 10;
 
-    `offset` 是返回结构的偏移量，用于实现翻页功能。
+    `offset` It is the offset of the result, related to the page turning function.
 
-  - 返回示例
+  - Respond example
 
     ```json
     {
@@ -120,29 +131,29 @@ Fork from `msw-file`，目前是一个音乐播放器。
                 "filesize": 1048576
             },
             {
-                "id": 30,
+                "id": 31,
                 "folder_id": 100,
                 "folder_name": "wonderful",
-                "filename": "memories.flac",
-                "filesize": 1048576
+                "filename": "memories (instrunment).flac",
+                "filesize": 1248531
             }
         ]
     }
     ```
 
-    `id` 为文件的唯一标识
+    `id` Identification of file.
 
-    `folder_id` 为该文件所在的文件夹标识
+    `folder_id` Identification of folder.
 
-    `foldername` 为该文件所在的文件夹名
+    `foldername` Folder name where the file in.
 
-    `filename` 为该文件名
+    `filename` File name.
 
-    `filesize` 为该文件的大小，单位字节
+    `filesize` File size, unit is byte.
 
-- `/api/v1/search_folders` 搜索文件夹
+- `/api/v1/search_folders` Search folders.
 
-  - 请求示例
+  - Request example.
 
     ```json
     {
@@ -152,13 +163,13 @@ Fork from `msw-file`，目前是一个音乐播放器。
     }
     ```
 
-    搜索所有文件夹名中包含 "miku" 的文件夹。
+    Search all folders' name like `%miku%`. `%` is the wildcard in SQL. For example, `"filename": "miku%hatsune"` can match `hatsune miku`.
 
-    `limit` 限制返回结果的数量，该值必须在 0~10 之间
+    `limit` Numbers of files in the respond. Should be within 1 - 10;
 
-    `offset` 是返回结构的偏移量，用于实现翻页功能。
+    `offset` It is the offset of the result, related to the page turning function.
 
-  - 返回示例
+  - Respond example
 
     ```json
     {
@@ -168,20 +179,20 @@ Fork from `msw-file`，目前是一个音乐播放器。
                 "foldername": "folder name"
             },
             {
-                "id": 100,
-                "foldername": "folder name"
+                "id": 101,
+                "foldername": "folder name (another)"
             }
         ]
     }
     ```
 
-    `id` 为该文件夹的唯一标识
+    `id` Identification of folder.
 
-    `foldername` 为该文件夹的名字
+    `foldername` Folder name.
 
-- `/api/v1/get_files_in_folder` 获取指定文件夹中的所有文件
+- `/api/v1/get_files_in_folder` Get files in a specify folder.
 
-  - 请求示例
+  - Request example.
 
     ```json
     {
@@ -191,52 +202,50 @@ Fork from `msw-file`，目前是一个音乐播放器。
     }
     ```
 
-  - 返回示例
+  - Respond example.
 
-    同 `/api/v1/search_files`
+    Same with `/api/v1/search_files`
 
-- `/api/v1/get_random_files`
+- `/api/v1/get_random_files` Randomly get 10 files.
 
-  此 API 随机返回 files 表中 10 个文件。请注意，该操作会造成全表查询，在 AMD 2200G CPU 40000条数据记录情况下最大处理量为 100 请求每秒。
+  - Request example.
 
-  - 请求示例
+    GET `/api/v1/get_random_files`
 
-    直接 GET `/api/v1/get_random_files`
+  - Respond example.
 
-  - 返回示例
-
-    同 `/api/v1/search_files`
+    Same with `/api/v1/search_files`
 
 - `/api/v1/get_file_stream`
 
-  以流方式返回文件
+  Stream file with a ffmpeg config name.
 
-  - 请求示例
+  - Request example.
 
-    GET `/api/v1/get_file_stream?id=123`
+    GET `/api/v1/get_file_stream?id=123&config=OPUS%20128k`
 
 - `/api/v1/get_ffmpeg_config_list`
 
-  获取 ffmpeg 配置列表
+  Get ffmpeg config list
 
-  - 请求示例
+  - Request example
 
     GET `/api/v1/get_ffmpeg_config_list`
 
-  - 返回示例
+  - Respond example
 
     ```json
     {
-        "ffmpeg_configs": {
-            "OPUS 256k": {"args": "-c:a libopus -ab 256k"},
-            "WAV": {"args": "-c:a wav"}
-        }
+        "ffmpeg_config_list": [
+            {"name": "OPUS 256k", "args": "-c:a libopus -ab 256k"},
+            {"name": "WAV", "args": "-c:a wav"}
+        ]
     }
     ```
 
-- `/api/v1/feedback` 反馈
+- `/api/v1/feedback` Send a feedback.
 
-  - 请求示例
+  - Request example
 
     ```json
     {
@@ -244,11 +253,11 @@ Fork from `msw-file`，目前是一个音乐播放器。
     }
     ```
 
-  - 返回 OK
+  - Respond OK.
 
-- `/api/v1/get_file_info` 获取单个文件的信息
+- `/api/v1/get_file_info` Get information of a specify file.
 
-  - 请求示例
+  - Request example.
 
     ```json
     {
@@ -256,7 +265,7 @@ Fork from `msw-file`，目前是一个音乐播放器。
     }
     ```
 
-  - 返回示例
+  - Respond example.
 
     ```json
     {
@@ -268,15 +277,15 @@ Fork from `msw-file`，目前是一个音乐播放器。
     },
     ```
 
-- `/api/v1/get_file_stream_direct` 获取已提前转码好的文件，该 API 支持断点续传
+- `/api/v1/get_file_stream_direct` Get a ffmpeg converted file with native http method. This API support continue getting a partially-downloaded audio. Note, you should call `/api/v1/prepare_file_stream_direct` first and wait for its respond, then call this API.
 
-  - 请求示例
+  - Request example
 
-    GET `/api/v1/get_file_stream_direct?id=123&config=OPUS 128k`
+    GET `/api/v1/get_file_stream_direct?id=123&config=OPUS%20128k`
 
-- `/api/v1/prepare_file_stream_direct` 请求提前转码文件，该 API 将返回转码后的文件大小
+- `/api/v1/prepare_file_stream_direct` Ask server to convert a file with specific ffmpeg config name. When the conver process is finished, server will reply with the converted file size.
 
-  - 请求示例
+  - Request example
 
     ```json
     {
@@ -285,7 +294,7 @@ Fork from `msw-file`，目前是一个音乐播放器。
     }
     ```
 
-  - 返回示例
+  - Respond example
 
     ```json
     {
@@ -293,11 +302,11 @@ Fork from `msw-file`，目前是一个音乐播放器。
     }
     ```
 
-### 需要 token 的 API
+### API needs token
 
-- `/api/v1/walk` 遍历目录，并将文件和文件夹添加到数据库中
+- `/api/v1/walk` Walk directory, add all files and folders to database.
 
-  - 请求示例
+  - Request example
 
     ```json
     {
@@ -307,17 +316,17 @@ Fork from `msw-file`，目前是一个音乐播放器。
     }
     ```
 
-    `token` 此 API 需要 token
+    `token` The token in `config.json` file.
 
-    `root` 遍历目录
+    `root` Root directory server will walk throught
 
-    `pattern` 文件扩展名列表（包含 `.` ），匹配扩展名的文件才会被添加到数据库
+    `pattern` A list of pattern that files ends with. Only files matched a pattern in list will be add to database.
 
-  - 返回 OK
+  - Respond OK
 
-- `/api/v1/reset` 重置数据库（feedbacks 不会清空）
+- `/api/v1/reset` Rest the **files and folders table**
 
-  - 请求示例
+  - Request example
 
     ```json
     {
@@ -325,13 +334,13 @@ Fork from `msw-file`，目前是一个音乐播放器。
     }
     ```
 
-  - 返回 OK
+  - Respond OK
 
-- `/api/v1/add_ffmpeg_config` 添加 ffmpeg 配置
+- `/api/v1/add_ffmpeg_config` Add ffmpeg config.
 
-  注意：目前前端中没有实现此功能
+  Will be changed in future.
 
-  - 请求示例
+  - Request example
 
     ```json
     {
@@ -343,24 +352,22 @@ Fork from `msw-file`，目前是一个音乐播放器。
     }
     ```
 
-    `name` 该配置的名字
+    `name` Name of the ffmpeg config.
 
-    `ffmpeg_config` 一个 ffmpeg 的配置
+    `ffmpeg_config`
 
-    `args` 该 ffmpeg 配置的参数
+    `args`
 
-  - 返回 OK
+  - Respond OK
 
-- `/*` 返回程序同目录下 `web/build` 文件夹中的内容
+## Font-end API references
 
-## 前端 API 文档
-
-前端只有少量 API ，允许用户直接打开链接就执行某些功能
+Currently only few APIs in font-end.
 
 - `/#/share/39`
 
-  分享文件
+  Share a specific file.
 
 - `/#/search-folders/2614`
 
-  显示该文件夹中的文件
+  Show files in a specific folder.
