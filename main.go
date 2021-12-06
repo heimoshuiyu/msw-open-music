@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"log"
-	"msw-open-music/internal/pkg/api"
+	"msw-open-music/pkg/api"
 	"os"
 )
 
