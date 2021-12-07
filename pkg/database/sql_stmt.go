@@ -28,7 +28,9 @@ var initFeedbacksTableQuery = `CREATE TABLE IF NOT EXISTS feedbacks (
 var initUsersTableQuery = `CREATE TABLE IF NOT EXISTS users (
 	id INTEGER PRIMARY KEY,
 	username TEXT NOT NULL,
-	password TEXT NOT NULL
+	password TEXT NOT NULL,
+	avatar_id INTEGER NOT NULL,
+	FOREIGN KEY(avatar_id) REFERENCES avatars(id)
 );`
 
 var initAvatarsTableQuery = `CREATE TABLE IF NOT EXISTS avatars (
