@@ -21,8 +21,7 @@ var initFoldersTableQuery = `CREATE TABLE IF NOT EXISTS folders (
 var initFeedbacksTableQuery = `CREATE TABLE IF NOT EXISTS feedbacks (
 	id INTEGER PRIMARY KEY,
 	time INTEGER NOT NULL,
-	feedback TEXT NOT NULL,
-	header TEXT NOT NULL
+	feedback TEXT NOT NULL
 );`
 
 var initUsersTableQuery = `CREATE TABLE IF NOT EXISTS users (
@@ -55,9 +54,9 @@ var initFileHasTagTableQuery = `CREATE TABLE IF NOT EXISTS file_has_tag (
 );`
 
 var initLikesTableQuery = `CREATE TABLE IF NOT EXISTS likes (
-	id INTEGER PRIMARY KEY,
 	user_id INTEGER NOT NULL,
 	file_id INTEGER NOT NULL,
+	PRIMARY KEY (user_id, file_id),
 	FOREIGN KEY (user_id) REFERENCES users(id),
 	FOREIGN KEY (file_id) REFERENCES files(id)
 );`
@@ -88,6 +87,17 @@ var initLogsTableQuery = `CREATE TABLE IF NOT EXISTS logs (
 	message TEXT NOT NULL,
 	user_id INTEGER NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES users(id)
+);`
+
+var initTmpfsTableQuery = `CREATE TABLE IF NOT EXISTS tmpfs (
+	id INTEGER PRIMARY KEY,
+	path TEXT NOT NULL,
+	size INTEGER NOT NULL,
+	file_id INTEGER NOT NULL,
+	ffmpeg_config TEXT NOT NULL,
+	created_time INTEGER NOT NULL,
+	accessed_time INTEGER NOT NULL,
+	FOREIGN KEY (file_id) REFERENCES files(id)
 );`
 
 var insertFolderQuery = `INSERT INTO folders (folder, foldername)
@@ -153,6 +163,7 @@ type Stmt struct {
 	initReviewsTable   *sql.Stmt
 	initPlaybacksTable *sql.Stmt
 	initLogsTable      *sql.Stmt
+	initTmpfsTable     *sql.Stmt
 	insertFolder       *sql.Stmt
 	insertFile         *sql.Stmt
 	findFolder         *sql.Stmt
@@ -238,6 +249,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 		return nil, err
 	}
 
+	// init tmpfs table
+	stmt.initTmpfsTable, err = sqlConn.Prepare(initTmpfsTableQuery)
+	if err != nil {
+		return nil, err
+	}
+
 	// run init statement
 	_, err = stmt.initFilesTable.Exec()
 	if err != nil {
@@ -280,6 +297,10 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 		return nil, err
 	}
 	_, err = stmt.initLogsTable.Exec()
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initTmpfsTable.Exec()
 	if err != nil {
 		return nil, err
 	}
