@@ -8,7 +8,8 @@ var initFilesTableQuery = `CREATE TABLE IF NOT EXISTS files (
 	id INTEGER PRIMARY KEY,
 	folder_id INTEGER NOT NULL,
 	filename TEXT NOT NULL,
-	filesize INTEGER NOT NULL
+	filesize INTEGER NOT NULL,
+	FOREIGN KEY(folder_id) REFERENCES folders(id)
 );`
 
 var initFoldersTableQuery = `CREATE TABLE IF NOT EXISTS folders (
@@ -22,6 +23,69 @@ var initFeedbacksTableQuery = `CREATE TABLE IF NOT EXISTS feedbacks (
 	time INTEGER NOT NULL,
 	feedback TEXT NOT NULL,
 	header TEXT NOT NULL
+);`
+
+var initUsersTableQuery = `CREATE TABLE IF NOT EXISTS users (
+	id INTEGER PRIMARY KEY,
+	username TEXT NOT NULL,
+	password TEXT NOT NULL
+);`
+
+var initAvatarsTableQuery = `CREATE TABLE IF NOT EXISTS avatars (
+	id INTEGER PRIMARY KEY,
+	avatarname TEXT NOT NULL,
+	avatar BLOB NOT NULL
+);`
+
+var initTagsTableQuery = `CREATE TABLE IF NOT EXISTS tags (
+	id INTEGER PRIMARY KEY,
+	tag TEXT NOT NULL
+);`
+
+var initFileHasTagTableQuery = `CREATE TABLE IF NOT EXISTS file_has_tag (
+	file_id INTEGER NOT NULL,
+	tag_id INTEGER NOT NULL,
+	user_id INTEGER NOT NULL,
+	PRIMARY KEY (file_id, tag_id),
+	FOREIGN KEY(user_id) REFERENCES users(id)
+	FOREIGN KEY (file_id) REFERENCES files(id),
+	FOREIGN KEY (tag_id) REFERENCES tags(id)
+);`
+
+var initLikesTableQuery = `CREATE TABLE IF NOT EXISTS likes (
+	id INTEGER PRIMARY KEY,
+	user_id INTEGER NOT NULL,
+	file_id INTEGER NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	FOREIGN KEY (file_id) REFERENCES files(id)
+);`
+
+var initReviewsTableQuery = `CREATE TABLE IF NOT EXISTS reviews (
+	id INTEGER PRIMARY KEY,
+	user_id INTEGER NOT NULL,
+	time INTEGER NOT NULL,
+	modified_time INTEGER DEFAULT 0,
+	review TEXT NOT NULL,
+	header TEXT NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(id)
+);`
+
+var initPlaybacksTableQuery = `CREATE TABLE IF NOT EXISTS playbacks (
+	id INTEGER PRIMARY KEY,
+	user_id INTEGER NOT NULL,
+	file_id INTEGER NOT NULL,
+	time INTEGER NOT NULL,
+	mothod INTEGER NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	FOREIGN KEY (file_id) REFERENCES files(id)
+);`
+
+var initLogsTableQuery = `CREATE TABLE IF NOT EXISTS logs (
+	id INTEGER PRIMARY KEY,
+	time INTEGER NOT NULL,
+	message TEXT NOT NULL,
+	user_id INTEGER NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(id)
 );`
 
 var insertFolderQuery = `INSERT INTO folders (folder, foldername)
@@ -79,6 +143,14 @@ type Stmt struct {
 	initFilesTable     *sql.Stmt
 	initFoldersTable   *sql.Stmt
 	initFeedbacksTable *sql.Stmt
+	initUsersTable     *sql.Stmt
+	initAvatarsTable   *sql.Stmt
+	initTagsTable      *sql.Stmt
+	initFileHasTag     *sql.Stmt
+	initLikesTable     *sql.Stmt
+	initReviewsTable   *sql.Stmt
+	initPlaybacksTable *sql.Stmt
+	initLogsTable      *sql.Stmt
 	insertFolder       *sql.Stmt
 	insertFile         *sql.Stmt
 	findFolder         *sql.Stmt
@@ -116,6 +188,54 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 		return nil, err
 	}
 
+	// init users table
+	stmt.initUsersTable, err = sqlConn.Prepare(initUsersTableQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init avatars table
+	stmt.initAvatarsTable, err = sqlConn.Prepare(initAvatarsTableQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init tags table
+	stmt.initTagsTable, err = sqlConn.Prepare(initTagsTableQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init file_has_tag table
+	stmt.initFileHasTag, err = sqlConn.Prepare(initFileHasTagTableQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init likes table
+	stmt.initLikesTable, err = sqlConn.Prepare(initLikesTableQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init reviews table
+	stmt.initReviewsTable, err = sqlConn.Prepare(initReviewsTableQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init playbacks table
+	stmt.initPlaybacksTable, err = sqlConn.Prepare(initPlaybacksTableQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init logs table
+	stmt.initLogsTable, err = sqlConn.Prepare(initLogsTableQuery)
+	if err != nil {
+		return nil, err
+	}
+
 	// run init statement
 	_, err = stmt.initFilesTable.Exec()
 	if err != nil {
@@ -126,6 +246,38 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 		return nil, err
 	}
 	_, err = stmt.initFeedbacksTable.Exec()
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initUsersTable.Exec()
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initAvatarsTable.Exec()
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initTagsTable.Exec()
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initFileHasTag.Exec()
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initLikesTable.Exec()
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initReviewsTable.Exec()
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initPlaybacksTable.Exec()
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initLogsTable.Exec()
 	if err != nil {
 		return nil, err
 	}
