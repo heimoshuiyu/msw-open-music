@@ -67,7 +67,6 @@ var initReviewsTableQuery = `CREATE TABLE IF NOT EXISTS reviews (
 	time INTEGER NOT NULL,
 	modified_time INTEGER DEFAULT 0,
 	review TEXT NOT NULL,
-	header TEXT NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES users(id)
 );`
 
@@ -148,8 +147,8 @@ JOIN folders ON files.folder_id = folders.id
 ORDER BY RANDOM()
 LIMIT ?;`
 
-var insertFeedbackQuery = `INSERT INTO feedbacks (time, feedback, header)
-VALUES (?, ?, ?);`
+var insertFeedbackQuery = `INSERT INTO feedbacks (time, feedback)
+VALUES (?, ?);`
 
 type Stmt struct {
 	initFilesTable     *sql.Stmt
