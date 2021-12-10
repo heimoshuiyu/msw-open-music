@@ -29,6 +29,8 @@ VALUES (?, ?);`
 
 var findFolderQuery = `SELECT id FROM folders WHERE folder = ? LIMIT 1;`
 
+var findFileQuery = `SELECT id FROM files WHERE folder_id = ? AND filename = ? LIMIT 1;`
+
 var insertFileQuery = `INSERT INTO files (folder_id, filename, filesize)
 VALUES (?, ?, ?);`
 
@@ -82,6 +84,7 @@ type Stmt struct {
 	insertFolder       *sql.Stmt
 	insertFile         *sql.Stmt
 	findFolder         *sql.Stmt
+	findFile           *sql.Stmt
 	searchFiles        *sql.Stmt
 	getFolder          *sql.Stmt
 	dropFiles          *sql.Stmt
@@ -138,6 +141,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init findFolder statement
 	stmt.findFolder, err = sqlConn.Prepare(findFolderQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init findFile statement
+	stmt.findFile, err = sqlConn.Prepare(findFileQuery)
 	if err != nil {
 		return nil, err
 	}
