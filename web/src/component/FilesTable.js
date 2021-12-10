@@ -1,6 +1,9 @@
 import FileEntry from "./FileEntry";
 
 function FilesTable(props) {
+  if (props.files.length === 0) {
+    return null;
+  }
   return (
     <table>
       <thead>

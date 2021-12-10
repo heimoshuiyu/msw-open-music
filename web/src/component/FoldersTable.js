@@ -2,6 +2,9 @@ import { useNavigate } from "react-router";
 
 function FoldersTable(props) {
   let navigate = useNavigate();
+  if (props.folders.length === 0) {
+    return null;
+  }
   return (
     <table>
       <thead>
