@@ -33,7 +33,7 @@ function FileDialog(props) {
       </button>
       <button
         onClick={() => {
-          navigate(`/share/${props.file.id}`);
+          navigate(`/files/${props.file.id}/share`);
           props.setShowStatus(false);
         }}
       >

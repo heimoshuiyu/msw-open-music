@@ -21,7 +21,8 @@ var initFoldersTableQuery = `CREATE TABLE IF NOT EXISTS folders (
 var initFeedbacksTableQuery = `CREATE TABLE IF NOT EXISTS feedbacks (
 	id INTEGER PRIMARY KEY,
 	time INTEGER NOT NULL,
-	feedback TEXT NOT NULL
+	feedback TEXT NOT NULL,
+	header TEXT NOT NULL
 );`
 
 var initUsersTableQuery = `CREATE TABLE IF NOT EXISTS users (
@@ -104,6 +105,8 @@ VALUES (?, ?);`
 
 var findFolderQuery = `SELECT id FROM folders WHERE folder = ? LIMIT 1;`
 
+var findFileQuery = `SELECT id FROM files WHERE folder_id = ? AND filename = ? LIMIT 1;`
+
 var insertFileQuery = `INSERT INTO files (folder_id, filename, filesize)
 VALUES (?, ?, ?);`
 
@@ -147,8 +150,8 @@ JOIN folders ON files.folder_id = folders.id
 ORDER BY RANDOM()
 LIMIT ?;`
 
-var insertFeedbackQuery = `INSERT INTO feedbacks (time, feedback)
-VALUES (?, ?);`
+var insertFeedbackQuery = `INSERT INTO feedbacks (time, feedback, header)
+VALUES (?, ?, ?);`
 
 type Stmt struct {
 	initFilesTable     *sql.Stmt
@@ -166,6 +169,7 @@ type Stmt struct {
 	insertFolder       *sql.Stmt
 	insertFile         *sql.Stmt
 	findFolder         *sql.Stmt
+	findFile           *sql.Stmt
 	searchFiles        *sql.Stmt
 	getFolder          *sql.Stmt
 	dropFiles          *sql.Stmt
@@ -312,6 +316,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init findFolder statement
 	stmt.findFolder, err = sqlConn.Prepare(findFolderQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init findFile statement
+	stmt.findFile, err = sqlConn.Prepare(findFileQuery)
 	if err != nil {
 		return nil, err
 	}

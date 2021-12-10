@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
 import FoldersTable from "./FoldersTable";
-import SearchFiles from "./SearchFiles";
 
-function SearchFolders(props) {
+function SearchFolders() {
   const [foldername, setFoldername] = useState("");
   const [folders, setFolders] = useState([]);
-  const [folder, setFolder] = useState({});
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const limit = 10;
@@ -27,13 +24,7 @@ function SearchFolders(props) {
     })
       .then((response) => response.json())
       .then((data) => {
-        let folders;
-        if (data.folders) {
-          folders = data.folders;
-        } else {
-          folders = [];
-        }
-        setFolders(folders);
+        setFolders(data.folders ? data.folders : []);
       })
       .catch((error) => {
         alert("search_folders error: " + error);
@@ -55,17 +46,7 @@ function SearchFolders(props) {
     setOffset(offsetValue);
   }
 
-  function viewFolder(folder) {
-    setFolder(folder);
-  }
-
-  let params = useParams();
   useEffect(() => searchFolder(), [offset]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (params.id !== undefined) {
-      setFolder({ id: parseInt(params.id) });
-    }
-  }, [params.id]);
 
   return (
     <div className="page">
@@ -90,8 +71,7 @@ function SearchFolders(props) {
         </button>
         <button onClick={nextPage}>Next page</button>
       </div>
-      <FoldersTable viewFolder={viewFolder} folders={folders} />
-      <SearchFiles setPlayingFile={props.setPlayingFile} folder={folder} />
+      <FoldersTable folders={folders} />
     </div>
   );
 }

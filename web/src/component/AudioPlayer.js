@@ -80,7 +80,7 @@ function AudioPlayer(props) {
 
           <button
             onClick={() =>
-              navigate(`search-folders/${props.playingFile.folder_id}`)
+              navigate(`/folders/${props.playingFile.folder_id}`)
             }
           >
             {props.playingFile.foldername}

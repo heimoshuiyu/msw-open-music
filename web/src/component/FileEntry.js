@@ -25,7 +25,7 @@ function FileEntry(props) {
       </td>
       <td
         className="clickable"
-        onClick={() => navigate(`/search-folders/${props.file.folder_id}`)}
+        onClick={() => navigate(`/folders/${props.file.folder_id}`)}
       >
         {props.file.foldername}
       </td>

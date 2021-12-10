@@ -188,6 +188,15 @@ func (database *Database) FindFolder(folder string) (int64, error) {
 	return id, nil
 }
 
+func (database *Database) FindFile(folderId int64, filename string) (int64, error) {
+	var id int64
+	err := database.stmt.findFile.QueryRow(folderId, filename).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
 func (database *Database) InsertFolder(folder string) (int64, error) {
 	result, err := database.stmt.insertFolder.Exec(folder, filepath.Base(folder))
 	if err != nil {
@@ -217,6 +226,13 @@ func (database *Database) Insert(path string, filesize int64) error {
 			return err
 		}
 	}
+
+	// if file exists, skip it
+	_, err = database.FindFile(folderId, filename)
+	if err == nil {
+		return nil
+	}
+
 	err = database.InsertFile(folderId, filename, filesize)
 	if err != nil {
 		return err
