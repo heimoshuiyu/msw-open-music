@@ -29,10 +29,10 @@ function App() {
             <NavLink to="/" className="nav-link">
               Feeling luckly
             </NavLink>
-            <NavLink to="/search-files" className="nav-link">
+            <NavLink to="/files" className="nav-link">
               Files
             </NavLink>
-            <NavLink to="/search-folders" className="nav-link">
+            <NavLink to="/folders" className="nav-link">
               Folders
             </NavLink>
             <NavLink to="/manage" className="nav-link">
@@ -48,20 +48,20 @@ function App() {
               element={<GetRandomFiles setPlayingFile={setPlayingFile} />}
             />
             <Route
-              path="/search-files"
+              path="/files"
               element={<SearchFiles setPlayingFile={setPlayingFile} />}
             />
             <Route
-              path="/search-folders"
+              path="/folders"
               element={<SearchFolders setPlayingFile={setPlayingFile} />}
             />
             <Route
-              path="/search-folders/:id"
+              path="/folders/:id"
               element={<FilesInFolder setPlayingFile={setPlayingFile} />}
             />
             <Route path="/manage" element={<Manage />} />
             <Route
-              path="/share/:id"
+              path="/files/:id/share"
               element={<Share setPlayingFile={setPlayingFile} />}
             />
           </Routes>

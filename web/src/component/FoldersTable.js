@@ -17,12 +17,12 @@ function FoldersTable(props) {
         {props.folders.map((folder) => (
           <tr key={folder.id}>
             <td
-              onClick={() => navigate(`/search-folders/${folder.id}`)}
+              onClick={() => navigate(`/folders/${folder.id}`)}
               className="clickable"
             >
               {folder.foldername}
             </td>
-            <td onClick={() => navigate(`/search-folders/${folder.id}`)}>
+            <td onClick={() => navigate(`/folders/${folder.id}`)}>
               <button>View</button>
             </td>
           </tr>
