@@ -364,10 +364,10 @@ Anonymous API can be called by anonymous.
 
 Currently only few APIs in font-end.
 
-- `/#/share/39`
+- `/#/files/39/share`
 
   Share a specific file.
 
-- `/#/search-folders/2614`
+- `/#/folders/2614`
 
   Show files in a specific folder.
