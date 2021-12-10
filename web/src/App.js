@@ -9,6 +9,7 @@ import "./App.css";
 import GetRandomFiles from "./component/GetRandomFiles";
 import SearchFiles from "./component/SearchFiles";
 import SearchFolders from "./component/SearchFolders";
+import FilesInFolder from "./component/FilesInFolder";
 import Manage from "./component/Manage";
 import Share from "./component/Share";
 import AudioPlayer from "./component/AudioPlayer";
@@ -56,7 +57,7 @@ function App() {
             />
             <Route
               path="/search-folders/:id"
-              element={<SearchFolders setPlayingFile={setPlayingFile} />}
+              element={<FilesInFolder setPlayingFile={setPlayingFile} />}
             />
             <Route path="/manage" element={<Manage />} />
             <Route

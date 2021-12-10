@@ -1,36 +1,34 @@
+import { useParams } from "react-router";
 import { useState, useEffect } from "react";
 import FilesTable from "./FilesTable";
 
-function SearchFiles(props) {
+function FilesInFolder(props) {
+  let params = useParams();
   const [files, setFiles] = useState([]);
-  const [filename, setFilename] = useState("");
-  const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [offset, setOffset] = useState(0);
   const limit = 10;
 
-  function searchFiles() {
+  useEffect(() => {
     setIsLoading(true);
-    fetch("/api/v1/search_files", {
+    fetch("/api/v1/get_files_in_folder", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        filename: filename,
-        limit: limit,
+        folder_id: parseInt(params.id),
         offset: offset,
+        limit: limit,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-        const files = data.files ? data.files : [];
-        setFiles(files);
+        setFiles(data.files ? data.files : []);
       })
-      .catch((error) => {
-        alert("search_files error: " + error);
-      })
+      .catch((error) => alert(error))
       .finally(() => {
         setIsLoading(false);
       });
-  }
+  }, [params.id, offset]);
 
   function nextPage() {
     setOffset(offset + limit);
@@ -44,32 +42,13 @@ function SearchFiles(props) {
     setOffset(offsetValue);
   }
 
-  useEffect(() => searchFiles(), [offset]); // eslint-disable-line react-hooks/exhaustive-deps
-
   return (
     <div className="page">
-      <h3>Search Files</h3>
+      <h3>Files in Folder</h3>
       <div className="search_toolbar">
-        <input
-          onChange={(event) => setFilename(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              searchFiles();
-            }
-          }}
-          type="text"
-          placeholder="Enter filename"
-        />
-        <button
-          onClick={() => {
-            searchFiles();
-          }}
-        >
-          {isLoading ? "Loading..." : "Search"}
-        </button>
         <button onClick={lastPage}>Last page</button>
         <button disabled>
-          {offset} - {offset + files.length}
+          {isLoading ? "Loading..." : `${offset} - ${offset + files.length}`}
         </button>
         <button onClick={nextPage}>Next page</button>
       </div>
@@ -78,4 +57,4 @@ function SearchFiles(props) {
   );
 }
 
-export default SearchFiles;
+export default FilesInFolder;
