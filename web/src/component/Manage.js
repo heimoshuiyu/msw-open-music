@@ -39,7 +39,21 @@ function Manage(props) {
         </button>
       )}
       {props.user.role !== 0 && (
-        <button onClick={() => props.setUser({})}>Logout</button>
+        <button
+          onClick={() => {
+            fetch("/api/v1/logout")
+              .then((res) => res.json())
+              .then((data) => {
+                if (data.error) {
+                  alert(data.error);
+                } else {
+                  props.setUser(data.user);
+                }
+              });
+          }}
+        >
+          Logout
+        </button>
       )}
       <hr />
       <input

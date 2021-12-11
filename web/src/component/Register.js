@@ -60,8 +60,7 @@ function Register(props) {
                 if (data.error) {
                   alert(data.error);
                 } else {
-                  props.setUser(data.user);
-                  navigate("/login");
+                  navigate("/manage/login");
                 }
               });
           }

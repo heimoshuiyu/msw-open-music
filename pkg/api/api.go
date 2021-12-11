@@ -81,6 +81,7 @@ func NewAPI(config Config) (*API, error) {
 	// user
 	apiMux.HandleFunc("/login", api.HandleLogin)
 	apiMux.HandleFunc("/register", api.HandleRegister)
+	apiMux.HandleFunc("/logout", api.LoginAsAnonymous)
 	// below needs token
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)
