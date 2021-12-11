@@ -9,6 +9,8 @@ import Manage from "./component/Manage";
 import Share from "./component/Share";
 import Login from "./component/Login";
 import Register from "./component/Register";
+import Tags from "./component/Tags";
+import EditTag from "./component/EditTag";
 import AudioPlayer from "./component/AudioPlayer";
 import UserStatus from "./component/UserStatus";
 import { useState } from "react";
@@ -59,9 +61,26 @@ function App() {
               path="/folders/:id"
               element={<FilesInFolder setPlayingFile={setPlayingFile} />}
             />
-            <Route path="/manage" element={<Manage user={user} setUser={setUser} />} />
-            <Route path="/manage/login" element={<Login user={user} setUser={setUser} />} />
-            <Route path="/manage/register" element={<Register user={user} setUser={setUser} />} />
+            <Route
+              path="/manage"
+              element={<Manage user={user} setUser={setUser} />}
+            />
+            <Route
+              path="/manage/login"
+              element={<Login user={user} setUser={setUser} />}
+            />
+            <Route
+              path="/manage/register"
+              element={<Register user={user} setUser={setUser} />}
+            />
+            <Route
+              path="/manage/tags"
+              element={<Tags user={user} />}
+            />
+            <Route
+              path="/manage/tags/:id"
+              element={<EditTag user={user} />}
+            />
             <Route
               path="/files/:id/share"
               element={<Share setPlayingFile={setPlayingFile} />}

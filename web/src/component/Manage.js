@@ -24,7 +24,7 @@ function Manage(props) {
       },
       body: JSON.stringify({
         root: walkPath,
-        pattern: patternArray
+        pattern: patternArray,
       }),
     })
       .then((res) => res.json())
@@ -64,6 +64,7 @@ function Manage(props) {
         </button>
       )}
       <hr />
+      <button onClick={() => navigate("/manage/tags")}>Tags</button>
       <h3>Update Database</h3>
       <input
         type="text"

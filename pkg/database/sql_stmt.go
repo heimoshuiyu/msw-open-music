@@ -43,8 +43,9 @@ var initAvatarsTableQuery = `CREATE TABLE IF NOT EXISTS avatars (
 );`
 
 var initTagsTableQuery = `CREATE TABLE IF NOT EXISTS tags (
-	id INTEGER PRIMARY KEY,
-	tag TEXT NOT NULL
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL UNIQUE,
+	description TEXT NOT NULL
 );`
 
 var initFileHasTagTableQuery = `CREATE TABLE IF NOT EXISTS file_has_tag (
@@ -169,6 +170,12 @@ var getUserByIdQuery = `SELECT id, username, role, avatar_id FROM users WHERE id
 
 var getAnonymousUserQuery = `SELECT id, username, role, avatar_id FROM users WHERE role = 0 LIMIT 1;`
 
+var insertTagQuery = `INSERT INTO tags (name, description) VALUES (?, ?);`
+
+var getTagQuery = `SELECT id, name, description FROM tags WHERE id = ? LIMIT 1;`
+
+var getTagsQuery = `SELECT id, name, description FROM tags;`
+
 type Stmt struct {
 	initFilesTable     *sql.Stmt
 	initFoldersTable   *sql.Stmt
@@ -201,6 +208,9 @@ type Stmt struct {
 	getUser            *sql.Stmt
 	getUserById        *sql.Stmt
 	getAnonymousUser   *sql.Stmt
+	insertTag          *sql.Stmt
+	getTag             *sql.Stmt
+	getTags            *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -455,6 +465,24 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	// init insertTag
+	stmt.insertTag, err = sqlConn.Prepare(insertTagQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init getTag
+	stmt.getTag, err = sqlConn.Prepare(getTagQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init getTags
+	stmt.getTags, err = sqlConn.Prepare(getTagsQuery)
+	if err != nil {
+		return nil, err
 	}
 
 	return stmt, err

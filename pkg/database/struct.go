@@ -28,10 +28,16 @@ type User struct {
 	AvatarId int64  `json:"avatar_id"`
 }
 
+type Tag struct {
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 var (
 	RoleAnonymous = int64(0)
-	RoleAdmin = int64(1)
-	RoleUser = int64(2)
+	RoleAdmin     = int64(1)
+	RoleUser      = int64(2)
 )
 
 func (f *File) Path() (string, error) {
