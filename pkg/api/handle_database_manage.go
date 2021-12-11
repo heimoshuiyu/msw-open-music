@@ -6,7 +6,6 @@ import (
 )
 
 type WalkRequest struct {
-	Token   string   `json:"token"`
 	Root    string   `json:"root"`
 	Pattern []string `json:"pattern"`
 }
@@ -24,7 +23,7 @@ func (api *API) HandleReset(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check token
-	err = api.CheckToken(w, r, resetRequest.Token)
+	err = api.CheckAdmin(w, r)
 	if err != nil {
 		return
 	}
@@ -53,7 +52,7 @@ func (api *API) HandleWalk(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check token match
-	err = api.CheckToken(w, r, walkRequest.Token)
+	err = api.CheckAdmin(w, r)
 	if err != nil {
 		return
 	}

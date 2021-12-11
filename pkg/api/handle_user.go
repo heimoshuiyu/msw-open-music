@@ -143,3 +143,26 @@ func (api *API) HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (api *API) CheckAdmin(w http.ResponseWriter, r *http.Request) error {
+	session, _ := api.store.Get(r, api.defaultSessionName)
+	userId, ok := session.Values["userId"]
+	if !ok {
+		api.HandleError(w, r, ErrNotLoggedIn)
+		return ErrNotLoggedIn
+	}
+
+	user, err := api.Db.GetUserById(userId.(int64))
+	if err != nil {
+		api.HandleError(w, r, err)
+		return err
+	}
+
+	if user.Role != database.RoleAdmin {
+		api.HandleError(w, r, ErrNotAdmin)
+		return ErrNotAdmin
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return nil
+}

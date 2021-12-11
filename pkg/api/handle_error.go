@@ -4,6 +4,12 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"errors"
+)
+
+var (
+	ErrNotLoggedIn = errors.New("not logged in")
+	ErrNotAdmin = errors.New("not admin")
 )
 
 type Error struct {

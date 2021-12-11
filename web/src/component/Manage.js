@@ -4,19 +4,27 @@ import { useNavigate } from "react-router";
 function Manage(props) {
   let navigate = useNavigate();
 
-  const [token, setToken] = useState("");
   const [walkPath, setWalkPath] = useState("");
+  const [patternString, setPatternString] = useState("");
 
   function updateDatabase() {
+    // split pattern string into array
+    let patternArray = patternString.split(" ");
+    // remove whitespace from array
+    patternArray = patternArray.map((item) => item.trim());
+    // remove empty strings from array
+    patternArray = patternArray.filter((item) => item !== "");
+    // add dot before item array
+    patternArray = patternArray.map((item) => "." + item);
+
     fetch("/api/v1/walk", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        token: token,
         root: walkPath,
-        pattern: [".wav", ".mp3"],
+        pattern: patternArray
       }),
     })
       .then((res) => res.json())
@@ -56,17 +64,18 @@ function Manage(props) {
         </button>
       )}
       <hr />
-      <input
-        type="text"
-        value={token}
-        placeholder="token"
-        onChange={(e) => setToken(e.target.value)}
-      />
+      <h3>Update Database</h3>
       <input
         type="text"
         value={walkPath}
         placeholder="walk path"
         onChange={(e) => setWalkPath(e.target.value)}
+      />
+      <input
+        type="text"
+        value={patternString}
+        placeholder="pattern wav flac mp3"
+        onChange={(e) => setPatternString(e.target.value)}
       />
       <button
         onClick={() => {

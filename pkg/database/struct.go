@@ -28,6 +28,12 @@ type User struct {
 	AvatarId int64  `json:"avatar_id"`
 }
 
+var (
+	RoleAnonymous = int64(0)
+	RoleAdmin = int64(1)
+	RoleUser = int64(2)
+)
+
 func (f *File) Path() (string, error) {
 	folder, err := f.Db.GetFolder(f.Folder_id)
 	if err != nil {
