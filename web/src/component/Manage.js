@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
-function Manage() {
+function Manage(props) {
+  let navigate = useNavigate();
+
   const [token, setToken] = useState("");
   const [walkPath, setWalkPath] = useState("");
 
@@ -25,6 +28,20 @@ function Manage() {
   return (
     <div>
       <h2>Manage</h2>
+      <p>Hi, {props.user.username}</p>
+      {props.user.role === 0 && (
+        <button
+          onClick={() => {
+            navigate("/manage/login");
+          }}
+        >
+          Login
+        </button>
+      )}
+      {props.user.role !== 0 && (
+        <button onClick={() => props.setUser({})}>Logout</button>
+      )}
+      <hr />
       <input
         type="text"
         value={token}

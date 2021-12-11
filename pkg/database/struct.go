@@ -20,6 +20,14 @@ type Folder struct {
 	Foldername string    `json:"foldername"`
 }
 
+type User struct {
+	ID       int64  `json:"id"`
+	Username string `json:"username"`
+	Password string `json:"-"`
+	Role     int64  `json:"role"`
+	AvatarId int64  `json:"avatar_id"`
+}
+
 func (f *File) Path() (string, error) {
 	folder, err := f.Db.GetFolder(f.Folder_id)
 	if err != nil {
@@ -27,4 +35,3 @@ func (f *File) Path() (string, error) {
 	}
 	return filepath.Join(folder.Folder, f.Filename), nil
 }
-

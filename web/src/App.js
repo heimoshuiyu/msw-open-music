@@ -1,9 +1,4 @@
-import {
-  HashRouter as Router,
-  Routes,
-  Route,
-  NavLink,
-} from "react-router-dom";
+import { HashRouter as Router, Routes, Route, NavLink } from "react-router-dom";
 import "./App.css";
 
 import GetRandomFiles from "./component/GetRandomFiles";
@@ -12,11 +7,15 @@ import SearchFolders from "./component/SearchFolders";
 import FilesInFolder from "./component/FilesInFolder";
 import Manage from "./component/Manage";
 import Share from "./component/Share";
+import Login from "./component/Login";
+import Register from "./component/Register";
 import AudioPlayer from "./component/AudioPlayer";
+import UserStatus from "./component/UserStatus";
 import { useState } from "react";
 
 function App() {
   const [playingFile, setPlayingFile] = useState({});
+  const [user, setUser] = useState({});
   return (
     <div className="base">
       <Router>
@@ -24,6 +23,7 @@ function App() {
           <h3 className="title">
             <img src="favicon.png" alt="logo" className="logo" />
             <span className="title-text">MSW Open Music Project</span>
+            <UserStatus user={user} setUser={setUser} />
           </h3>
           <nav className="nav">
             <NavLink to="/" className="nav-link">
@@ -59,7 +59,9 @@ function App() {
               path="/folders/:id"
               element={<FilesInFolder setPlayingFile={setPlayingFile} />}
             />
-            <Route path="/manage" element={<Manage />} />
+            <Route path="/manage" element={<Manage user={user} setUser={setUser} />} />
+            <Route path="/manage/login" element={<Login user={user} setUser={setUser} />} />
+            <Route path="/manage/register" element={<Register user={user} setUser={setUser} />} />
             <Route
               path="/files/:id/share"
               element={<Share setPlayingFile={setPlayingFile} />}

@@ -25,10 +25,13 @@ var initFeedbacksTableQuery = `CREATE TABLE IF NOT EXISTS feedbacks (
 	header TEXT NOT NULL
 );`
 
+// User table schema definition
+// role: 0 - Anonymous User, 1 - Admin, 2 - User
 var initUsersTableQuery = `CREATE TABLE IF NOT EXISTS users (
-	id INTEGER PRIMARY KEY,
-	username TEXT NOT NULL,
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	username TEXT NOT NULL UNIQUE,
 	password TEXT NOT NULL,
+	role INTEGER NOT NULL,
 	avatar_id INTEGER NOT NULL,
 	FOREIGN KEY(avatar_id) REFERENCES avatars(id)
 );`
@@ -153,6 +156,17 @@ LIMIT ?;`
 var insertFeedbackQuery = `INSERT INTO feedbacks (time, feedback, header)
 VALUES (?, ?, ?);`
 
+var insertUserQuery = `INSERT INTO users (username, password, role, avatar_id)
+VALUES (?, ?, ?, ?);`
+
+var countUserQuery = `SELECT count(*) FROM users;`
+
+var countAdminQuery = `SELECT count(*) FROM users WHERE role= 1;`
+
+var getUserQuery = `SELECT id, username, role, avatar_id FROM users WHERE username = ? AND password = ? LIMIT 1;`
+
+var getAnonymousUserQuery = `SELECT id, username, role, avatar_id FROM users WHERE role = 0 LIMIT 1;`
+
 type Stmt struct {
 	initFilesTable     *sql.Stmt
 	initFoldersTable   *sql.Stmt
@@ -179,6 +193,11 @@ type Stmt struct {
 	getFilesInFolder   *sql.Stmt
 	getRandomFiles     *sql.Stmt
 	insertFeedback     *sql.Stmt
+	insertUser         *sql.Stmt
+	countUser          *sql.Stmt
+	countAdmin         *sql.Stmt
+	getUser            *sql.Stmt
+	getAnonymousUser   *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -384,6 +403,49 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 	stmt.insertFeedback, err = sqlConn.Prepare(insertFeedbackQuery)
 	if err != nil {
 		return nil, err
+	}
+
+	// init insertUser
+	stmt.insertUser, err = sqlConn.Prepare(insertUserQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init countUser
+	stmt.countUser, err = sqlConn.Prepare(countUserQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init countAdmin
+	stmt.countAdmin, err = sqlConn.Prepare(countAdminQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init getUser
+	stmt.getUser, err = sqlConn.Prepare(getUserQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init getAnonymousUser
+	stmt.getAnonymousUser, err = sqlConn.Prepare(getAnonymousUserQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// insert Anonymous user if users is empty
+	userCount := 0
+	err = stmt.countUser.QueryRow().Scan(&userCount)
+	if err != nil {
+		return nil, err
+	}
+	if userCount == 0 {
+		_, err = stmt.insertUser.Exec("Anonymous user", "", 0, 0)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return stmt, err

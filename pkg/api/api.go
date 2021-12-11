@@ -70,6 +70,9 @@ func NewAPI(config Config) (*API, error) {
 	apiMux.HandleFunc("/get_file_info", api.HandleGetFileInfo)
 	apiMux.HandleFunc("/get_file_stream_direct", api.HandleGetFileStreamDirect)
 	apiMux.HandleFunc("/prepare_file_stream_direct", api.HandlePrepareFileStreamDirect)
+	// user
+	apiMux.HandleFunc("/login", api.HandleLogin)
+	apiMux.HandleFunc("/register", api.HandleRegister)
 	// below needs token
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)
