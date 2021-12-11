@@ -1,9 +1,11 @@
 package api
 
 import (
+	"github.com/gorilla/sessions"
 	"msw-open-music/pkg/database"
 	"msw-open-music/pkg/tmpfs"
 	"net/http"
+	"os"
 )
 
 type API struct {
@@ -12,6 +14,8 @@ type API struct {
 	token     string
 	APIConfig APIConfig
 	Tmpfs     *tmpfs.Tmpfs
+	store     *sessions.CookieStore
+  defaultSessionName string
 }
 
 func NewAPIConfig() APIConfig {
@@ -43,6 +47,8 @@ func NewAPI(config Config) (*API, error) {
 		return nil, err
 	}
 
+  store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+
 	mux := http.NewServeMux()
 	apiMux := http.NewServeMux()
 
@@ -53,6 +59,8 @@ func NewAPI(config Config) (*API, error) {
 			Handler: mux,
 		},
 		APIConfig: apiConfig,
+    store: store,
+    defaultSessionName: "msw-open-music",
 	}
 	api.Tmpfs = tmpfs.NewTmpfs(tmpfsConfig)
 

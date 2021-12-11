@@ -165,6 +165,8 @@ var countAdminQuery = `SELECT count(*) FROM users WHERE role= 1;`
 
 var getUserQuery = `SELECT id, username, role, avatar_id FROM users WHERE username = ? AND password = ? LIMIT 1;`
 
+var getUserByIdQuery = `SELECT id, username, role, avatar_id FROM users WHERE id = ? LIMIT 1;`
+
 var getAnonymousUserQuery = `SELECT id, username, role, avatar_id FROM users WHERE role = 0 LIMIT 1;`
 
 type Stmt struct {
@@ -197,6 +199,7 @@ type Stmt struct {
 	countUser          *sql.Stmt
 	countAdmin         *sql.Stmt
 	getUser            *sql.Stmt
+	getUserById        *sql.Stmt
 	getAnonymousUser   *sql.Stmt
 }
 
@@ -425,6 +428,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init getUser
 	stmt.getUser, err = sqlConn.Prepare(getUserQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init getUserById
+	stmt.getUserById, err = sqlConn.Prepare(getUserByIdQuery)
 	if err != nil {
 		return nil, err
 	}
