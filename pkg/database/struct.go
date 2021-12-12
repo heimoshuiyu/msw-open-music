@@ -29,9 +29,10 @@ type User struct {
 }
 
 type Tag struct {
-	ID          int64  `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	ID              int64  `json:"id"`
+	Name            string `json:"name"`
+	Description     string `json:"description"`
+	CreatedByUserId int64  `json:"created_by_user_id"`
 }
 
 var (

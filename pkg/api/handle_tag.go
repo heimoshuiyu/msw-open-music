@@ -29,11 +29,6 @@ func (api *API) HandleGetTags(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type InsertTagRequest struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
 type InsertTagResponse struct {
 	Tag *database.Tag `json:"tag"`
 }
@@ -46,14 +41,14 @@ func (api *API) HandleInsertTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req InsertTagRequest
+	req := &database.Tag{}
 	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
 	}
 
-	tag, err := api.Db.InsertTag(req.Name, req.Description)
+	tag, err := api.Db.InsertTag(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return

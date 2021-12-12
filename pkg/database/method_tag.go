@@ -2,8 +2,8 @@ package database
 
 import "errors"
 
-func (database *Database) InsertTag(tag string, description string) (*Tag, error) {
-	result, err := database.stmt.insertTag.Exec(tag, description)
+func (database *Database) InsertTag(tag *Tag) (*Tag, error) {
+	result, err := database.stmt.insertTag.Exec(tag.Name, tag.Description, tag.CreatedByUserId)
 	if err != nil {
 		return nil, err
 	}

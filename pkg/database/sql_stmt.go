@@ -45,7 +45,9 @@ var initAvatarsTableQuery = `CREATE TABLE IF NOT EXISTS avatars (
 var initTagsTableQuery = `CREATE TABLE IF NOT EXISTS tags (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	name TEXT NOT NULL UNIQUE,
-	description TEXT NOT NULL
+	description TEXT NOT NULL,
+	created_by_user_id INTEGER NOT NULL,
+	FOREIGN KEY(created_by_user_id) REFERENCES users(id)
 );`
 
 var initFileHasTagTableQuery = `CREATE TABLE IF NOT EXISTS file_has_tag (
@@ -170,7 +172,7 @@ var getUserByIdQuery = `SELECT id, username, role, avatar_id FROM users WHERE id
 
 var getAnonymousUserQuery = `SELECT id, username, role, avatar_id FROM users WHERE role = 0 LIMIT 1;`
 
-var insertTagQuery = `INSERT INTO tags (name, description) VALUES (?, ?);`
+var insertTagQuery = `INSERT INTO tags (name, description, created_by_user_id) VALUES (?, ?, ?);`
 
 var getTagQuery = `SELECT id, name, description FROM tags WHERE id = ? LIMIT 1;`
 
