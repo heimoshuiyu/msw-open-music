@@ -6,6 +6,7 @@ import SearchFiles from "./component/SearchFiles";
 import SearchFolders from "./component/SearchFolders";
 import FilesInFolder from "./component/FilesInFolder";
 import Manage from "./component/Manage";
+import FileInfo from "./component/FileInfo";
 import Share from "./component/Share";
 import Login from "./component/Login";
 import Register from "./component/Register";
@@ -80,6 +81,10 @@ function App() {
             <Route
               path="/manage/tags/:id"
               element={<EditTag user={user} />}
+            />
+            <Route
+              path="/files/:id"
+              element={<FileInfo setPlayingFile={setPlayingFile} />}
             />
             <Route
               path="/files/:id/share"
