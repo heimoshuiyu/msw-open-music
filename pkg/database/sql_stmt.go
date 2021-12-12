@@ -190,6 +190,14 @@ JOIN users ON tags.created_by_user_id = users.id
 
 var updateTagQuery = `UPDATE tags SET name = ?, description = ? WHERE id = ?;`
 
+var putTagOnFileQuery = `INSERT INTO file_has_tag (tag_id, file_id, user_id) VALUES (?, ?, ?);`
+
+var getTagsOnFileQuery = `SELECT
+tags.id, tags.name, tags.description, tags.created_by_user_id
+FROM file_has_tag
+JOIN tags ON file_has_tag.tag_id = tags.id
+WHERE file_has_tag.file_id = ?;`
+
 type Stmt struct {
 	initFilesTable     *sql.Stmt
 	initFoldersTable   *sql.Stmt
@@ -226,6 +234,8 @@ type Stmt struct {
 	getTag             *sql.Stmt
 	getTags            *sql.Stmt
 	updateTag          *sql.Stmt
+	putTagOnFile       *sql.Stmt
+	getTagsOnFile      *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -502,6 +512,18 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init updateTag
 	stmt.updateTag, err = sqlConn.Prepare(updateTagQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init putTagOnFile
+	stmt.putTagOnFile, err = sqlConn.Prepare(putTagOnFileQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init getTagsOnFile
+	stmt.getTagsOnFile, err = sqlConn.Prepare(getTagsOnFileQuery)
 	if err != nil {
 		return nil, err
 	}

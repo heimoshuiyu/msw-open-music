@@ -10,6 +10,7 @@ import (
 var (
 	ErrNotLoggedIn = errors.New("not logged in")
 	ErrNotAdmin = errors.New("not admin")
+	ErrEmpty = errors.New("Empty field detected, please fill in all fields")
 )
 
 type Error struct {
