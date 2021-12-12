@@ -9,6 +9,10 @@ function SearchFiles(props) {
   const limit = 10;
 
   function searchFiles() {
+    // check empty filename
+    if (filename === "") {
+      return;
+    }
     setIsLoading(true);
     fetch("/api/v1/search_files", {
       method: "POST",
