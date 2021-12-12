@@ -207,6 +207,17 @@ var updateFoldernameQuery = `UPDATE folders SET foldername = ? WHERE id = ?;`
 var insertReviewQuery = `INSERT INTO reviews (user_id, file_id, created_at, content)
 VALUES (?, ?, ?, ?);`
 
+var getReviewsOnFileQuery = `SELECT
+reviews.id, reviews.created_at, reviews.updated_at, reviews.content,
+users.id, users.username, users.role, users.avatar_id,
+files.id, files.filename
+FROM reviews
+JOIN users ON reviews.user_id = users.id
+JOIN files ON reviews.file_id = files.id
+WHERE reviews.file_id = ?
+ORDER BY reviews.created_at
+;`
+
 type Stmt struct {
 	initFilesTable     *sql.Stmt
 	initFoldersTable   *sql.Stmt
@@ -248,6 +259,7 @@ type Stmt struct {
 	deleteTagOnFile    *sql.Stmt
 	updateFoldername   *sql.Stmt
 	insertReview       *sql.Stmt
+	getReviewsOnFile   *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -554,6 +566,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init insertReview
 	stmt.insertReview, err = sqlConn.Prepare(insertReviewQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init getReviewsOnFile
+	stmt.getReviewsOnFile, err = sqlConn.Prepare(getReviewsOnFileQuery)
 	if err != nil {
 		return nil, err
 	}
