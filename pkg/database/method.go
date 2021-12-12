@@ -239,3 +239,11 @@ func (database *Database) Insert(path string, filesize int64) error {
 	}
 	return nil
 }
+
+func (database *Database) UpdateFoldername(folderId int64, foldername string) error {
+	_, err := database.stmt.updateFoldername.Exec(foldername, folderId)
+	if err != nil {
+		return err
+	}
+	return nil
+}

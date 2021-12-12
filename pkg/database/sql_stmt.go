@@ -200,6 +200,8 @@ WHERE file_has_tag.file_id = ?;`
 
 var deleteTagOnFileQuery = `DELETE FROM file_has_tag WHERE tag_id = ? AND file_id = ?;`
 
+var updateFoldernameQuery = `UPDATE folders SET foldername = ? WHERE id = ?;`
+
 type Stmt struct {
 	initFilesTable     *sql.Stmt
 	initFoldersTable   *sql.Stmt
@@ -239,6 +241,7 @@ type Stmt struct {
 	putTagOnFile       *sql.Stmt
 	getTagsOnFile      *sql.Stmt
 	deleteTagOnFile    *sql.Stmt
+	updateFoldername   *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -533,6 +536,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init deleteTagOnFile
 	stmt.deleteTagOnFile, err = sqlConn.Prepare(deleteTagOnFileQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init updateFoldername
+	stmt.updateFoldername, err = sqlConn.Prepare(updateFoldernameQuery)
 	if err != nil {
 		return nil, err
 	}
