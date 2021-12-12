@@ -42,6 +42,7 @@ func (api *API) HandleInsertTag(w http.ResponseWriter, r *http.Request) {
 	// check if user is admin
 	err := api.CheckAdmin(w, r)
 	if err != nil {
+		api.HandleError(w, r, err)
 		return
 	}
 
@@ -102,6 +103,7 @@ func (api *API) HandleUpdateTag(w http.ResponseWriter, r *http.Request) {
 	// check if user is admin
 	err := api.CheckAdmin(w, r)
 	if err != nil {
+		api.HandleError(w, r, err)
 		return
 	}
 

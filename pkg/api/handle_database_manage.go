@@ -25,6 +25,7 @@ func (api *API) HandleReset(w http.ResponseWriter, r *http.Request) {
 	// check token
 	err = api.CheckAdmin(w, r)
 	if err != nil {
+		api.HandleError(w, r, err)
 		return
 	}
 
@@ -54,6 +55,7 @@ func (api *API) HandleWalk(w http.ResponseWriter, r *http.Request) {
 	// check token match
 	err = api.CheckAdmin(w, r)
 	if err != nil {
+		api.HandleError(w, r, err)
 		return
 	}
 
