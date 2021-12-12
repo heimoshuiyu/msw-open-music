@@ -40,7 +40,11 @@ function Tags() {
             <tr key={tag.id}>
               <td>{tag.name}</td>
               <td>{tag.description}</td>
-              <td>{tag.created_by_user.username}</td>
+              <td>
+                <Link to={`/manage/users/${tag.created_by_user.id}`}>
+                  @{tag.created_by_user.username}
+                </Link>
+              </td>
               <td>
                 <Link to={`/manage/tags/${tag.id}`}>Edit</Link>
               </td>
