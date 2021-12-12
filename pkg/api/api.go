@@ -72,6 +72,7 @@ func NewAPI(config Config) (*API, error) {
 	apiMux.HandleFunc("/search_folders", api.HandleSearchFolders)
 	apiMux.HandleFunc("/get_files_in_folder", api.HandleGetFilesInFolder)
 	apiMux.HandleFunc("/get_random_files", api.HandleGetRandomFiles)
+	apiMux.HandleFunc("/get_random_files_with_tag", api.HandleGetRandomFilesWithTag)
 	apiMux.HandleFunc("/get_file_stream", api.HandleGetFileStream)
 	apiMux.HandleFunc("/get_ffmpeg_config_list", api.HandleGetFfmpegConfigs)
 	apiMux.HandleFunc("/feedback", api.HandleFeedback)

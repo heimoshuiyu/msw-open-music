@@ -35,6 +35,28 @@ func (database *Database) GetRandomFiles(limit int64) ([]File, error) {
 	return files, nil
 }
 
+func (database *Database) GetRandomFilesWithTag(tagID, limit int64) ([]File, error) {
+	rows, err := database.stmt.getRandomFilesWithTag.Query(tagID, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	files := make([]File, 0)
+	for rows.Next() {
+		file := File{
+			Db: database,
+		}
+		err = rows.Scan(&file.ID, &file.Folder_id, &file.Filename, &file.Foldername, &file.Filesize)
+		if err != nil {
+			return nil, err
+		}
+		files = append(files, file)
+		log.Println("[db] GetRandomFilesWithTag", file.ID, file.Filename, file.Foldername, file.Filesize)
+	}
+	log.Println("[db] GetRandomFilesWithTag", files)
+	return files, nil
+}
+
 func (database *Database) GetFilesInFolder(folder_id int64, limit int64, offset int64) ([]File, error) {
 	rows, err := database.stmt.getFilesInFolder.Query(folder_id, limit, offset)
 	if err != nil {

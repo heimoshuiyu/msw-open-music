@@ -158,6 +158,15 @@ JOIN folders ON files.folder_id = folders.id
 ORDER BY RANDOM()
 LIMIT ?;`
 
+var getRandomFilesWithTagQuery = `SELECT
+files.id, files.folder_id, files.filename, folders.foldername, files.filesize
+FROM file_has_tag
+JOIN files ON file_has_tag.file_id = files.id
+JOIN folders ON files.folder_id = folders.id
+WHERE file_has_tag.tag_id = ?
+ORDER BY RANDOM()
+LIMIT ?;`
+
 var insertFeedbackQuery = `INSERT INTO feedbacks (time, feedback, header)
 VALUES (?, ?, ?);`
 
@@ -236,51 +245,52 @@ ORDER BY reviews.created_at
 ;`
 
 type Stmt struct {
-	initFilesTable     *sql.Stmt
-	initFoldersTable   *sql.Stmt
-	initFeedbacksTable *sql.Stmt
-	initUsersTable     *sql.Stmt
-	initAvatarsTable   *sql.Stmt
-	initTagsTable      *sql.Stmt
-	initFileHasTag     *sql.Stmt
-	initLikesTable     *sql.Stmt
-	initReviewsTable   *sql.Stmt
-	initPlaybacksTable *sql.Stmt
-	initLogsTable      *sql.Stmt
-	initTmpfsTable     *sql.Stmt
-	insertFolder       *sql.Stmt
-	insertFile         *sql.Stmt
-	findFolder         *sql.Stmt
-	findFile           *sql.Stmt
-	searchFiles        *sql.Stmt
-	getFolder          *sql.Stmt
-	dropFiles          *sql.Stmt
-	dropFolder         *sql.Stmt
-	getFile            *sql.Stmt
-	searchFolders      *sql.Stmt
-	getFilesInFolder   *sql.Stmt
-	getRandomFiles     *sql.Stmt
-	insertFeedback     *sql.Stmt
-	insertUser         *sql.Stmt
-	countUser          *sql.Stmt
-	countAdmin         *sql.Stmt
-	getUser            *sql.Stmt
-	getUserById        *sql.Stmt
-	getAnonymousUser   *sql.Stmt
-	insertTag          *sql.Stmt
-	getTag             *sql.Stmt
-	getTags            *sql.Stmt
-	updateTag          *sql.Stmt
-	putTagOnFile       *sql.Stmt
-	getTagsOnFile      *sql.Stmt
-	deleteTagOnFile    *sql.Stmt
-	updateFoldername   *sql.Stmt
-	insertReview       *sql.Stmt
-	getReviewsOnFile   *sql.Stmt
-	getReview          *sql.Stmt
-	updateReview       *sql.Stmt
-	deleteReview       *sql.Stmt
-	getReviewsByUser   *sql.Stmt
+	initFilesTable        *sql.Stmt
+	initFoldersTable      *sql.Stmt
+	initFeedbacksTable    *sql.Stmt
+	initUsersTable        *sql.Stmt
+	initAvatarsTable      *sql.Stmt
+	initTagsTable         *sql.Stmt
+	initFileHasTag        *sql.Stmt
+	initLikesTable        *sql.Stmt
+	initReviewsTable      *sql.Stmt
+	initPlaybacksTable    *sql.Stmt
+	initLogsTable         *sql.Stmt
+	initTmpfsTable        *sql.Stmt
+	insertFolder          *sql.Stmt
+	insertFile            *sql.Stmt
+	findFolder            *sql.Stmt
+	findFile              *sql.Stmt
+	searchFiles           *sql.Stmt
+	getFolder             *sql.Stmt
+	dropFiles             *sql.Stmt
+	dropFolder            *sql.Stmt
+	getFile               *sql.Stmt
+	searchFolders         *sql.Stmt
+	getFilesInFolder      *sql.Stmt
+	getRandomFiles        *sql.Stmt
+	getRandomFilesWithTag *sql.Stmt
+	insertFeedback        *sql.Stmt
+	insertUser            *sql.Stmt
+	countUser             *sql.Stmt
+	countAdmin            *sql.Stmt
+	getUser               *sql.Stmt
+	getUserById           *sql.Stmt
+	getAnonymousUser      *sql.Stmt
+	insertTag             *sql.Stmt
+	getTag                *sql.Stmt
+	getTags               *sql.Stmt
+	updateTag             *sql.Stmt
+	putTagOnFile          *sql.Stmt
+	getTagsOnFile         *sql.Stmt
+	deleteTagOnFile       *sql.Stmt
+	updateFoldername      *sql.Stmt
+	insertReview          *sql.Stmt
+	getReviewsOnFile      *sql.Stmt
+	getReview             *sql.Stmt
+	updateReview          *sql.Stmt
+	deleteReview          *sql.Stmt
+	getReviewsByUser      *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -478,6 +488,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init getRandomFiles
 	stmt.getRandomFiles, err = sqlConn.Prepare(getRandomFilesQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init getRandomFilesWithTag
+	stmt.getRandomFilesWithTag, err = sqlConn.Prepare(getRandomFilesWithTagQuery)
 	if err != nil {
 		return nil, err
 	}
