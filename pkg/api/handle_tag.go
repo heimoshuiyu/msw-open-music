@@ -39,8 +39,14 @@ type InsertTagResponse struct {
 }
 
 func (api *API) HandleInsertTag(w http.ResponseWriter, r *http.Request) {
+	// check if user is admin
+	err := api.CheckAdmin(w, r)
+	if err != nil {
+		return
+	}
+
 	var req InsertTagRequest
-	err := json.NewDecoder(r.Body).Decode(&req)
+	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
