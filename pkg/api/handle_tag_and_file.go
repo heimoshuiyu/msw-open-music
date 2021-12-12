@@ -80,3 +80,40 @@ func (api *API) HandleGetTagsOnFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+type DeleteTagOnFileRequest struct {
+	TagID  int64 `json:"tag_id"`
+	FileID int64 `json:"file_id"`
+}
+
+func (api *API) HandleDeleteTagOnFile(w http.ResponseWriter, r *http.Request) {
+	// check if the user is admin
+	err := api.CheckAdmin(w, r)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	req := &DeleteTagOnFileRequest{}
+	err = json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	// check empty
+	if req.TagID == 0 || req.FileID == 0 {
+		api.HandleError(w, r, ErrEmpty)
+		return
+	}
+
+	log.Println("Delete tag on file request:", req)
+
+	err = api.Db.DeleteTagOnFile(req.TagID, req.FileID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	api.HandleOK(w, r)
+}

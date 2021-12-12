@@ -67,6 +67,27 @@ function FileInfo(props) {
       });
   }
 
+  function removeTagOnFile(tag_id) {
+    fetch(`/api/v1/delete_tag_on_file`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        file_id: parseInt(params.id),
+        tag_id: tag_id,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          getTagsOnFile();
+        }
+      });
+  }
+
   useEffect(() => {
     refresh();
     getTags();
@@ -116,7 +137,13 @@ function FileInfo(props) {
             return (
               <li key={tag.id}>
                 <button>{tag.name}</button>
-                <button>Remove</button>
+                <button
+                  onClick={() => {
+                    removeTagOnFile(tag.id);
+                  }}
+                >
+                  Remove
+                </button>
               </li>
             );
           })}

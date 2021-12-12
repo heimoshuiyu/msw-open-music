@@ -198,6 +198,8 @@ FROM file_has_tag
 JOIN tags ON file_has_tag.tag_id = tags.id
 WHERE file_has_tag.file_id = ?;`
 
+var deleteTagOnFileQuery = `DELETE FROM file_has_tag WHERE tag_id = ? AND file_id = ?;`
+
 type Stmt struct {
 	initFilesTable     *sql.Stmt
 	initFoldersTable   *sql.Stmt
@@ -236,6 +238,7 @@ type Stmt struct {
 	updateTag          *sql.Stmt
 	putTagOnFile       *sql.Stmt
 	getTagsOnFile      *sql.Stmt
+	deleteTagOnFile    *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -524,6 +527,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init getTagsOnFile
 	stmt.getTagsOnFile, err = sqlConn.Prepare(getTagsOnFileQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init deleteTagOnFile
+	stmt.deleteTagOnFile, err = sqlConn.Prepare(deleteTagOnFileQuery)
 	if err != nil {
 		return nil, err
 	}
