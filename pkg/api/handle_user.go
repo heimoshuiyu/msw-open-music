@@ -192,3 +192,28 @@ func (api *API) GetUserID(w http.ResponseWriter, r *http.Request) (int64, error)
 
 	return userId.(int64), nil
 }
+
+type GetReviewsByUserRequest struct {
+	ID int64 `json:"id"`
+}
+
+func (api *API) HandleGetReviewsByUser(w http.ResponseWriter, r *http.Request) {
+	req := &GetReviewsByUserRequest{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	reviews, err := api.Db.GetReviewsByUser(req.ID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(reviews)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+}
