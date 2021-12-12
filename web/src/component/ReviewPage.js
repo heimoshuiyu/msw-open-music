@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { Link } from "react-router-dom";
 import { convertIntToDateTime } from "./Common";
 
-function ReviewPage() {
+function ReviewPage(props) {
   let params = useParams();
+  let navigate = useNavigate();
   const [newReview, setNewReview] = useState("");
   const [reviews, setReviews] = useState([]);
 
@@ -61,10 +62,22 @@ function ReviewPage() {
         {reviews.map((review) => (
           <div key={review.id}>
             <h4>
-              <Link to={`/manage/users/${review.user.id}`}>@{review.user.username}</Link> wrote on{" "}
-              {convertIntToDateTime(review.created_at)}{" "}
+              <Link to={`/manage/users/${review.user.id}`}>
+                @{review.user.username}
+              </Link>{" "}
+              wrote on {convertIntToDateTime(review.created_at)}{" "}
             </h4>
             <p>{review.content}</p>
+            {(props.user.role === 1 || review.user.id === props.user.id) &&
+              props.user.role != 0 && (
+                <button
+                  onClick={() => {
+                    navigate(`/manage/reviews/${review.id}`);
+                  }}
+                >
+                  Edit
+                </button>
+              )}
           </div>
         ))}
       </div>

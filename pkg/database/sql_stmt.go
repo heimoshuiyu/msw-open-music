@@ -218,6 +218,10 @@ WHERE reviews.file_id = ?
 ORDER BY reviews.created_at
 ;`
 
+var getReviewQuery = `SELECT id, file_id, user_id, created_at, updated_at, content FROM reviews WHERE id = ? LIMIT 1;`
+
+var updateReviewQuery = `UPDATE reviews SET content = ?, updated_at = ? WHERE id = ?;`
+
 type Stmt struct {
 	initFilesTable     *sql.Stmt
 	initFoldersTable   *sql.Stmt
@@ -260,6 +264,8 @@ type Stmt struct {
 	updateFoldername   *sql.Stmt
 	insertReview       *sql.Stmt
 	getReviewsOnFile   *sql.Stmt
+	getReview          *sql.Stmt
+	updateReview       *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -572,6 +578,18 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init getReviewsOnFile
 	stmt.getReviewsOnFile, err = sqlConn.Prepare(getReviewsOnFileQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init getReview
+	stmt.getReview, err = sqlConn.Prepare(getReviewQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init updateReview
+	stmt.updateReview, err = sqlConn.Prepare(updateReviewQuery)
 	if err != nil {
 		return nil, err
 	}

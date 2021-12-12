@@ -67,3 +67,57 @@ func (api *API) HandleGetReviewsOnFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+type GetReviewRequest struct {
+	ID int64 `json:"id"`
+}
+
+type GetReviewResponse struct {
+	Review *database.Review `json:"review"`
+}
+
+func (api *API) HandleGetReview(w http.ResponseWriter, r *http.Request) {
+	req := &GetReviewRequest{}
+
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	review, err := api.Db.GetReview(req.ID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	ret := &GetReviewResponse{
+		Review: review,
+	}
+
+	err = json.NewEncoder(w).Encode(ret)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+}
+
+func (api *API) HandleUpdateReview(w http.ResponseWriter, r *http.Request) {
+	req := &database.Review{}
+
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	req.UpdatedAt = time.Now().Unix()
+
+	err = api.Db.UpdateReview(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	api.HandleOK(w, r)
+}

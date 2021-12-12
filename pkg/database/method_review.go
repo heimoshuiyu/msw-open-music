@@ -40,3 +40,29 @@ func (database *Database) GetReviewsOnFile(fileId int64) ([]*Review, error) {
 	}
 	return reviews, nil
 }
+
+func (database *Database) GetReview(reviewId int64) (*Review, error) {
+	row := database.stmt.getReview.QueryRow(reviewId)
+
+	review := &Review{}
+	err := row.Scan(
+		&review.ID,
+		&review.FileId,
+		&review.UserId,
+		&review.CreatedAt,
+		&review.UpdatedAt,
+		&review.Content)
+	if err != nil {
+		return nil, err
+	}
+
+	return review, nil
+}
+
+func (database *Database) UpdateReview(review *Review) error {
+	_, err := database.stmt.updateReview.Exec(
+		review.Content,
+		review.UpdatedAt,
+		review.ID)
+	return err
+}

@@ -12,6 +12,7 @@ import Login from "./component/Login";
 import Register from "./component/Register";
 import Tags from "./component/Tags";
 import EditTag from "./component/EditTag";
+import EditReview from "./component/EditReview";
 import AudioPlayer from "./component/AudioPlayer";
 import UserStatus from "./component/UserStatus";
 import ReviewPage from "./component/ReviewPage";
@@ -84,6 +85,10 @@ function App() {
               element={<EditTag user={user} />}
             />
             <Route
+              path="/manage/reviews/:id"
+              element={<EditReview user={user} />}
+            />
+            <Route
               path="/files/:id"
               element={<FileInfo setPlayingFile={setPlayingFile} />}
             />
@@ -93,7 +98,7 @@ function App() {
             />
             <Route
               path="/files/:id/review"
-              element={<ReviewPage setPlayingFile={setPlayingFile} />}
+              element={<ReviewPage user={user} setPlayingFile={setPlayingFile} />}
             />
           </Routes>
         </main>
