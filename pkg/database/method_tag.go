@@ -1,5 +1,7 @@
 package database
 
+import "errors"
+
 func (database *Database) InsertTag(tag string, description string) (*Tag, error) {
 	result, err := database.stmt.insertTag.Exec(tag, description)
 	if err != nil {
@@ -37,4 +39,19 @@ func (database *Database) GetTags() ([]Tag, error) {
 		tags = append(tags, tag)
 	}
 	return tags, nil
+}
+
+func (database *Database) UpdateTag(tag *Tag) (*Tag, error) {
+	result, err := database.stmt.updateTag.Exec(tag.Name, tag.Description, tag.ID)
+	if err != nil {
+		return nil, err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	if rowsAffected == 0 {
+		return nil, errors.New("No rows affected")
+	}
+	return database.GetTag(tag.ID)
 }

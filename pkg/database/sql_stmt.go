@@ -176,6 +176,8 @@ var getTagQuery = `SELECT id, name, description FROM tags WHERE id = ? LIMIT 1;`
 
 var getTagsQuery = `SELECT id, name, description FROM tags;`
 
+var updateTagQuery = `UPDATE tags SET name = ?, description = ? WHERE id = ?;`
+
 type Stmt struct {
 	initFilesTable     *sql.Stmt
 	initFoldersTable   *sql.Stmt
@@ -211,6 +213,7 @@ type Stmt struct {
 	insertTag          *sql.Stmt
 	getTag             *sql.Stmt
 	getTags            *sql.Stmt
+	updateTag          *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -481,6 +484,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init getTags
 	stmt.getTags, err = sqlConn.Prepare(getTagsQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init updateTag
+	stmt.updateTag, err = sqlConn.Prepare(updateTagQuery)
 	if err != nil {
 		return nil, err
 	}

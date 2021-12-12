@@ -3,9 +3,13 @@ import { useParams } from "react-router";
 
 function EditTag() {
   let params = useParams();
-  const [tag, setTag] = useState({});
+  const [tag, setTag] = useState({
+    id: "",
+    name: "",
+    description: "",
+  });
 
-  useEffect(() => {
+  function refreshTagInfo() {
     fetch("/api/v1/get_tag_info", {
       method: "POST",
       headers: {
@@ -23,6 +27,33 @@ function EditTag() {
           setTag(data.tag);
         }
       });
+  }
+
+  function updateTagInfo() {
+    fetch("/api/v1/update_tag", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: parseInt(params.id),
+        name: tag.name,
+        description: tag.description,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          alert("Tag updated successfully");
+          refreshTagInfo();
+        }
+      });
+  }
+
+  useEffect(() => {
+    refreshTagInfo();
   }, []);
 
   return (
@@ -53,7 +84,7 @@ function EditTag() {
           value={tag.description}
           onChange={(e) => setTag({ ...tag, description: e.target.value })}
         />
-        <button onClick={() => {}}>Save</button>
+        <button onClick={() => updateTagInfo()}>Save</button>
       </div>
     </div>
   );

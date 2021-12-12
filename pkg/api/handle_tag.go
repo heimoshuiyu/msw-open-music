@@ -91,3 +91,28 @@ func (api *API) HandleGetTagInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (api *API) HandleUpdateTag(w http.ResponseWriter, r *http.Request) {
+	// check if user is admin
+	err := api.CheckAdmin(w, r)
+	if err != nil {
+		return
+	}
+
+	req := &database.Tag{}
+	err = json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+	tag, err := api.Db.UpdateTag(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+	err = json.NewEncoder(w).Encode(tag)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+}

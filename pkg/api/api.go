@@ -86,6 +86,7 @@ func NewAPI(config Config) (*API, error) {
 	apiMux.HandleFunc("/get_tags", api.HandleGetTags)
 	apiMux.HandleFunc("/get_tag_info", api.HandleGetTagInfo)
 	apiMux.HandleFunc("/insert_tag", api.HandleInsertTag)
+	apiMux.HandleFunc("/update_tag", api.HandleUpdateTag)
 	// below needs token
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)
