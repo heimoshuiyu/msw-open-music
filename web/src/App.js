@@ -14,6 +14,7 @@ import Tags from "./component/Tags";
 import EditTag from "./component/EditTag";
 import AudioPlayer from "./component/AudioPlayer";
 import UserStatus from "./component/UserStatus";
+import ReviewPage from "./component/ReviewPage";
 import { useState } from "react";
 
 function App() {
@@ -89,6 +90,10 @@ function App() {
             <Route
               path="/files/:id/share"
               element={<Share setPlayingFile={setPlayingFile} />}
+            />
+            <Route
+              path="/files/:id/review"
+              element={<ReviewPage setPlayingFile={setPlayingFile} />}
             />
           </Routes>
         </main>

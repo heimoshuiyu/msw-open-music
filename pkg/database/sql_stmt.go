@@ -71,10 +71,12 @@ var initLikesTableQuery = `CREATE TABLE IF NOT EXISTS likes (
 var initReviewsTableQuery = `CREATE TABLE IF NOT EXISTS reviews (
 	id INTEGER PRIMARY KEY,
 	user_id INTEGER NOT NULL,
-	time INTEGER NOT NULL,
-	modified_time INTEGER DEFAULT 0,
-	review TEXT NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES users(id)
+	file_id INTEGER NOT NULL,
+	created_at INTEGER NOT NULL,
+	updated_at INTEGER NOT NULL DEFAULT 0,
+	content TEXT NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	FOREIGN KEY (file_id) REFERENCES files(id)
 );`
 
 var initPlaybacksTableQuery = `CREATE TABLE IF NOT EXISTS playbacks (
@@ -202,6 +204,9 @@ var deleteTagOnFileQuery = `DELETE FROM file_has_tag WHERE tag_id = ? AND file_i
 
 var updateFoldernameQuery = `UPDATE folders SET foldername = ? WHERE id = ?;`
 
+var insertReviewQuery = `INSERT INTO reviews (user_id, file_id, created_at, content)
+VALUES (?, ?, ?, ?);`
+
 type Stmt struct {
 	initFilesTable     *sql.Stmt
 	initFoldersTable   *sql.Stmt
@@ -242,6 +247,7 @@ type Stmt struct {
 	getTagsOnFile      *sql.Stmt
 	deleteTagOnFile    *sql.Stmt
 	updateFoldername   *sql.Stmt
+	insertReview       *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -542,6 +548,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init updateFoldername
 	stmt.updateFoldername, err = sqlConn.Prepare(updateFoldernameQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init insertReview
+	stmt.insertReview, err = sqlConn.Prepare(insertReviewQuery)
 	if err != nil {
 		return nil, err
 	}

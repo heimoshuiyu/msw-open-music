@@ -92,6 +92,8 @@ func NewAPI(config Config) (*API, error) {
 	apiMux.HandleFunc("/delete_tag_on_file", api.HandleDeleteTagOnFile)
 	// folder
 	apiMux.HandleFunc("/update_foldername", api.HandleUpdateFoldername)
+	// review
+	apiMux.HandleFunc("/insert_review", api.HandleInsertReview)
 	// below needs token
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)

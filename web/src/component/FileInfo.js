@@ -108,6 +108,13 @@ function FileInfo(props) {
         </button>
         <button
           onClick={() => {
+            navigate(`/files/${params.id}/review`);
+          }}
+        >
+          Review
+        </button>
+        <button
+          onClick={() => {
             navigate(`/files/${params.id}/share`);
           }}
         >

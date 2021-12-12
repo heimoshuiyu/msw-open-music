@@ -165,6 +165,25 @@ func (api *API) CheckAdmin(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+func (api *API) CheckNotAnonymous(w http.ResponseWriter, r *http.Request) error {
+	session, _ := api.store.Get(r, api.defaultSessionName)
+	userId, ok := session.Values["userId"]
+	if !ok {
+		return ErrNotLoggedIn
+	}
+
+	user, err := api.Db.GetUserById(userId.(int64))
+	if err != nil {
+		return err
+	}
+
+	if user.Role == database.RoleAnonymous {
+		return ErrAnonymous
+	}
+
+	return nil
+}
+
 func (api *API) GetUserID(w http.ResponseWriter, r *http.Request) (int64, error) {
 	session, _ := api.store.Get(r, api.defaultSessionName)
 	userId, ok := session.Values["userId"]

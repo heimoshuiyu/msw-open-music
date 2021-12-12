@@ -33,7 +33,18 @@ type Tag struct {
 	Name            string `json:"name"`
 	Description     string `json:"description"`
 	CreatedByUserId int64  `json:"created_by_user_id"`
-	CreatedByUser   *User   `json:"created_by_user"`
+	CreatedByUser   *User  `json:"created_by_user"`
+}
+
+type Review struct {
+	ID        int64  `json:"id"`
+	FileId    int64  `json:"file_id"`
+	File      *File  `json:"file"`
+	UserId    int64  `json:"user_id"`
+	User      *User  `json:"user"`
+	CreatedAt int64  `json:"created_at"`
+	UpdatedAt int64  `json:"updated_at"`
+	Content   string `json:"content"`
 }
 
 var (
