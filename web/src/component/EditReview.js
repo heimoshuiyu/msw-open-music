@@ -56,6 +56,27 @@ function SingleReview() {
       });
   }
 
+  function deleteReview() {
+    fetch("/api/v1/delete_review", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: parseInt(params.id),
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          alert("Review deleted!");
+          navigate(-1);
+        }
+      });
+  }
+
   useEffect(() => {
     refresh();
   }, []);
@@ -67,7 +88,10 @@ function SingleReview() {
         value={review.content}
         onChange={(e) => setReview({ ...review, content: e.target.value })}
       ></textarea>
-      <button onClick={() => save()}>Save</button>
+      <div>
+        <button onClick={() => deleteReview()}>Delete</button>
+        <button onClick={() => save()}>Save</button>
+      </div>
     </div>
   );
 }

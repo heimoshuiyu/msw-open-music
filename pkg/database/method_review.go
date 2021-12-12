@@ -66,3 +66,8 @@ func (database *Database) UpdateReview(review *Review) error {
 		review.ID)
 	return err
 }
+
+func (database *Database) DeleteReview(reviewId int64) error {
+	_, err := database.stmt.deleteReview.Exec(reviewId)
+	return err
+}

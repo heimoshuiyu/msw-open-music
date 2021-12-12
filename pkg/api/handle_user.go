@@ -161,7 +161,6 @@ func (api *API) CheckAdmin(w http.ResponseWriter, r *http.Request) error {
 		return ErrNotAdmin
 	}
 
-	w.WriteHeader(http.StatusOK)
 	return nil
 }
 

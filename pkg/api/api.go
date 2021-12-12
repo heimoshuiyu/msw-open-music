@@ -97,6 +97,7 @@ func NewAPI(config Config) (*API, error) {
 	apiMux.HandleFunc("/get_reviews_on_file", api.HandleGetReviewsOnFile)
 	apiMux.HandleFunc("/get_review", api.HandleGetReview)
 	apiMux.HandleFunc("/update_review", api.HandleUpdateReview)
+	apiMux.HandleFunc("/delete_review", api.HandleDeleteReview)
 	// below needs token
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)

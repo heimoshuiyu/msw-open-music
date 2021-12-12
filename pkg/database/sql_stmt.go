@@ -222,6 +222,8 @@ var getReviewQuery = `SELECT id, file_id, user_id, created_at, updated_at, conte
 
 var updateReviewQuery = `UPDATE reviews SET content = ?, updated_at = ? WHERE id = ?;`
 
+var deleteReviewQuery = `DELETE FROM reviews WHERE id = ?;`
+
 type Stmt struct {
 	initFilesTable     *sql.Stmt
 	initFoldersTable   *sql.Stmt
@@ -266,6 +268,7 @@ type Stmt struct {
 	getReviewsOnFile   *sql.Stmt
 	getReview          *sql.Stmt
 	updateReview       *sql.Stmt
+	deleteReview       *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -590,6 +593,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init updateReview
 	stmt.updateReview, err = sqlConn.Prepare(updateReviewQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init deleteReview
+	stmt.deleteReview, err = sqlConn.Prepare(deleteReviewQuery)
 	if err != nil {
 		return nil, err
 	}
