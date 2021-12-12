@@ -73,6 +73,7 @@ func (api *API) HandleLogin(w http.ResponseWriter, r *http.Request) {
 			// login as anonymous user
 			log.Println("Login as anonymous user")
 			api.LoginAsAnonymous(w, r)
+			return
 		}
 
 	} else {
