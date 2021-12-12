@@ -15,24 +15,29 @@ func (database *Database) InsertTag(tag *Tag) (*Tag, error) {
 }
 
 func (database *Database) GetTag(id int64) (*Tag, error) {
-	tag := &Tag{}
-	err := database.stmt.getTag.QueryRow(id).Scan(&tag.ID, &tag.Name, &tag.Description)
+	tag := &Tag{CreatedByUser: &User{}}
+	err := database.stmt.getTag.QueryRow(id).Scan(
+		&tag.ID, &tag.Name, &tag.Description,
+		&tag.CreatedByUser.ID, &tag.CreatedByUser.Username, &tag.CreatedByUser.Role, &tag.CreatedByUser.AvatarId)
 	if err != nil {
 		return nil, err
 	}
 	return tag, nil
 }
 
-func (database *Database) GetTags() ([]Tag, error) {
-	tags := []Tag{}
+func (database *Database) GetTags() ([]*Tag, error) {
+	tags := []*Tag{}
 	rows, err := database.stmt.getTags.Query()
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		tag := Tag{}
-		err := rows.Scan(&tag.ID, &tag.Name, &tag.Description)
+		tag := &Tag{CreatedByUser: &User{}}
+		err := rows.Scan(
+			&tag.ID, &tag.Name, &tag.Description,
+			&tag.CreatedByUser.ID, &tag.CreatedByUser.Username, &tag.CreatedByUser.Role, &tag.CreatedByUser.AvatarId)
+
 		if err != nil {
 			return nil, err
 		}

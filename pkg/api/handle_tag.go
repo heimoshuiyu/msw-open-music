@@ -8,7 +8,7 @@ import (
 )
 
 type getTagsResponse struct {
-	Tags []database.Tag `json:"tags"`
+	Tags []*database.Tag `json:"tags"`
 }
 
 func (api *API) HandleGetTags(w http.ResponseWriter, r *http.Request) {
@@ -43,6 +43,12 @@ func (api *API) HandleInsertTag(w http.ResponseWriter, r *http.Request) {
 
 	req := &database.Tag{}
 	err = json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	req.CreatedByUserId, err = api.GetUserID(w, r)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return

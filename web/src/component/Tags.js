@@ -31,6 +31,7 @@ function Tags() {
           <tr>
             <th>Name</th>
             <th>Description</th>
+            <th>Created By</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -39,6 +40,7 @@ function Tags() {
             <tr key={tag.id}>
               <td>{tag.name}</td>
               <td>{tag.description}</td>
+              <td>{tag.created_by_user.username}</td>
               <td>
                 <Link to={`/manage/tags/${tag.id}`}>Edit</Link>
               </td>

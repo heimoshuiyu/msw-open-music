@@ -33,6 +33,7 @@ type Tag struct {
 	Name            string `json:"name"`
 	Description     string `json:"description"`
 	CreatedByUserId int64  `json:"created_by_user_id"`
+	CreatedByUser   *User   `json:"created_by_user"`
 }
 
 var (

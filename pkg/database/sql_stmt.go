@@ -174,9 +174,19 @@ var getAnonymousUserQuery = `SELECT id, username, role, avatar_id FROM users WHE
 
 var insertTagQuery = `INSERT INTO tags (name, description, created_by_user_id) VALUES (?, ?, ?);`
 
-var getTagQuery = `SELECT id, name, description FROM tags WHERE id = ? LIMIT 1;`
+var getTagQuery = `SELECT
+tags.id, tags.name, tags.description,
+users.id, users.username, users.role, users.avatar_id
+FROM tags
+JOIN users ON tags.created_by_user_id = users.id
+WHERE tags.id = ? LIMIT 1;`
 
-var getTagsQuery = `SELECT id, name, description FROM tags;`
+var getTagsQuery = `SELECT
+tags.id, tags.name, tags.description,
+users.id, users.username, users.role, users.avatar_id
+FROM tags
+JOIN users ON tags.created_by_user_id = users.id
+;`
 
 var updateTagQuery = `UPDATE tags SET name = ?, description = ? WHERE id = ?;`
 

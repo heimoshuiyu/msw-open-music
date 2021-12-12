@@ -7,6 +7,12 @@ function EditTag() {
     id: "",
     name: "",
     description: "",
+    created_by_user: {
+      id: "",
+      username: "",
+      role: "",
+      avatar_id: "",
+    },
   });
 
   function refreshTagInfo() {
@@ -68,6 +74,23 @@ function EditTag() {
           id="id"
           value={tag.id}
           onChange={(e) => setTag({ ...tag, id: e.target.value })}
+        />
+        <label htmlFor="name">Created By</label>
+        <input
+          type="text"
+          disabled
+          name="created_by_user_username"
+          id="created_by_user_username"
+          value={tag.created_by_user.username}
+          onChange={(e) =>
+            setTag({
+              ...tag,
+              created_by_user: {
+                ...tag.created_by_user,
+                username: e.target.value,
+              },
+            })
+          }
         />
         <label htmlFor="name">Name</label>
         <input

@@ -163,3 +163,13 @@ func (api *API) CheckAdmin(w http.ResponseWriter, r *http.Request) error {
 	w.WriteHeader(http.StatusOK)
 	return nil
 }
+
+func (api *API) GetUserID(w http.ResponseWriter, r *http.Request) (int64, error) {
+	session, _ := api.store.Get(r, api.defaultSessionName)
+	userId, ok := session.Values["userId"]
+	if !ok {
+		return 0, ErrNotLoggedIn
+	}
+
+	return userId.(int64), nil
+}
