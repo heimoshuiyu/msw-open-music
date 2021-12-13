@@ -17,8 +17,10 @@ body {
 }
 .title {
   margin-left: 1em;
+  margin-right: 1em;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 .title-text {
   margin-left: 1em;
