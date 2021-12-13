@@ -178,11 +178,11 @@ var countUserQuery = `SELECT count(*) FROM users;`
 
 var countAdminQuery = `SELECT count(*) FROM users WHERE role= 1;`
 
-var getUserQuery = `SELECT id, username, role, avatar_id FROM users WHERE username = ? AND password = ? LIMIT 1;`
+var getUserQuery = `SELECT id, username, role, active, avatar_id FROM users WHERE username = ? AND password = ? LIMIT 1;`
 
 var getUsersQuery = `SELECT id, username, role, active, avatar_id FROM users;`
 
-var getUserByIdQuery = `SELECT id, username, role, avatar_id FROM users WHERE id = ? LIMIT 1;`
+var getUserByIdQuery = `SELECT id, username, role, active, avatar_id FROM users WHERE id = ? LIMIT 1;`
 
 var updateUserActiveQuery = `UPDATE users SET active = ? WHERE id = ?;`
 

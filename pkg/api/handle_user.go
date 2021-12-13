@@ -94,6 +94,12 @@ func (api *API) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// if user is not active
+	if !user.Active {
+		api.HandleError(w, r, ErrNotActive)
+		return
+	}
+
 	// save session
 	session.Values["userId"] = user.ID
 	err = session.Save(r, w)

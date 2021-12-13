@@ -4,7 +4,7 @@ func (database *Database) Login(username string, password string) (*User, error)
 	user := &User{}
 
 	// get user from database
-	err := database.stmt.getUser.QueryRow(username, password).Scan(&user.ID, &user.Username, &user.Role, &user.AvatarId)
+	err := database.stmt.getUser.QueryRow(username, password).Scan(&user.ID, &user.Username, &user.Role, &user.Active, &user.AvatarId)
 	if err != nil {
 		return user, err
 	}
@@ -49,7 +49,7 @@ func (database *Database) GetUserById(id int64) (*User, error) {
 	user := &User{}
 
 	// get user from database
-	err := database.stmt.getUserById.QueryRow(id).Scan(&user.ID, &user.Username, &user.Role, &user.AvatarId)
+	err := database.stmt.getUserById.QueryRow(id).Scan(&user.ID, &user.Username, &user.Role, &user.Active, &user.AvatarId)
 	if err != nil {
 		return user, err
 	}

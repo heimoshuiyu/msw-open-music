@@ -12,6 +12,7 @@ var (
 	ErrNotAdmin = errors.New("not admin")
 	ErrEmpty = errors.New("Empty field detected, please fill in all fields")
 	ErrAnonymous = errors.New("Anonymous user detected, please login")
+	ErrNotActive = errors.New("User is not active")
 )
 
 type Error struct {
