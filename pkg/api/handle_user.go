@@ -128,21 +128,13 @@ func (api *API) HandleRegister(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Register user", request.Username)
 
-	user, err := api.Db.Register(request.Username, request.Password, request.Role)
+	err = api.Db.Register(request.Username, request.Password, request.Role)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
 	}
-
-	resp := &LoginResponse{
-		User: user,
-	}
-
-	err = json.NewEncoder(w).Encode(resp)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
+	
+	api.HandleOK(w, r)
 }
 
 func (api *API) CheckAdmin(w http.ResponseWriter, r *http.Request) error {

@@ -22,10 +22,10 @@ func (database *Database) LoginAsAnonymous() (*User, error) {
 	return user, nil
 }
 
-func (database *Database) Register(username string, password string, usertype int64) (*User, error) {
+func (database *Database) Register(username string, password string, usertype int64) (error) {
 	countAdmin, err := database.CountAdmin()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	active := false
@@ -40,9 +40,9 @@ func (database *Database) Register(username string, password string, usertype in
 
 	_, err = database.stmt.insertUser.Exec(username, password, usertype, active, 0)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return database.Login(username, password)
+	return nil
 }
 
 func (database *Database) GetUserById(id int64) (*User, error) {
