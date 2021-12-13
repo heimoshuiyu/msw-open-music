@@ -32,6 +32,7 @@ var initUsersTableQuery = `CREATE TABLE IF NOT EXISTS users (
 	username TEXT NOT NULL UNIQUE,
 	password TEXT NOT NULL,
 	role INTEGER NOT NULL,
+	active BOOLEAN NOT NULL,
 	avatar_id INTEGER NOT NULL,
 	FOREIGN KEY(avatar_id) REFERENCES avatars(id)
 );`
@@ -170,8 +171,8 @@ LIMIT ?;`
 var insertFeedbackQuery = `INSERT INTO feedbacks (time, feedback, header)
 VALUES (?, ?, ?);`
 
-var insertUserQuery = `INSERT INTO users (username, password, role, avatar_id)
-VALUES (?, ?, ?, ?);`
+var insertUserQuery = `INSERT INTO users (username, password, role, active, avatar_id)
+VALUES (?, ?, ?, ?, ?);`
 
 var countUserQuery = `SELECT count(*) FROM users;`
 

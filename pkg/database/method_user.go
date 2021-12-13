@@ -23,7 +23,22 @@ func (database *Database) LoginAsAnonymous() (*User, error) {
 }
 
 func (database *Database) Register(username string, password string, usertype int64) (*User, error) {
-	_, err := database.stmt.insertUser.Exec(username, password, usertype, 0)
+	countAdmin, err := database.CountAdmin()
+	if err != nil {
+		return nil, err
+	}
+
+	active := false
+	if countAdmin == 0 {
+		active = true
+	}
+
+	// active normal user by default
+	if usertype == 2 {
+		active = true
+	}
+
+	_, err = database.stmt.insertUser.Exec(username, password, usertype, active, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -39,4 +54,13 @@ func (database *Database) GetUserById(id int64) (*User, error) {
 		return user, err
 	}
 	return user, nil
+}
+
+func (database *Database) CountAdmin() (int64, error) {
+	var count int64
+	err := database.stmt.countAdmin.QueryRow().Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
