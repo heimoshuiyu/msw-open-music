@@ -14,7 +14,7 @@ function ReviewEntry(props) {
       </h4>
       <p>{props.review.content}</p>
       {(props.user.role === 1 || props.review.user.id === props.user.id) &&
-        props.user.role != 0 && (
+        props.user.role !== 0 && (
           <button
             onClick={() => {
               navigate(`/manage/reviews/${props.review.id}`);

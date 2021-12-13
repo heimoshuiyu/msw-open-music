@@ -25,6 +25,7 @@ type User struct {
 	Username string `json:"username"`
 	Password string `json:"-"`
 	Role     int64  `json:"role"`
+	Active   bool   `json:"active"`
 	AvatarId int64  `json:"avatar_id"`
 }
 

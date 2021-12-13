@@ -6,6 +6,7 @@ import SearchFiles from "./component/SearchFiles";
 import SearchFolders from "./component/SearchFolders";
 import FilesInFolder from "./component/FilesInFolder";
 import Manage from "./component/Manage";
+import ManageUser from "./component/ManageUser";
 import FileInfo from "./component/FileInfo";
 import Share from "./component/Share";
 import Login from "./component/Login";
@@ -88,6 +89,10 @@ function App() {
             <Route
               path="/manage/reviews/:id"
               element={<EditReview user={user} />}
+            />
+            <Route
+              path="/manage/users"
+              element={<ManageUser user={user} setUser={setUser} />}
             />
             <Route
               path="/manage/users/:id"

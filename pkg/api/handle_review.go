@@ -182,3 +182,28 @@ func (api *API) HandleDeleteReview(w http.ResponseWriter, r *http.Request) {
 
 	api.HandleOK(w, r)
 }
+
+type GetReviewsByUserRequest struct {
+	ID int64 `json:"id"`
+}
+
+func (api *API) HandleGetReviewsByUser(w http.ResponseWriter, r *http.Request) {
+	req := &GetReviewsByUserRequest{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	reviews, err := api.Db.GetReviewsByUser(req.ID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(reviews)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+}

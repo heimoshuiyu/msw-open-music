@@ -36,6 +36,7 @@ function Manage(props) {
       )}
       <hr />
       <button onClick={() => navigate("/manage/tags")}>Tags</button>
+      <button onClick={() => navigate("/manage/users")}>Users</button>
       <Database />
     </div>
   );

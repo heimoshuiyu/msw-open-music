@@ -83,6 +83,8 @@ func NewAPI(config Config) (*API, error) {
 	apiMux.HandleFunc("/login", api.HandleLogin)
 	apiMux.HandleFunc("/register", api.HandleRegister)
 	apiMux.HandleFunc("/logout", api.LoginAsAnonymous)
+	apiMux.HandleFunc("/get_users", api.HandleGetUsers)
+	apiMux.HandleFunc("/update_user_active", api.HandleUpdateUserActive)
 	// tag
 	apiMux.HandleFunc("/get_tags", api.HandleGetTags)
 	apiMux.HandleFunc("/get_tag_info", api.HandleGetTagInfo)

@@ -180,7 +180,11 @@ var countAdminQuery = `SELECT count(*) FROM users WHERE role= 1;`
 
 var getUserQuery = `SELECT id, username, role, avatar_id FROM users WHERE username = ? AND password = ? LIMIT 1;`
 
+var getUsersQuery = `SELECT id, username, role, active, avatar_id FROM users;`
+
 var getUserByIdQuery = `SELECT id, username, role, avatar_id FROM users WHERE id = ? LIMIT 1;`
+
+var updateUserActiveQuery = `UPDATE users SET active = ? WHERE id = ?;`
 
 var getAnonymousUserQuery = `SELECT id, username, role, avatar_id FROM users WHERE role = 0 LIMIT 1;`
 
@@ -276,7 +280,9 @@ type Stmt struct {
 	countUser             *sql.Stmt
 	countAdmin            *sql.Stmt
 	getUser               *sql.Stmt
+	getUsers              *sql.Stmt
 	getUserById           *sql.Stmt
+	updateUserActive      *sql.Stmt
 	getAnonymousUser      *sql.Stmt
 	insertTag             *sql.Stmt
 	getTag                *sql.Stmt
@@ -529,8 +535,20 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 		return nil, err
 	}
 
+	// init getUsers
+	stmt.getUsers, err = sqlConn.Prepare(getUsersQuery)
+	if err != nil {
+		return nil, err
+	}
+
 	// init getUserById
 	stmt.getUserById, err = sqlConn.Prepare(getUserByIdQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init updateUserActive
+	stmt.updateUserActive, err = sqlConn.Prepare(updateUserActiveQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -548,7 +566,7 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 		return nil, err
 	}
 	if userCount == 0 {
-		_, err = stmt.insertUser.Exec("Anonymous user", "", 0, 0)
+		_, err = stmt.insertUser.Exec("Anonymous user", "", 0, 1, 0)
 		if err != nil {
 			return nil, err
 		}

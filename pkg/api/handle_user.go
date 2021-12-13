@@ -133,7 +133,7 @@ func (api *API) HandleRegister(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
-	
+
 	api.HandleOK(w, r)
 }
 
@@ -185,27 +185,57 @@ func (api *API) GetUserID(w http.ResponseWriter, r *http.Request) (int64, error)
 	return userId.(int64), nil
 }
 
-type GetReviewsByUserRequest struct {
-	ID int64 `json:"id"`
+type GetUsersResponse struct {
+	Users []*database.User `json:"users"`
 }
 
-func (api *API) HandleGetReviewsByUser(w http.ResponseWriter, r *http.Request) {
-	req := &GetReviewsByUserRequest{}
-	err := json.NewDecoder(r.Body).Decode(req)
+func (api *API) HandleGetUsers(w http.ResponseWriter, r *http.Request) {
+	err := api.CheckAdmin(w, r)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
 	}
 
-	reviews, err := api.Db.GetReviewsByUser(req.ID)
+	users, err := api.Db.GetUsers()
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(reviews)
+	ret := &GetUsersResponse{
+		Users: users,
+	}
+
+	err = json.NewEncoder(w).Encode(ret)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
 	}
+}
+
+type UpdateUserActiveRequest struct {
+	ID     int64 `json:"id"`
+	Active bool  `json:"active"`
+}
+
+func (api *API) HandleUpdateUserActive(w http.ResponseWriter, r *http.Request) {
+	err := api.CheckAdmin(w, r)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	req := &UpdateUserActiveRequest{}
+	err = json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	err = api.Db.UpdateUserActive(req.ID, req.Active)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+	api.HandleOK(w, r)
 }
