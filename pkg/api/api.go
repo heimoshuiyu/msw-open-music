@@ -99,6 +99,7 @@ func NewAPI(config Config) (*API, error) {
 	apiMux.HandleFunc("/put_tag_on_file", api.HandlePutTagOnFile)
 	apiMux.HandleFunc("/get_tags_on_file", api.HandleGetTagsOnFile)
 	apiMux.HandleFunc("/delete_tag_on_file", api.HandleDeleteTagOnFile)
+	apiMux.HandleFunc("/delete_tag", api.HandleDeleteTag)
 	// folder
 	apiMux.HandleFunc("/update_foldername", api.HandleUpdateFoldername)
 	// review

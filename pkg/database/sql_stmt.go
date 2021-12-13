@@ -205,6 +205,8 @@ var getAnonymousUserQuery = `SELECT id, username, role, avatar_id FROM users WHE
 
 var insertTagQuery = `INSERT INTO tags (name, description, created_by_user_id) VALUES (?, ?, ?);`
 
+var deleteTagQuery = `DELETE FROM tags WHERE id = ?;`
+
 var getTagQuery = `SELECT
 tags.id, tags.name, tags.description,
 users.id, users.username, users.role, users.avatar_id
@@ -230,6 +232,8 @@ JOIN tags ON file_has_tag.tag_id = tags.id
 WHERE file_has_tag.file_id = ?;`
 
 var deleteTagOnFileQuery = `DELETE FROM file_has_tag WHERE tag_id = ? AND file_id = ?;`
+
+var deleteTagReferenceInFileHasTagQuery = `DELETE FROM file_has_tag WHERE tag_id = ?;`
 
 var updateFoldernameQuery = `UPDATE folders SET foldername = ? WHERE id = ?;`
 
@@ -265,58 +269,60 @@ ORDER BY reviews.created_at
 ;`
 
 type Stmt struct {
-	initFilesTable        *sql.Stmt
-	initFoldersTable      *sql.Stmt
-	initFeedbacksTable    *sql.Stmt
-	initUsersTable        *sql.Stmt
-	initAvatarsTable      *sql.Stmt
-	initTagsTable         *sql.Stmt
-	initFileHasTag        *sql.Stmt
-	initLikesTable        *sql.Stmt
-	initReviewsTable      *sql.Stmt
-	initPlaybacksTable    *sql.Stmt
-	initLogsTable         *sql.Stmt
-	initTmpfsTable        *sql.Stmt
-	insertFolder          *sql.Stmt
-	insertFile            *sql.Stmt
-	findFolder            *sql.Stmt
-	findFile              *sql.Stmt
-	searchFiles           *sql.Stmt
-	getFolder             *sql.Stmt
-	dropFiles             *sql.Stmt
-	dropFolder            *sql.Stmt
-	getFile               *sql.Stmt
-	searchFolders         *sql.Stmt
-	getFilesInFolder      *sql.Stmt
-	getRandomFiles        *sql.Stmt
-	getRandomFilesWithTag *sql.Stmt
-	insertFeedback        *sql.Stmt
-	getFeedbacks          *sql.Stmt
-	deleteFeedback        *sql.Stmt
-	insertUser            *sql.Stmt
-	countUser             *sql.Stmt
-	countAdmin            *sql.Stmt
-	getUser               *sql.Stmt
-	getUsers              *sql.Stmt
-	getUserById           *sql.Stmt
-	updateUserActive      *sql.Stmt
-	updateUsername        *sql.Stmt
-	updateUserPassword    *sql.Stmt
-	getAnonymousUser      *sql.Stmt
-	insertTag             *sql.Stmt
-	getTag                *sql.Stmt
-	getTags               *sql.Stmt
-	updateTag             *sql.Stmt
-	putTagOnFile          *sql.Stmt
-	getTagsOnFile         *sql.Stmt
-	deleteTagOnFile       *sql.Stmt
-	updateFoldername      *sql.Stmt
-	insertReview          *sql.Stmt
-	getReviewsOnFile      *sql.Stmt
-	getReview             *sql.Stmt
-	updateReview          *sql.Stmt
-	deleteReview          *sql.Stmt
-	getReviewsByUser      *sql.Stmt
+	initFilesTable                 *sql.Stmt
+	initFoldersTable               *sql.Stmt
+	initFeedbacksTable             *sql.Stmt
+	initUsersTable                 *sql.Stmt
+	initAvatarsTable               *sql.Stmt
+	initTagsTable                  *sql.Stmt
+	initFileHasTag                 *sql.Stmt
+	initLikesTable                 *sql.Stmt
+	initReviewsTable               *sql.Stmt
+	initPlaybacksTable             *sql.Stmt
+	initLogsTable                  *sql.Stmt
+	initTmpfsTable                 *sql.Stmt
+	insertFolder                   *sql.Stmt
+	insertFile                     *sql.Stmt
+	findFolder                     *sql.Stmt
+	findFile                       *sql.Stmt
+	searchFiles                    *sql.Stmt
+	getFolder                      *sql.Stmt
+	dropFiles                      *sql.Stmt
+	dropFolder                     *sql.Stmt
+	getFile                        *sql.Stmt
+	searchFolders                  *sql.Stmt
+	getFilesInFolder               *sql.Stmt
+	getRandomFiles                 *sql.Stmt
+	getRandomFilesWithTag          *sql.Stmt
+	insertFeedback                 *sql.Stmt
+	getFeedbacks                   *sql.Stmt
+	deleteFeedback                 *sql.Stmt
+	insertUser                     *sql.Stmt
+	countUser                      *sql.Stmt
+	countAdmin                     *sql.Stmt
+	getUser                        *sql.Stmt
+	getUsers                       *sql.Stmt
+	getUserById                    *sql.Stmt
+	updateUserActive               *sql.Stmt
+	updateUsername                 *sql.Stmt
+	updateUserPassword             *sql.Stmt
+	getAnonymousUser               *sql.Stmt
+	insertTag                      *sql.Stmt
+	deleteTag                      *sql.Stmt
+	getTag                         *sql.Stmt
+	getTags                        *sql.Stmt
+	updateTag                      *sql.Stmt
+	putTagOnFile                   *sql.Stmt
+	getTagsOnFile                  *sql.Stmt
+	deleteTagOnFile                *sql.Stmt
+	deleteTagReferenceInFileHasTag *sql.Stmt
+	updateFoldername               *sql.Stmt
+	insertReview                   *sql.Stmt
+	getReviewsOnFile               *sql.Stmt
+	getReview                      *sql.Stmt
+	updateReview                   *sql.Stmt
+	deleteReview                   *sql.Stmt
+	getReviewsByUser               *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -621,6 +627,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 		return nil, err
 	}
 
+	// init deleteTag
+	stmt.deleteTag, err = sqlConn.Prepare(deleteTagQuery)
+	if err != nil {
+		return nil, err
+	}
+
 	// init getTag
 	stmt.getTag, err = sqlConn.Prepare(getTagQuery)
 	if err != nil {
@@ -653,6 +665,13 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init deleteTagOnFile
 	stmt.deleteTagOnFile, err = sqlConn.Prepare(deleteTagOnFileQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init deleteTagReferenceInFileHasTag
+	stmt.deleteTagReferenceInFileHasTag, err = sqlConn.Prepare(
+		deleteTagReferenceInFileHasTagQuery)
 	if err != nil {
 		return nil, err
 	}

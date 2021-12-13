@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 
 function EditTag() {
   let params = useParams();
+  let navigate = useNavigate();
+
   const [tag, setTag] = useState({
     id: "",
     name: "",
@@ -62,6 +64,27 @@ function EditTag() {
     refreshTagInfo();
   }, []);
 
+  function deleteTag() {
+    fetch("/api/v1/delete_tag", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: parseInt(params.id),
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          alert("Tag deleted successfully");
+          navigate(-1);
+        }
+      });
+  }
+
   return (
     <div className="page">
       <h3>Edit Tag</h3>
@@ -107,6 +130,7 @@ function EditTag() {
           value={tag.description}
           onChange={(e) => setTag({ ...tag, description: e.target.value })}
         />
+        <button onClick={deleteTag}>Delete</button>
         <button onClick={() => updateTagInfo()}>Save</button>
       </div>
     </div>

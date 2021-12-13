@@ -125,3 +125,34 @@ func (api *API) HandleUpdateTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+type DeleteTagRequest struct {
+	ID int64 `json:"id"`
+}
+
+func (api *API) HandleDeleteTag(w http.ResponseWriter, r *http.Request) {
+	// check if user is admin
+	err := api.CheckAdmin(w, r)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	req := &DeleteTagRequest{}
+	err = json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	err = api.Db.DeleteTag(req.ID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	log.Println("Successfully deleted tag and its references", req.ID)
+
+	api.HandleOK(w, r)
+}
+

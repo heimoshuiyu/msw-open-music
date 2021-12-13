@@ -60,3 +60,33 @@ func (database *Database) UpdateTag(tag *Tag) (*Tag, error) {
 	}
 	return database.GetTag(tag.ID)
 }
+
+// delete tag and all its references in file_has_tag
+func (database *Database) DeleteTag(id int64) error {
+	// begin transaction
+	tx, err := database.sqlConn.Begin()
+	if err != nil {
+		return err
+	}
+
+	// delete tag
+	_, err = tx.Stmt(database.stmt.deleteTag).Exec(id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// delete file_has_tag
+	_, err = tx.Stmt(database.stmt.deleteTagReferenceInFileHasTag).Exec(id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// commit transaction
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
+}
