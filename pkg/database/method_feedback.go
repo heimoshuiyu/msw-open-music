@@ -30,3 +30,11 @@ func (database *Database) GetFeedbacks() ([]*Feedback, error) {
 	}
 	return feedbacks, nil
 }
+
+func (database *Database) DeleteFeedback(id int64) error {
+	_, err := database.stmt.deleteFeedback.Exec(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

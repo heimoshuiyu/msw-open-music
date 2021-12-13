@@ -75,11 +75,13 @@ func NewAPI(config Config) (*API, error) {
 	apiMux.HandleFunc("/get_random_files_with_tag", api.HandleGetRandomFilesWithTag)
 	apiMux.HandleFunc("/get_file_stream", api.HandleGetFileStream)
 	apiMux.HandleFunc("/get_ffmpeg_config_list", api.HandleGetFfmpegConfigs)
-	apiMux.HandleFunc("/feedback", api.HandleFeedback)
-	apiMux.HandleFunc("/get_feedbacks", api.HandleGetFeedbacks)
 	apiMux.HandleFunc("/get_file_info", api.HandleGetFileInfo)
 	apiMux.HandleFunc("/get_file_stream_direct", api.HandleGetFileStreamDirect)
 	apiMux.HandleFunc("/prepare_file_stream_direct", api.HandlePrepareFileStreamDirect)
+	// feedback
+	apiMux.HandleFunc("/feedback", api.HandleFeedback)
+	apiMux.HandleFunc("/get_feedbacks", api.HandleGetFeedbacks)
+	apiMux.HandleFunc("/delete_feedback", api.HandleDeleteFeedback)
 	// user
 	apiMux.HandleFunc("/login", api.HandleLogin)
 	apiMux.HandleFunc("/register", api.HandleRegister)

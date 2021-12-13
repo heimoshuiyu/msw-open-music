@@ -79,3 +79,32 @@ func (api *API) HandleGetFeedbacks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+type DeleteFeedbackRequest struct {
+	ID int64 `json:"id"`
+}
+
+func (api *API) HandleDeleteFeedback(w http.ResponseWriter, r *http.Request) {
+	// check if admin
+	err := api.CheckAdmin(w, r)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	req := &DeleteFeedbackRequest{}
+	err = json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	err = api.Db.DeleteFeedback(req.ID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+
+	api.HandleOK(w, r)
+}

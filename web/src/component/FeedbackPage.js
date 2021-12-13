@@ -69,7 +69,29 @@ function FeedbackPage() {
                 <td>{feedback.content}</td>
                 <td>{convertIntToDateTime(feedback.time)}</td>
                 <td>
-                  <button onClick={() => {}}>Delete</button>
+                  <button
+                    onClick={() => {
+                      fetch("/api/v1/delete_feedback", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          id: feedback.id,
+                        }),
+                      })
+                        .then((res) => res.json())
+                        .then((data) => {
+                          if (data.error) {
+                            alert(data.error);
+                          } else {
+                            getFeedbacks();
+                          }
+                        });
+                    }}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}

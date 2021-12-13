@@ -180,6 +180,8 @@ JOIN users ON feedbacks.user_id = users.id
 ORDER BY feedbacks.time
 ;`
 
+var deleteFeedbackQuery = `DELETE FROM feedbacks WHERE id = ?;`
+
 var insertUserQuery = `INSERT INTO users (username, password, role, active, avatar_id)
 VALUES (?, ?, ?, ?, ?);`
 
@@ -290,6 +292,7 @@ type Stmt struct {
 	getRandomFilesWithTag *sql.Stmt
 	insertFeedback        *sql.Stmt
 	getFeedbacks          *sql.Stmt
+	deleteFeedback        *sql.Stmt
 	insertUser            *sql.Stmt
 	countUser             *sql.Stmt
 	countAdmin            *sql.Stmt
@@ -529,6 +532,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init getFeedbacks
 	stmt.getFeedbacks, err = sqlConn.Prepare(getFeedbacksQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init deleteFeedback
+	stmt.deleteFeedback, err = sqlConn.Prepare(deleteFeedbackQuery)
 	if err != nil {
 		return nil, err
 	}
