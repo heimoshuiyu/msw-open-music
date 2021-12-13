@@ -13,6 +13,7 @@ var (
 	ErrEmpty = errors.New("Empty field detected, please fill in all fields")
 	ErrAnonymous = errors.New("Anonymous user detected, please login")
 	ErrNotActive = errors.New("User is not active")
+	ErrWrongPassword = errors.New("Wrong password")
 )
 
 type Error struct {

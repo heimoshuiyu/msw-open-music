@@ -20,6 +20,15 @@ function Manage(props) {
       {props.user.role !== 0 && (
         <button
           onClick={() => {
+            navigate(`/manage/users/${props.user.id}`);
+          }}
+        >
+          Edit
+        </button>
+      )}
+      {props.user.role !== 0 && (
+        <button
+          onClick={() => {
             fetch("/api/v1/logout")
               .then((res) => res.json())
               .then((data) => {

@@ -245,3 +245,125 @@ func (api *API) HandleUpdateUserActive(w http.ResponseWriter, r *http.Request) {
 	}
 	api.HandleOK(w, r)
 }
+
+type UpdateUsernameRequest struct {
+	ID       int64  `json:"id"`
+	Username string `json:"username"`
+}
+
+func (api *API) HandleUpdateUsername(w http.ResponseWriter, r *http.Request) {
+	req := &UpdateUsernameRequest{}
+
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	user, err := api.Db.GetUserById(req.ID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	userID, err := api.GetUserID(w, r)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	if user.ID != userID && user.Role != database.RoleAdmin {
+		api.HandleError(w, r, ErrNotAdmin)
+		return
+	}
+
+	err = api.Db.UpdateUsername(req.ID, req.Username)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	api.HandleOK(w, r)
+}
+
+type GetUserInfoRequest struct {
+	ID int64 `json:"id"`
+}
+
+type GetUserInfoResponse struct {
+	User *database.User `json:"user"`
+}
+
+func (api *API) HandleGetUserInfo(w http.ResponseWriter, r *http.Request) {
+	req := &GetUserInfoRequest{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	user, err := api.Db.GetUserById(req.ID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	ret := &GetUserInfoResponse{
+		User: user,
+	}
+
+	err = json.NewEncoder(w).Encode(ret)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+}
+
+type UpdateUserPasswordRequest struct {
+	ID       int64  `json:"id"`
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
+func (api *API) HandleUpdateUserPassword(w http.ResponseWriter, r *http.Request) {
+	req := &UpdateUserPasswordRequest{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	user, err := api.Db.GetUserById(req.ID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	userID, err := api.GetUserID(w, r)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	currentUser, err := api.Db.GetUserById(userID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	if currentUser.Role != database.RoleAdmin {
+		_, err := api.Db.Login(user.Username, req.OldPassword)
+		if err != nil {
+			api.HandleError(w, r, ErrWrongPassword)
+			return
+		}
+	}
+
+	err = api.Db.UpdateUserPassword(req.ID, req.NewPassword)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	api.HandleOK(w, r)
+}

@@ -92,3 +92,8 @@ dialog {
   display: flex;
   justify-content: space-between;
 }
+.horizontal {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}

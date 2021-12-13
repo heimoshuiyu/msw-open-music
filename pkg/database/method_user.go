@@ -92,3 +92,19 @@ func (database *Database) UpdateUserActive(id int64, active bool) error {
 	}
 	return nil
 }
+
+func (database *Database) UpdateUsername(id int64, username string) error {
+	_, err := database.stmt.updateUsername.Exec(username, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (database *Database) UpdateUserPassword(id int64, password string) error {
+	_, err := database.stmt.updateUserPassword.Exec(password, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -186,6 +186,10 @@ var getUserByIdQuery = `SELECT id, username, role, active, avatar_id FROM users 
 
 var updateUserActiveQuery = `UPDATE users SET active = ? WHERE id = ?;`
 
+var updateUsernameQuery = `UPDATE users SET username = ? WHERE id = ?;`
+
+var updateUserPasswordQuery = `UPDATE users SET password = ? WHERE id = ?;`
+
 var getAnonymousUserQuery = `SELECT id, username, role, avatar_id FROM users WHERE role = 0 LIMIT 1;`
 
 var insertTagQuery = `INSERT INTO tags (name, description, created_by_user_id) VALUES (?, ?, ?);`
@@ -283,6 +287,8 @@ type Stmt struct {
 	getUsers              *sql.Stmt
 	getUserById           *sql.Stmt
 	updateUserActive      *sql.Stmt
+	updateUsername        *sql.Stmt
+	updateUserPassword    *sql.Stmt
 	getAnonymousUser      *sql.Stmt
 	insertTag             *sql.Stmt
 	getTag                *sql.Stmt
@@ -549,6 +555,18 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init updateUserActive
 	stmt.updateUserActive, err = sqlConn.Prepare(updateUserActiveQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init updateUsername
+	stmt.updateUsername, err = sqlConn.Prepare(updateUsernameQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init updateUserPassword
+	stmt.updateUserPassword, err = sqlConn.Prepare(updateUserPasswordQuery)
 	if err != nil {
 		return nil, err
 	}
