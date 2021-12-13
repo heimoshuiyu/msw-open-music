@@ -142,8 +142,10 @@ func (api *API) HandlePrepareFileStreamDirect(w http.ResponseWriter, r *http.Req
 		json.NewEncoder(w).Encode(prepareFileStreamDirectResponse)
 		return
 	}
+	
+	// lock the object
+	api.Tmpfs.Lock(objPath)
 
-	api.Tmpfs.Record(objPath)
 	args := strings.Split(ffmpegConfig.Args, " ")
 	startArgs := []string{"-threads", strconv.FormatInt(api.APIConfig.FfmpegThreads, 10), "-i", srcPath}
 	endArgs := []string{"-vn", "-y", objPath}
@@ -155,6 +157,9 @@ func (api *API) HandlePrepareFileStreamDirect(w http.ResponseWriter, r *http.Req
 		api.HandleError(w, r, err)
 		return
 	}
+
+	api.Tmpfs.Record(objPath)
+	api.Tmpfs.Unlock(objPath)
 
 	fileInfo, err := os.Stat(objPath)
 	if err != nil {
