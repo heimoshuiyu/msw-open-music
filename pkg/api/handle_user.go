@@ -196,12 +196,6 @@ type GetUsersResponse struct {
 }
 
 func (api *API) HandleGetUsers(w http.ResponseWriter, r *http.Request) {
-	err := api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
 	users, err := api.Db.GetUsers()
 	if err != nil {
 		api.HandleError(w, r, err)
@@ -320,7 +314,7 @@ func (api *API) HandleGetUserInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 type UpdateUserPasswordRequest struct {
-	ID       int64  `json:"id"`
+	ID          int64  `json:"id"`
 	OldPassword string `json:"old_password"`
 	NewPassword string `json:"new_password"`
 }

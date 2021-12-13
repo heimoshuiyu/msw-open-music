@@ -5,6 +5,7 @@ function Database() {
   const [patternString, setPatternString] = useState("");
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [updating, setUpdating] = useState(false);
 
   function getTags() {
     fetch("/api/v1/get_tags")
@@ -32,6 +33,8 @@ function Database() {
     // add dot before item array
     patternArray = patternArray.map((item) => "." + item);
 
+    setUpdating(true);
+
     fetch("/api/v1/walk", {
       method: "POST",
       headers: {
@@ -45,7 +48,14 @@ function Database() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
+        if (data.error) {
+          alert(data.error);
+        } else {
+          alert("Database updated");
+        }
+      })
+      .finally(() => {
+        setUpdating(false);
       });
   }
   return (
@@ -89,8 +99,9 @@ function Database() {
         onClick={() => {
           updateDatabase();
         }}
+        disabled={updating}
       >
-        Update Database
+        {updating ? "Updating..." : "Update Database"}
       </button>
     </div>
   );
