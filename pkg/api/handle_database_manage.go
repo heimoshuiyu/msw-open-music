@@ -8,6 +8,7 @@ import (
 type WalkRequest struct {
 	Root    string   `json:"root"`
 	Pattern []string `json:"pattern"`
+	TagIDs  []int64  `json:"tag_ids"`
 }
 
 type ResetRequest struct {
@@ -71,8 +72,15 @@ func (api *API) HandleWalk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get userID
+	userID, err := api.GetUserID(w, r)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
 	// walk
-	err = api.Db.Walk(walkRequest.Root, walkRequest.Pattern)
+	err = api.Db.Walk(walkRequest.Root, walkRequest.Pattern, walkRequest.TagIDs, userID)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return

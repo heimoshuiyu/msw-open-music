@@ -51,9 +51,7 @@ func (database *Database) GetRandomFilesWithTag(tagID, limit int64) ([]File, err
 			return nil, err
 		}
 		files = append(files, file)
-		log.Println("[db] GetRandomFilesWithTag", file.ID, file.Filename, file.Foldername, file.Filesize)
 	}
-	log.Println("[db] GetRandomFilesWithTag", files)
 	return files, nil
 }
 
@@ -137,12 +135,22 @@ func (database *Database) ResetFolder() error {
 	return err
 }
 
-func (database *Database) Walk(root string, pattern []string) error {
+func (database *Database) Walk(root string, pattern []string, tagIDs []int64, userID int64) error {
 	patternDict := make(map[string]bool)
 	for _, v := range pattern {
 		patternDict[v] = true
 	}
 	log.Println("[db] Walk", root, patternDict)
+
+	tags := make([]*Tag, 0)
+	for _, tagID := range tagIDs {
+		tag, err := database.GetTag(tagID)
+		if err != nil {
+			return err
+		}
+		tags = append(tags, tag)
+	}
+
 	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -159,9 +167,16 @@ func (database *Database) Walk(root string, pattern []string) error {
 		}
 
 		// insert file, folder will aut created
-		err = database.Insert(path, info.Size())
+		fileID, err := database.Insert(path, info.Size())
 		if err != nil {
 			return err
+		}
+
+		for _, tag := range tags {
+			err = database.PutTagOnFile(tag.ID, fileID, userID)
+			if err != nil {
+				return err
+			}
 		}
 		return nil
 	})
@@ -231,35 +246,39 @@ func (database *Database) InsertFolder(folder string) (int64, error) {
 	return lastInsertId, nil
 }
 
-func (database *Database) InsertFile(folderId int64, filename string, filesize int64) error {
-	_, err := database.stmt.insertFile.Exec(folderId, filename, filesize)
+func (database *Database) InsertFile(folderId int64, filename string, filesize int64) (int64, error) {
+	result, err := database.stmt.insertFile.Exec(folderId, filename, filesize)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	lastInsertId, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return lastInsertId, nil
 }
 
-func (database *Database) Insert(path string, filesize int64) error {
+func (database *Database) Insert(path string, filesize int64) (int64, error) {
 	folder, filename := filepath.Split(path)
 	folderId, err := database.FindFolder(folder)
 	if err != nil {
 		folderId, err = database.InsertFolder(folder)
 		if err != nil {
-			return err
+			return 0, err
 		}
 	}
 
 	// if file exists, skip it
-	_, err = database.FindFile(folderId, filename)
+	lastInsertId, err := database.FindFile(folderId, filename)
 	if err == nil {
-		return nil
+		return lastInsertId, nil
 	}
 
-	err = database.InsertFile(folderId, filename, filesize)
+	lastInsertId, err = database.InsertFile(folderId, filename, filesize)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return lastInsertId, nil
 }
 
 func (database *Database) UpdateFoldername(folderId int64, foldername string) error {
