@@ -21,7 +21,8 @@ var initFoldersTableQuery = `CREATE TABLE IF NOT EXISTS folders (
 var initFeedbacksTableQuery = `CREATE TABLE IF NOT EXISTS feedbacks (
 	id INTEGER PRIMARY KEY,
 	time INTEGER NOT NULL,
-	feedback TEXT NOT NULL,
+	content TEXT NOT NULL,
+	user_id INTEGER NOT NULL,
 	header TEXT NOT NULL
 );`
 
@@ -168,8 +169,16 @@ WHERE file_has_tag.tag_id = ?
 ORDER BY RANDOM()
 LIMIT ?;`
 
-var insertFeedbackQuery = `INSERT INTO feedbacks (time, feedback, header)
-VALUES (?, ?, ?);`
+var insertFeedbackQuery = `INSERT INTO feedbacks (time, content, user_id, header)
+VALUES (?, ?, ?, ?);`
+
+var getFeedbacksQuery = `SELECT
+feedbacks.id, feedbacks.time, feedbacks.content, feedbacks.header,
+users.id, users.username, users.role, users.active, users.avatar_id
+FROM feedbacks
+JOIN users ON feedbacks.user_id = users.id
+ORDER BY feedbacks.time
+;`
 
 var insertUserQuery = `INSERT INTO users (username, password, role, active, avatar_id)
 VALUES (?, ?, ?, ?, ?);`
@@ -280,6 +289,7 @@ type Stmt struct {
 	getRandomFiles        *sql.Stmt
 	getRandomFilesWithTag *sql.Stmt
 	insertFeedback        *sql.Stmt
+	getFeedbacks          *sql.Stmt
 	insertUser            *sql.Stmt
 	countUser             *sql.Stmt
 	countAdmin            *sql.Stmt
@@ -513,6 +523,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init insertFeedback
 	stmt.insertFeedback, err = sqlConn.Prepare(insertFeedbackQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init getFeedbacks
+	stmt.getFeedbacks, err = sqlConn.Prepare(getFeedbacksQuery)
 	if err != nil {
 		return nil, err
 	}

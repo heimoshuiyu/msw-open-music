@@ -48,6 +48,15 @@ type Review struct {
 	Content   string `json:"content"`
 }
 
+type Feedback struct {
+	ID      int64  `json:"id"`
+	UserId  int64  `json:"user_id"`
+	User    *User  `json:"user"`
+	Content string `json:"content"`
+	Header  string `json:"header"`
+	Time    int64  `json:"time"`
+}
+
 var (
 	RoleAnonymous = int64(0)
 	RoleAdmin     = int64(1)

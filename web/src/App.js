@@ -18,6 +18,7 @@ import AudioPlayer from "./component/AudioPlayer";
 import UserStatus from "./component/UserStatus";
 import ReviewPage from "./component/ReviewPage";
 import UserProfile from "./component/UserProfile";
+import FeedbackPage from "./component/FeedbackPage";
 import { useState } from "react";
 
 function App() {
@@ -69,6 +70,10 @@ function App() {
             <Route
               path="/manage"
               element={<Manage user={user} setUser={setUser} />}
+            />
+            <Route
+              path="/manage/feedbacks"
+              element={<FeedbackPage user={user} />}
             />
             <Route
               path="/manage/login"

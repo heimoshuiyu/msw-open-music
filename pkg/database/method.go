@@ -7,14 +7,6 @@ import (
 	"path/filepath"
 )
 
-func (database *Database) InsertFeedback(time int64, feedback string, header string) error {
-	_, err := database.stmt.insertFeedback.Exec(time, feedback, header)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func (database *Database) GetRandomFiles(limit int64) ([]File, error) {
 	rows, err := database.stmt.getRandomFiles.Query(limit)
 	if err != nil {
