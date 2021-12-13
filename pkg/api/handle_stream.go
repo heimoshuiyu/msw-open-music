@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"msw-open-music/pkg/database"
 	"net/http"
 	"os"
 	"os/exec"
@@ -85,7 +86,7 @@ type PrepareFileStreamDirectRequest struct {
 }
 
 type PrepareFileStreamDirectResponse struct {
-	Filesize int64 `json:"filesize"`
+	File *database.File `json:"file"`
 }
 
 // /prepare_file_stream_direct?id=1&config=ffmpeg_config_name
@@ -130,44 +131,37 @@ func (api *API) HandlePrepareFileStreamDirect(w http.ResponseWriter, r *http.Req
 
 	// check obj file exists
 	exists := api.Tmpfs.Exits(objPath)
-	if exists {
-		fileInfo, err := os.Stat(objPath)
+	if !exists {
+		// lock the object
+		api.Tmpfs.Lock(objPath)
+
+		args := strings.Split(ffmpegConfig.Args, " ")
+		startArgs := []string{"-threads", strconv.FormatInt(api.APIConfig.FfmpegThreads, 10), "-i", srcPath}
+		endArgs := []string{"-vn", "-y", objPath}
+		ffmpegArgs := append(startArgs, args...)
+		ffmpegArgs = append(ffmpegArgs, endArgs...)
+		cmd := exec.Command("ffmpeg", ffmpegArgs...)
+		err = cmd.Run()
 		if err != nil {
 			api.HandleError(w, r, err)
 			return
 		}
-		prepareFileStreamDirectResponse := &PrepareFileStreamDirectResponse{
-			Filesize: fileInfo.Size(),
-		}
-		json.NewEncoder(w).Encode(prepareFileStreamDirectResponse)
-		return
-	}
-	
-	// lock the object
-	api.Tmpfs.Lock(objPath)
 
-	args := strings.Split(ffmpegConfig.Args, " ")
-	startArgs := []string{"-threads", strconv.FormatInt(api.APIConfig.FfmpegThreads, 10), "-i", srcPath}
-	endArgs := []string{"-vn", "-y", objPath}
-	ffmpegArgs := append(startArgs, args...)
-	ffmpegArgs = append(ffmpegArgs, endArgs...)
-	cmd := exec.Command("ffmpeg", ffmpegArgs...)
-	err = cmd.Run()
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
+		api.Tmpfs.Record(objPath)
+		api.Tmpfs.Unlock(objPath)
 
-	api.Tmpfs.Record(objPath)
-	api.Tmpfs.Unlock(objPath)
+	}
 
 	fileInfo, err := os.Stat(objPath)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
 	}
+
+	file.Filesize = fileInfo.Size()
+
 	prepareFileStreamDirectResponse := &PrepareFileStreamDirectResponse{
-		Filesize: fileInfo.Size(),
+		File: file,
 	}
 	json.NewEncoder(w).Encode(prepareFileStreamDirectResponse)
 }

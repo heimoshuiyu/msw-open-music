@@ -12,10 +12,12 @@ function AudioPlayer(props) {
   const [loop, setLoop] = useState(true);
   const [raw, setRaw] = useState(false);
   const [prepare, setPrepare] = useState(false);
-  const [selectedFfmpegConfig, setSelectedFfmpegConfig] = useState({});
+  const [selectedFfmpegConfig, setSelectedFfmpegConfig] = useState({
+    name: "",
+    args: "",
+  });
   const [playingURL, setPlayingURL] = useState("");
   const [isPreparing, setIsPreparing] = useState(false);
-  const [preparedFilesize, setPreparedFilesize] = useState(null);
 
   useEffect(() => {
     // no playing file
@@ -40,7 +42,12 @@ function AudioPlayer(props) {
         })
           .then((response) => response.json())
           .then((data) => {
-            setPreparedFilesize(data.filesize);
+            if (data.error) {
+              alert(data.error);
+              setIsPreparing(false);
+              return;
+            }
+            props.setPlayingFile(data.file);
             setIsPreparing(false);
             setPlayingURL(
               `/api/v1/get_file_stream_direct?id=${props.playingFile.id}&config=${selectedFfmpegConfig.name}`
@@ -79,17 +86,13 @@ function AudioPlayer(props) {
           </button>
 
           <button
-            onClick={() =>
-              navigate(`/folders/${props.playingFile.folder_id}`)
-            }
+            onClick={() => navigate(`/folders/${props.playingFile.folder_id}`)}
           >
             {props.playingFile.foldername}
           </button>
 
           <button disabled>
-            {prepare
-              ? CalcReadableFilesizeDetail(preparedFilesize)
-              : CalcReadableFilesizeDetail(props.playingFile.filesize)}
+            {CalcReadableFilesizeDetail(props.playingFile.filesize)}
           </button>
 
           {isPreparing && <button disabled>Preparing...</button>}
