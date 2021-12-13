@@ -11,6 +11,8 @@ function ReviewEntry(props) {
           @{props.review.user.username}
         </Link>{" "}
         wrote on {convertIntToDateTime(props.review.created_at)}{" "}
+        {props.review.updated_at !== 0 &&
+          "(modified on " + convertIntToDateTime(props.review.updated_at) + ")"}
       </h4>
       <p>{props.review.content}</p>
       {(props.user.role === 1 || props.review.user.id === props.user.id) &&
