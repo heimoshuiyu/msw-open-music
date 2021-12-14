@@ -54,7 +54,13 @@ func (api *API) HandleInsertTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tag, err := api.Db.InsertTag(req)
+	tagID, err := api.Db.InsertTag(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	tag, err := api.Db.GetTag(tagID)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
@@ -114,16 +120,14 @@ func (api *API) HandleUpdateTag(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
-	tag, err := api.Db.UpdateTag(req)
+
+	err = api.Db.UpdateTag(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
 	}
-	err = json.NewEncoder(w).Encode(tag)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
+
+	api.HandleOK(w, r)
 }
 
 type DeleteTagRequest struct {

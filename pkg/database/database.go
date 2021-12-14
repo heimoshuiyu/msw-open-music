@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"sync"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -9,6 +10,7 @@ import (
 type Database struct {
 	sqlConn *sql.DB
 	stmt    *Stmt
+	singleThreadLock *sync.Mutex
 }
 
 func NewDatabase(dbName string) (*Database, error) {
@@ -30,6 +32,7 @@ func NewDatabase(dbName string) (*Database, error) {
 	database := &Database{
 		sqlConn: sqlConn,
 		stmt:    stmt,
+		singleThreadLock: &sync.Mutex{},
 	}
 
 	return database, nil

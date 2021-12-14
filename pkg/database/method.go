@@ -8,6 +8,9 @@ import (
 )
 
 func (database *Database) GetRandomFiles(limit int64) ([]File, error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	rows, err := database.stmt.getRandomFiles.Query(limit)
 	if err != nil {
 		return nil, err
@@ -28,6 +31,9 @@ func (database *Database) GetRandomFiles(limit int64) ([]File, error) {
 }
 
 func (database *Database) GetRandomFilesWithTag(tagID, limit int64) ([]File, error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	rows, err := database.stmt.getRandomFilesWithTag.Query(tagID, limit)
 	if err != nil {
 		return nil, err
@@ -48,6 +54,9 @@ func (database *Database) GetRandomFilesWithTag(tagID, limit int64) ([]File, err
 }
 
 func (database *Database) GetFilesInFolder(folder_id int64, limit int64, offset int64) ([]File, error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	rows, err := database.stmt.getFilesInFolder.Query(folder_id, limit, offset)
 	if err != nil {
 		return nil, err
@@ -69,6 +78,9 @@ func (database *Database) GetFilesInFolder(folder_id int64, limit int64, offset 
 }
 
 func (database *Database) SearchFolders(foldername string, limit int64, offset int64) ([]Folder, error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	rows, err := database.stmt.searchFolders.Query("%"+foldername+"%", limit, offset)
 	if err != nil {
 		return nil, errors.New("Error searching folders at query " + err.Error())
@@ -92,6 +104,10 @@ func (database *Database) GetFile(id int64) (*File, error) {
 	file := &File{
 		Db: database,
 	}
+
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	err := database.stmt.getFile.QueryRow(id).Scan(&file.ID, &file.Folder_id, &file.Filename, &file.Foldername, &file.Filesize)
 	if err != nil {
 		return nil, err
@@ -178,6 +194,10 @@ func (database *Database) GetFolder(folderId int64) (*Folder, error) {
 	folder := &Folder{
 		Db: database,
 	}
+
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	err := database.stmt.getFolder.QueryRow(folderId).Scan(&folder.Folder)
 	if err != nil {
 		return nil, err
@@ -186,6 +206,9 @@ func (database *Database) GetFolder(folderId int64) (*Folder, error) {
 }
 
 func (database *Database) SearchFiles(filename string, limit int64, offset int64) ([]File, error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	rows, err := database.stmt.searchFiles.Query("%"+filename+"%", limit, offset)
 	if err != nil {
 		return nil, errors.New("Error searching files at query " + err.Error())
@@ -210,6 +233,10 @@ func (database *Database) SearchFiles(filename string, limit int64, offset int64
 
 func (database *Database) FindFolder(folder string) (int64, error) {
 	var id int64
+
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	err := database.stmt.findFolder.QueryRow(folder).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -219,6 +246,10 @@ func (database *Database) FindFolder(folder string) (int64, error) {
 
 func (database *Database) FindFile(folderId int64, filename string) (int64, error) {
 	var id int64
+
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	err := database.stmt.findFile.QueryRow(folderId, filename).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -227,6 +258,10 @@ func (database *Database) FindFile(folderId int64, filename string) (int64, erro
 }
 
 func (database *Database) InsertFolder(folder string) (int64, error) {
+
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	result, err := database.stmt.insertFolder.Exec(folder, filepath.Base(folder))
 	if err != nil {
 		return 0, err
@@ -239,6 +274,9 @@ func (database *Database) InsertFolder(folder string) (int64, error) {
 }
 
 func (database *Database) InsertFile(folderId int64, filename string, filesize int64) (int64, error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	result, err := database.stmt.insertFile.Exec(folderId, filename, filesize)
 	if err != nil {
 		return 0, err
@@ -274,6 +312,9 @@ func (database *Database) Insert(path string, filesize int64) (int64, error) {
 }
 
 func (database *Database) UpdateFoldername(folderId int64, foldername string) error {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	_, err := database.stmt.updateFoldername.Exec(foldername, folderId)
 	if err != nil {
 		return err

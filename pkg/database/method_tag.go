@@ -2,19 +2,26 @@ package database
 
 import "errors"
 
-func (database *Database) InsertTag(tag *Tag) (*Tag, error) {
+func (database *Database) InsertTag(tag *Tag) (int64, error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	result, err := database.stmt.insertTag.Exec(tag.Name, tag.Description, tag.CreatedByUserId)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
-	return database.GetTag(id)
+
+	return id, nil
 }
 
 func (database *Database) GetTag(id int64) (*Tag, error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	tag := &Tag{CreatedByUser: &User{}}
 	err := database.stmt.getTag.QueryRow(id).Scan(
 		&tag.ID, &tag.Name, &tag.Description,
@@ -27,6 +34,10 @@ func (database *Database) GetTag(id int64) (*Tag, error) {
 
 func (database *Database) GetTags() ([]*Tag, error) {
 	tags := []*Tag{}
+
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	rows, err := database.stmt.getTags.Query()
 	if err != nil {
 		return nil, err
@@ -46,23 +57,30 @@ func (database *Database) GetTags() ([]*Tag, error) {
 	return tags, nil
 }
 
-func (database *Database) UpdateTag(tag *Tag) (*Tag, error) {
+func (database *Database) UpdateTag(tag *Tag) (error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	result, err := database.stmt.updateTag.Exec(tag.Name, tag.Description, tag.ID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if rowsAffected == 0 {
-		return nil, errors.New("No rows affected")
+		return errors.New("No rows affected")
 	}
-	return database.GetTag(tag.ID)
+
+	return nil
 }
 
 // delete tag and all its references in file_has_tag
 func (database *Database) DeleteTag(id int64) error {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	// begin transaction
 	tx, err := database.sqlConn.Begin()
 	if err != nil {

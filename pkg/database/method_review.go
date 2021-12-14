@@ -1,6 +1,9 @@
 package database
 
 func (database *Database) InsertReview(review *Review) error {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	_, err := database.stmt.insertReview.Exec(
 		review.UserId,
 		review.FileId,
@@ -10,6 +13,9 @@ func (database *Database) InsertReview(review *Review) error {
 }
 
 func (database *Database) GetReviewsOnFile(fileId int64) ([]*Review, error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	rows, err := database.stmt.getReviewsOnFile.Query(fileId)
 	if err != nil {
 		return nil, err
@@ -42,6 +48,9 @@ func (database *Database) GetReviewsOnFile(fileId int64) ([]*Review, error) {
 }
 
 func (database *Database) GetReview(reviewId int64) (*Review, error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	row := database.stmt.getReview.QueryRow(reviewId)
 
 	review := &Review{}
@@ -60,6 +69,9 @@ func (database *Database) GetReview(reviewId int64) (*Review, error) {
 }
 
 func (database *Database) UpdateReview(review *Review) error {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	_, err := database.stmt.updateReview.Exec(
 		review.Content,
 		review.UpdatedAt,
@@ -68,11 +80,17 @@ func (database *Database) UpdateReview(review *Review) error {
 }
 
 func (database *Database) DeleteReview(reviewId int64) error {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	_, err := database.stmt.deleteReview.Exec(reviewId)
 	return err
 }
 
 func (database *Database) GetReviewsByUser(userId int64) ([]*Review, error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	rows, err := database.stmt.getReviewsByUser.Query(userId)
 	if err != nil {
 		return nil, err

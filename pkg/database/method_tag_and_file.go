@@ -1,6 +1,9 @@
 package database
 
 func (database *Database) PutTagOnFile(tagID, fileID, userID int64) error {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	result, err := database.stmt.putTagOnFile.Exec(tagID, fileID, userID)
 	if err != nil {
 		return err
@@ -12,6 +15,9 @@ func (database *Database) PutTagOnFile(tagID, fileID, userID int64) error {
 }
 
 func (database *Database) GetTagsOnFile(fileID int64) ([]*Tag, error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	rows, err := database.stmt.getTagsOnFile.Query(fileID)
 	if err != nil {
 		return nil, err
@@ -31,6 +37,9 @@ func (database *Database) GetTagsOnFile(fileID int64) ([]*Tag, error) {
 }
 
 func (database *Database) DeleteTagOnFile(tagID, fileID int64) error {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	result, err := database.stmt.deleteTagOnFile.Exec(tagID, fileID)
 	if err != nil {
 		return err

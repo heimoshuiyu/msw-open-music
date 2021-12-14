@@ -1,6 +1,9 @@
 package database
 
 func (database *Database) InsertFeedback(time int64, content string, userID int64, header string) error {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	_, err := database.stmt.insertFeedback.Exec(time, content, userID, header)
 	if err != nil {
 		return err
@@ -9,6 +12,9 @@ func (database *Database) InsertFeedback(time int64, content string, userID int6
 }
 
 func (database *Database) GetFeedbacks() ([]*Feedback, error) {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	rows, err := database.stmt.getFeedbacks.Query()
 	if err != nil {
 		return nil, err
@@ -32,6 +38,9 @@ func (database *Database) GetFeedbacks() ([]*Feedback, error) {
 }
 
 func (database *Database) DeleteFeedback(id int64) error {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
 	_, err := database.stmt.deleteFeedback.Exec(id)
 	if err != nil {
 		return err
