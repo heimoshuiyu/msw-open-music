@@ -21,6 +21,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  color: white;
 }
 .title-text {
   margin-left: 1em;
