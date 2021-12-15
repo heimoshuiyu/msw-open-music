@@ -6,7 +6,7 @@ function Login(props) {
   let [username, setUsername] = useState("");
   let [password, setPassword] = useState("");
   return (
-    <div>
+    <div className="page">
       <h2>Login</h2>
       <label htmlFor="username">Username</label>
       <input

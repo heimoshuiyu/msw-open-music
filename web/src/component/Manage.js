@@ -5,7 +5,7 @@ function Manage(props) {
   let navigate = useNavigate();
 
   return (
-    <div>
+    <div className="page">
       <h2>Manage</h2>
       <p>Hi, {props.user.username}</p>
       {props.user.role === 0 && (
@@ -44,9 +44,11 @@ function Manage(props) {
         </button>
       )}
       <hr />
-      <button onClick={() => navigate("/manage/tags")}>Tags</button>
-      <button onClick={() => navigate("/manage/users")}>Users</button>
-      <button onClick={() => navigate("/manage/feedbacks")}>Feedbacks</button>
+      <div className="horizontal">
+        <button onClick={() => navigate("/manage/tags")}>Tags</button>
+        <button onClick={() => navigate("/manage/users")}>Users</button>
+        <button onClick={() => navigate("/manage/feedbacks")}>Feedbacks</button>
+      </div>
       <Database />
     </div>
   );
