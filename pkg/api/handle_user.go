@@ -246,9 +246,16 @@ type UpdateUsernameRequest struct {
 }
 
 func (api *API) HandleUpdateUsername(w http.ResponseWriter, r *http.Request) {
+	// reject anonymous user
+	err := api.CheckNotAnonymous(w, r)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
 	req := &UpdateUsernameRequest{}
 
-	err := json.NewDecoder(r.Body).Decode(req)
+	err = json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
@@ -320,8 +327,15 @@ type UpdateUserPasswordRequest struct {
 }
 
 func (api *API) HandleUpdateUserPassword(w http.ResponseWriter, r *http.Request) {
+	// reject anonymous user
+	err := api.CheckNotAnonymous(w, r)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
 	req := &UpdateUserPasswordRequest{}
-	err := json.NewDecoder(r.Body).Decode(req)
+	err = json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
