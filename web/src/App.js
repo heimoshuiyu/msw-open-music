@@ -83,14 +83,8 @@ function App() {
               path="/manage/register"
               element={<Register user={user} setUser={setUser} />}
             />
-            <Route
-              path="/manage/tags"
-              element={<Tags user={user} />}
-            />
-            <Route
-              path="/manage/tags/:id"
-              element={<EditTag user={user} />}
-            />
+            <Route path="/manage/tags" element={<Tags user={user} />} />
+            <Route path="/manage/tags/:id" element={<EditTag user={user} />} />
             <Route
               path="/manage/reviews/:id"
               element={<EditReview user={user} />}
@@ -113,16 +107,16 @@ function App() {
             />
             <Route
               path="/files/:id/review"
-              element={<ReviewPage user={user} setPlayingFile={setPlayingFile} />}
+              element={
+                <ReviewPage user={user} setPlayingFile={setPlayingFile} />
+              }
             />
           </Routes>
         </main>
-        <footer>
-          <AudioPlayer
-            playingFile={playingFile}
-            setPlayingFile={setPlayingFile}
-          />
-        </footer>
+        <AudioPlayer
+          playingFile={playingFile}
+          setPlayingFile={setPlayingFile}
+        />
       </Router>
     </div>
   );

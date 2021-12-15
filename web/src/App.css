@@ -100,3 +100,11 @@ dialog {
   flex-direction: row;
   flex-wrap: wrap;
 }
+.vertical {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+.warp-word {
+  overflow-wrap: anywhere;
+}

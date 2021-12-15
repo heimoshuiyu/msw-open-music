@@ -64,7 +64,7 @@ function AudioPlayer(props) {
   let navigate = useNavigate();
 
   return (
-    <div>
+    <footer className="vertical">
       <h5>Player status</h5>
       {props.playingFile.id && (
         <span>
@@ -111,46 +111,65 @@ function AudioPlayer(props) {
 
       <br />
 
-      <input
-        checked={loop}
-        onChange={(event) => setLoop(event.target.checked)}
-        type="checkbox"
-      />
-      <label>Loop</label>
+      <span>
+        <input
+          checked={loop}
+          onChange={(event) => setLoop(event.target.checked)}
+          type="checkbox"
+        />
+        <label>Loop</label>
 
-      <input
-        checked={raw}
-        onChange={(event) => setRaw(event.target.checked)}
-        type="checkbox"
-      />
-      <label>Raw</label>
+        <input
+          checked={raw}
+          onChange={(event) => setRaw(event.target.checked)}
+          type="checkbox"
+        />
+        <label>Raw</label>
 
-      {!raw && (
-        <span>
-          <input
-            checked={prepare}
-            onChange={(event) => setPrepare(event.target.checked)}
-            type="checkbox"
-          />
-          <label>Prepare</label>
-        </span>
-      )}
+        {!raw && (
+          <span>
+            <input
+              checked={prepare}
+              onChange={(event) => setPrepare(event.target.checked)}
+              type="checkbox"
+            />
+            <label>Prepare</label>
+          </span>
+        )}
+
+        <input
+          type="checkbox"
+          onClick={(e) => {
+            const domVideoPlayer = document.getElementById("dom-video-player");
+            if (domVideoPlayer === null) {
+              return;
+            }
+            if (e.target.checked) {
+              domVideoPlayer.style.height = "auto";
+            } else {
+              domVideoPlayer.style.height = "39px";
+            }
+          }}
+        />
+        <label>Video</label>
+      </span>
 
       {playingURL !== "" && (
-        <audio
+        <video
+          id="dom-video-player"
           controls
           autoPlay
           loop={loop}
           className="audio-player"
           src={playingURL}
-        ></audio>
+        ></video>
       )}
 
       <FfmpegConfig
         selectedFfmpegConfig={selectedFfmpegConfig}
         setSelectedFfmpegConfig={setSelectedFfmpegConfig}
       />
-    </div>
+    </footer>
   );
 }
 

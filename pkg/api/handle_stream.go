@@ -68,7 +68,7 @@ func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
 	}
 	args := strings.Split(ffmpegConfig.Args, " ")
 	startArgs := []string{"-threads", strconv.FormatInt(api.APIConfig.FfmpegThreads, 10), "-i", path}
-	endArgs := []string{"-vn", "-f", "ogg", "-"}
+	endArgs := []string{"-f", "webm", "-"}
 	ffmpegArgs := append(startArgs, args...)
 	ffmpegArgs = append(ffmpegArgs, endArgs...)
 	cmd := exec.Command("ffmpeg", ffmpegArgs...)
@@ -137,7 +137,7 @@ func (api *API) HandlePrepareFileStreamDirect(w http.ResponseWriter, r *http.Req
 
 		args := strings.Split(ffmpegConfig.Args, " ")
 		startArgs := []string{"-threads", strconv.FormatInt(api.APIConfig.FfmpegThreads, 10), "-i", srcPath}
-		endArgs := []string{"-vn", "-y", objPath}
+		endArgs := []string{"-y", objPath}
 		ffmpegArgs := append(startArgs, args...)
 		ffmpegArgs = append(ffmpegArgs, endArgs...)
 		cmd := exec.Command("ffmpeg", ffmpegArgs...)

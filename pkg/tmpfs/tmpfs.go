@@ -17,7 +17,7 @@ type Tmpfs struct {
 }
 
 func (tmpfs *Tmpfs) GetObjFilePath(id int64, configName string) (string) {
-	return filepath.Join(tmpfs.Config.Root, strconv.FormatInt(id, 10) + "." + configName + ".ogg")
+	return filepath.Join(tmpfs.Config.Root, strconv.FormatInt(id, 10) + "." + configName + ".webm")
 }
 
 func (tmpfs *Tmpfs) GetLock(filename string) *sync.Mutex {
