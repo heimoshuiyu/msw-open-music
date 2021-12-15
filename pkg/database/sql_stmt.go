@@ -223,7 +223,7 @@ JOIN users ON tags.created_by_user_id = users.id
 
 var updateTagQuery = `UPDATE tags SET name = ?, description = ? WHERE id = ?;`
 
-var putTagOnFileQuery = `INSERT INTO file_has_tag (tag_id, file_id, user_id) VALUES (?, ?, ?);`
+var putTagOnFileQuery = `INSERT OR REPLACE INTO file_has_tag (tag_id, file_id, user_id) VALUES (?, ?, ?);`
 
 var getTagsOnFileQuery = `SELECT
 tags.id, tags.name, tags.description, tags.created_by_user_id
