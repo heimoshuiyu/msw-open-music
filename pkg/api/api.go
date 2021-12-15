@@ -9,13 +9,13 @@ import (
 )
 
 type API struct {
-	Db        *database.Database
-	Server    http.Server
-	token     string
-	APIConfig APIConfig
-	Tmpfs     *tmpfs.Tmpfs
-	store     *sessions.CookieStore
-  defaultSessionName string
+	Db                 *database.Database
+	Server             http.Server
+	token              string
+	APIConfig          APIConfig
+	Tmpfs              *tmpfs.Tmpfs
+	store              *sessions.CookieStore
+	defaultSessionName string
 }
 
 func NewAPIConfig() APIConfig {
@@ -25,6 +25,7 @@ func NewAPIConfig() APIConfig {
 
 type APIConfig struct {
 	DatabaseName     string         `json:"database_name"`
+	SingleThread     bool           `json:"single_thread,default=true"`
 	Addr             string         `json:"addr"`
 	Token            string         `json:"token"`
 	FfmpegThreads    int64          `json:"ffmpeg_threads"`
@@ -42,12 +43,12 @@ func NewAPI(config Config) (*API, error) {
 	apiConfig := config.APIConfig
 	tmpfsConfig := config.TmpfsConfig
 
-	db, err := database.NewDatabase(apiConfig.DatabaseName)
+	db, err := database.NewDatabase(apiConfig.DatabaseName, apiConfig.SingleThread)
 	if err != nil {
 		return nil, err
 	}
 
-  store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+	store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 
 	mux := http.NewServeMux()
 	apiMux := http.NewServeMux()
@@ -58,9 +59,9 @@ func NewAPI(config Config) (*API, error) {
 			Addr:    apiConfig.Addr,
 			Handler: mux,
 		},
-		APIConfig: apiConfig,
-    store: store,
-    defaultSessionName: "msw-open-music",
+		APIConfig:          apiConfig,
+		store:              store,
+		defaultSessionName: "msw-open-music",
 	}
 	api.Tmpfs = tmpfs.NewTmpfs(tmpfsConfig)
 

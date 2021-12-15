@@ -1,6 +1,7 @@
 {
 	"api": {
 		"database_name": "music.sqlite3",
+		"single_thread": true,
 		"addr": ":8080",
 		"token": "!! config your very strong token here !!",
 		"ffmpeg_threads": 1,
