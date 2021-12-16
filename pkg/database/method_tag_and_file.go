@@ -4,12 +4,9 @@ func (database *Database) PutTagOnFile(tagID, fileID, userID int64) error {
 	database.singleThreadLock.Lock()
 	defer database.singleThreadLock.Unlock()
 
-	result, err := database.stmt.putTagOnFile.Exec(tagID, fileID, userID)
+	_, err := database.stmt.putTagOnFile.Exec(tagID, fileID, userID)
 	if err != nil {
 		return err
-	}
-	if rows, _ := result.RowsAffected(); rows == 0 {
-		return ErrTagNotFound
 	}
 	return nil
 }

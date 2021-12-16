@@ -126,6 +126,7 @@ files.id, files.folder_id, files.filename, folders.foldername, files.filesize
 FROM files
 JOIN folders ON files.folder_id = folders.id
 WHERE filename LIKE ?
+ORDER BY folders.foldername, files.filename
 LIMIT ? OFFSET ?;`
 
 var getFolderQuery = `SELECT folder FROM folders WHERE id = ? LIMIT 1;`
@@ -145,6 +146,7 @@ var searchFoldersQuery = `SELECT
 id, folder, foldername
 FROM folders
 WHERE foldername LIKE ?
+ORDER BY foldername
 LIMIT ? OFFSET ?;`
 
 var getFilesInFolderQuery = `SELECT
@@ -152,6 +154,7 @@ files.id, files.filename, files.filesize, folders.foldername
 FROM files
 JOIN folders ON files.folder_id = folders.id
 WHERE folder_id = ?
+ORDER BY files.filename
 LIMIT ? OFFSET ?;`
 
 var getRandomFilesQuery = `SELECT
@@ -220,17 +223,20 @@ tags.id, tags.name, tags.description,
 users.id, users.username, users.role, users.avatar_id
 FROM tags
 JOIN users ON tags.created_by_user_id = users.id
+ORDER BY tags.name
 ;`
 
 var updateTagQuery = `UPDATE tags SET name = ?, description = ? WHERE id = ?;`
 
-var putTagOnFileQuery = `INSERT OR REPLACE INTO file_has_tag (tag_id, file_id, user_id) VALUES (?, ?, ?);`
+var putTagOnFileQuery = `INSERT OR IGNORE INTO file_has_tag (tag_id, file_id, user_id) VALUES (?, ?, ?);`
 
 var getTagsOnFileQuery = `SELECT
 tags.id, tags.name, tags.description, tags.created_by_user_id
 FROM file_has_tag
 JOIN tags ON file_has_tag.tag_id = tags.id
-WHERE file_has_tag.file_id = ?;`
+WHERE file_has_tag.file_id = ?
+ORDER BY tags.name
+;`
 
 var deleteTagOnFileQuery = `DELETE FROM file_has_tag WHERE tag_id = ? AND file_id = ?;`
 
