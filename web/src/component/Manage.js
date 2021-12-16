@@ -24,7 +24,7 @@ function Manage(props) {
               navigate(`/manage/users/${props.user.id}`);
             }}
           >
-            Edit
+            Profile
           </button>
           <button
             onClick={() => {
