@@ -159,11 +159,15 @@ function FileInfo(props) {
     getTagsOnFile();
   }, []);
 
+  const downloadURL = "/api/v1/get_file_direct?id=" + file.id;
+
   return (
     <div className="page">
       <h3>File Details</h3>
       <div>
-        <button>Download</button>
+        <a href={downloadURL} download>
+          <button>Download</button>
+        </a>
         <button
           onClick={() => {
             props.setPlayingFile(file);
