@@ -277,6 +277,8 @@ var deleteFileReferenceInReviewsQuery = `DELETE FROM reviews WHERE file_id = ?;`
 
 var updateFilenameQuery = `UPDATE files SET filename = ? WHERE id = ?;`
 
+var resetFilenameQuery = `UPDATE files SET filename = realname WHERE id = ?;`
+
 type Stmt struct {
 	initFilesTable                  *sql.Stmt
 	initFoldersTable                *sql.Stmt
@@ -336,6 +338,7 @@ type Stmt struct {
 	deleteFileReferenceInFileHasTag *sql.Stmt
 	deleteFileReferenceInReviews    *sql.Stmt
 	updateFilename                  *sql.Stmt
+	resetFilename                   *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -753,6 +756,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 	
 	// init updateFilename
 	stmt.updateFilename, err = sqlConn.Prepare(updateFilenameQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	// init resetFilename
+	stmt.resetFilename, err = sqlConn.Prepare(resetFilenameQuery)
 	if err != nil {
 		return nil, err
 	}

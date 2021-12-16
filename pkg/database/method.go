@@ -372,3 +372,14 @@ func (database *Database) UpdateFilename(fileId int64, filename string) error {
 	}
 	return nil
 }
+
+func (database *Database) ResetFilename(fileId int64) error {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
+	_, err := database.stmt.resetFilename.Exec(fileId)
+	if err != nil {
+		return err
+	}
+	return nil
+}

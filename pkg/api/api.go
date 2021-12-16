@@ -81,6 +81,7 @@ func NewAPI(config Config) (*API, error) {
 	apiMux.HandleFunc("/prepare_file_stream_direct", api.HandlePrepareFileStreamDirect)
 	apiMux.HandleFunc("/delete_file", api.HandleDeleteFile)
 	apiMux.HandleFunc("/update_filename", api.HandleUpdateFilename)
+	apiMux.HandleFunc("/reset_filename", api.HandleResetFilename)
 	// feedback
 	apiMux.HandleFunc("/feedback", api.HandleFeedback)
 	apiMux.HandleFunc("/get_feedbacks", api.HandleGetFeedbacks)

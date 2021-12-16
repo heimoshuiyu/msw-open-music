@@ -133,6 +133,26 @@ function FileInfo(props) {
       });
   }
 
+  function resetFilename() {
+    fetch(`/api/v1/reset_filename`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: parseInt(params.id),
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          refresh();
+        }
+      });
+  }
+
   useEffect(() => {
     refresh();
     getTags();
@@ -199,7 +219,10 @@ function FileInfo(props) {
         <label htmlFor="filesize">File Size:</label>
         <input type="text" id="filesize" value={file.filesize} readOnly />
       </div>
-      <button onClick={updateFilename}>Save</button>
+      <div className="horizontal">
+        <button onClick={updateFilename}>Save</button>
+        <button onClick={resetFilename}>Reset</button>
+      </div>
       <div>
         <label>Tags:</label>
         <ul>

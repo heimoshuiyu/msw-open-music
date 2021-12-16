@@ -66,3 +66,33 @@ func (api *API) HandleUpdateFilename(w http.ResponseWriter, r *http.Request) {
 
 	api.HandleOK(w, r)
 }
+
+type ResetFilenameRequest struct {
+	ID int64 `json:"id"`
+}
+
+func (api *API) HandleResetFilename(w http.ResponseWriter, r *http.Request) {
+	// check admin
+	err := api.CheckAdmin(w, r)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	req := &ResetFilenameRequest{}
+	err = json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	log.Println("[api] reset filename", req.ID)
+
+	err = api.Db.ResetFilename(req.ID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	api.HandleOK(w, r)
+}
