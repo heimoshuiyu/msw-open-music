@@ -19,19 +19,19 @@ function FileDialog(props) {
       </p>
       <button
         onClick={() => {
-          props.setPlayingFile(props.file);
-          props.setShowStatus(false);
-        }}
-      >
-        Play
-      </button>
-      <button
-        onClick={() => {
           navigate(`/files/${props.file.id}`);
           props.setShowStatus(false);
         }}
       >
         Info
+      </button>
+      <button
+        onClick={() => {
+          props.setPlayingFile(props.file);
+          props.setShowStatus(false);
+        }}
+      >
+        Play
       </button>
       <button onClick={() => props.setShowStatus(false)}>Close</button>
     </dialog>
