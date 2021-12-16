@@ -233,7 +233,13 @@ function FileInfo(props) {
           {tagsOnFile.map((tag) => {
             return (
               <li key={tag.id}>
-                <button>{tag.name}</button>
+                <button
+                  onClick={() => {
+                    navigate(`/manage/tags/${tag.id}`);
+                  }}
+                >
+                  {tag.name}
+                </button>
                 <button
                   onClick={() => {
                     removeTagOnFile(tag.id);
