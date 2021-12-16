@@ -111,6 +111,28 @@ function FileInfo(props) {
     }
   }
 
+  function updateFilename() {
+    fetch(`/api/v1/update_filename`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: parseInt(params.id),
+        filename: file.filename,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          alert("Filename updated");
+          refresh();
+        }
+      });
+  }
+
   useEffect(() => {
     refresh();
     getTags();
@@ -163,10 +185,21 @@ function FileInfo(props) {
           readOnly
         />
         <label htmlFor="filename">File Name:</label>
-        <input type="text" id="filename" value={file.filename} readOnly />
+        <input
+          type="text"
+          id="filename"
+          value={file.filename}
+          onChange={(event) => {
+            setFile({
+              ...file,
+              filename: event.target.value,
+            });
+          }}
+        />
         <label htmlFor="filesize">File Size:</label>
         <input type="text" id="filesize" value={file.filesize} readOnly />
       </div>
+      <button onClick={updateFilename}>Save</button>
       <div>
         <label>Tags:</label>
         <ul>

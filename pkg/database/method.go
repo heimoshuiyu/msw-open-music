@@ -108,7 +108,7 @@ func (database *Database) GetFile(id int64) (*File, error) {
 	database.singleThreadLock.Lock()
 	defer database.singleThreadLock.Unlock()
 
-	err := database.stmt.getFile.QueryRow(id).Scan(&file.ID, &file.Folder_id, &file.Filename, &file.Foldername, &file.Filesize)
+	err := database.stmt.getFile.QueryRow(id).Scan(&file.ID, &file.Folder_id, &file.Realname, &file.Filename, &file.Foldername, &file.Filesize)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +277,7 @@ func (database *Database) InsertFile(folderId int64, filename string, filesize i
 	database.singleThreadLock.Lock()
 	defer database.singleThreadLock.Unlock()
 
-	result, err := database.stmt.insertFile.Exec(folderId, filename, filesize)
+	result, err := database.stmt.insertFile.Exec(folderId, filename, filename, filesize)
 	if err != nil {
 		return 0, err
 	}
@@ -359,5 +359,16 @@ func (database *Database) DeleteFile(fileId int64) error {
 		return err
 	}
 
+	return nil
+}
+
+func (database *Database) UpdateFilename(fileId int64, filename string) error {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
+	_, err := database.stmt.updateFilename.Exec(filename, fileId)
+	if err != nil {
+		return err
+	}
 	return nil
 }

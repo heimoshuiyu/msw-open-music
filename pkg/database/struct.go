@@ -9,6 +9,7 @@ type File struct {
 	ID         int64     `json:"id"`
 	Folder_id  int64     `json:"folder_id"`
 	Foldername string    `json:"foldername"`
+	Realname   string    `json:"-"`
 	Filename   string    `json:"filename"`
 	Filesize   int64     `json:"filesize"`
 }
@@ -68,5 +69,5 @@ func (f *File) Path() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(folder.Folder, f.Filename), nil
+	return filepath.Join(folder.Folder, f.Realname), nil
 }

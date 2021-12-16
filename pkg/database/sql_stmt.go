@@ -7,6 +7,7 @@ import (
 var initFilesTableQuery = `CREATE TABLE IF NOT EXISTS files (
 	id INTEGER PRIMARY KEY,
 	folder_id INTEGER NOT NULL,
+	realname TEXT NOT NULL,
 	filename TEXT NOT NULL,
 	filesize INTEGER NOT NULL,
 	FOREIGN KEY(folder_id) REFERENCES folders(id)
@@ -115,10 +116,10 @@ VALUES (?, ?);`
 
 var findFolderQuery = `SELECT id FROM folders WHERE folder = ? LIMIT 1;`
 
-var findFileQuery = `SELECT id FROM files WHERE folder_id = ? AND filename = ? LIMIT 1;`
+var findFileQuery = `SELECT id FROM files WHERE folder_id = ? AND realname = ? LIMIT 1;`
 
-var insertFileQuery = `INSERT INTO files (folder_id, filename, filesize)
-VALUES (?, ?, ?);`
+var insertFileQuery = `INSERT INTO files (folder_id, realname, filename, filesize)
+VALUES (?, ?, ?, ?);`
 
 var searchFilesQuery = `SELECT
 files.id, files.folder_id, files.filename, folders.foldername, files.filesize
@@ -134,7 +135,7 @@ var dropFilesQuery = `DROP TABLE files;`
 var dropFolderQuery = `DROP TABLE folders;`
 
 var getFileQuery = `SELECT
-files.id, files.folder_id, files.filename, folders.foldername, files.filesize
+files.id, files.folder_id, files.realname, files.filename, folders.foldername, files.filesize
 FROM files
 JOIN folders ON files.folder_id = folders.id
 WHERE files.id = ?
@@ -274,6 +275,8 @@ var deleteFileReferenceInFileHasTagQuery = `DELETE FROM file_has_tag WHERE file_
 
 var deleteFileReferenceInReviewsQuery = `DELETE FROM reviews WHERE file_id = ?;`
 
+var updateFilenameQuery = `UPDATE files SET filename = ? WHERE id = ?;`
+
 type Stmt struct {
 	initFilesTable                  *sql.Stmt
 	initFoldersTable                *sql.Stmt
@@ -332,6 +335,7 @@ type Stmt struct {
 	deleteFile                      *sql.Stmt
 	deleteFileReferenceInFileHasTag *sql.Stmt
 	deleteFileReferenceInReviews    *sql.Stmt
+	updateFilename                  *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -743,6 +747,12 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 	// init deleteFileReferenceInReviews
 	stmt.deleteFileReferenceInReviews, err = sqlConn.Prepare(
 		deleteFileReferenceInReviewsQuery)
+	if err != nil {
+		return nil, err
+	}
+	
+	// init updateFilename
+	stmt.updateFilename, err = sqlConn.Prepare(updateFilenameQuery)
 	if err != nil {
 		return nil, err
 	}
