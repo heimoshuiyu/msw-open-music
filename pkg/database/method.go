@@ -321,3 +321,43 @@ func (database *Database) UpdateFoldername(folderId int64, foldername string) er
 	}
 	return nil
 }
+
+func (database *Database) DeleteFile(fileId int64) error {
+	database.singleThreadLock.Lock()
+	defer database.singleThreadLock.Unlock()
+
+	// begin transaction
+	tx, err := database.sqlConn.Begin()
+	if err != nil {
+		return err
+	}
+
+	// delete file
+	_, err = tx.Stmt(database.stmt.deleteFile).Exec(fileId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// delete tag on file
+	_, err = tx.Stmt(database.stmt.deleteFileReferenceInFileHasTag).Exec(fileId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// delete reviews on file
+	_, err = tx.Stmt(database.stmt.deleteFileReferenceInReviews).Exec(fileId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// commit transaction
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

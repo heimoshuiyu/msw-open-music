@@ -88,6 +88,29 @@ function FileInfo(props) {
       });
   }
 
+  function deleteFile() {
+    // show Warning
+    if (window.confirm("Are you sure you want to delete this file?")) {
+      fetch(`/api/v1/delete_file`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: parseInt(params.id),
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) {
+            alert(data.error);
+          } else {
+            navigate(-1);
+          }
+        });
+    }
+  }
+
   useEffect(() => {
     refresh();
     getTags();
@@ -119,6 +142,13 @@ function FileInfo(props) {
           }}
         >
           Share
+        </button>
+        <button
+          onClick={() => {
+            deleteFile();
+          }}
+        >
+          Delete
         </button>
       </div>
       <div>
