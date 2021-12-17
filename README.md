@@ -8,53 +8,6 @@ A light weight personal music streaming platform.
 
 [toc]
 
-## TODO
-
-- Restructure，为多人协作做好准备
-
-### 前端部分更改
-
-- 修复页面 CSS 溢出问题
-- 显示操作执行世界
-
-页面数量至少 10 个（目前 5 个），预计添加如下页面
-
-- 文件详情页，可以修改单个文件的信息
-- 文件评论页，可对文件进行评论
-- 最新动态页，查看最近播放的曲目、最近的评论
-- 登录/注册页，取代现有的 token 逻辑
-- FfmpegConfigs 配置页面
-- 意见反馈的查看页面
-
-### 后端部分更改
-
-- 返回操作执行时间
-
-- 修复 Prepare 模式转码不完整但仍然被 tmpfs 记录为成功转码的问题
-
-- FfmpegConfigs 由目前的字典格式改为列表格式
-- 为 sqlite3 添加数据库单线程锁
-- 添加外键约束
-- Update 功能自动检查重复的项目并忽略，只添加新的项目
-- Token 验证方法改为 暱称 + 密码 的方法，管理员使用 admin 保留关键字作为暱称。
-
-需要 8 个 entities 和 6 个 relationship，目前有 3 个 entities，和 1 个 relationship
-
-目前有
-
-- files 文件表，数量 50,000
-- folders 文件夹表，数量 3,000
-- feedbacks 反馈留言表
-
-计划添加
-
-- users 用户表
-- comments 管理表
-- playbacks 播放记录表
-- likes 点赞记录表
-
-## 编译 & 构建
-
 ## How to build
 
 ### Build the back-end server
