@@ -383,3 +383,17 @@ func (database *Database) ResetFilename(fileId int64) error {
 	}
 	return nil
 }
+
+func (database *Database) ResetFoldername(folderId int64) error {
+	folder, err := database.GetFolder(folderId)
+	if err != nil {
+		return err
+	}
+
+	foldername := filepath.Base(folder.Folder)
+	err = database.UpdateFoldername(folderId, foldername)
+	if err != nil {
+		return err
+	}
+	return nil
+}

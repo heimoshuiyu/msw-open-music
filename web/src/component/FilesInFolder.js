@@ -76,6 +76,29 @@ function FilesInFolder(props) {
       });
   }
 
+  function resetFoldername() {
+    setIsLoading(true);
+    fetch("/api/v1/reset_foldername", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: parseInt(params.id),
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          refresh();
+        }
+      })
+      .catch((error) => alert(error))
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }
+
   return (
     <div className="page">
       <h3>Files in Folder</h3>
@@ -93,7 +116,10 @@ function FilesInFolder(props) {
           value={newFoldername}
           onChange={(e) => setNewFoldername(e.target.value)}
         />
+    <div>
         <button onClick={() => updateFoldername()}>Save</button>
+        <button onClick={() => resetFoldername()}>Reset</button>
+    </div>
       </div>
     </div>
   );
