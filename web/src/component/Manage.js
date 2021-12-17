@@ -9,13 +9,22 @@ function Manage(props) {
       <h2>Manage</h2>
       <p>Hi, {props.user.username}</p>
       {props.user.role === 0 && (
-        <button
-          onClick={() => {
-            navigate("/manage/login");
-          }}
-        >
-          Login
-        </button>
+        <div>
+          <button
+            onClick={() => {
+              navigate("/manage/login");
+            }}
+          >
+            Login
+          </button>
+          <button
+            onClick={() => {
+              navigate("/manage/register");
+            }}
+          >
+            Register
+          </button>
+        </div>
       )}
       {props.user.role !== 0 && (
         <div className="horizontal">
