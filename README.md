@@ -4,6 +4,18 @@ A light weight personal music streaming platform.
 
 ## Introduction
 
+This is a music streaming platform software developed to manage (index, search, tag, review)  **large amount** of music (also video) files. Also it can use `ffmpeg` to re-encode music stream so that you can enjoy your huge lossless music via slow and unstable network.
+
+If you:
+
+- Collect a lot of music
+
+- Want to use a "clean" music player
+
+- Want to stream music via network
+
+Then this will be a good choice for you.
+
 ![demo1](demo1.jpg)
 
 [TOC]
@@ -17,6 +29,22 @@ A light weight personal music streaming platform.
 - Call ffmpeg to transcode music or video.
 
 - Manage files' information in the database, including adding tags, comments, etc.
+
+### How it works
+
+First, administrator run the back-end program, then setup an admin account. Then he/she can update database with a root directory and a file pattern list.
+
+After setting up, user can enjoy music.
+
+```sequence
+Title: Flow chat
+User browser->Backend server: Open web page
+Backend server->User browser: font end files
+User browser->Backend server: JavaScript request
+Backend server->Database: SQL Query
+Backend server->File system: Access file
+Backend server->User browser: Return music stream
+```
 
 ### What it won't do
 
