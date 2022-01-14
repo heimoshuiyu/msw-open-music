@@ -18,6 +18,8 @@ function AudioPlayer(props) {
   });
   const [playingURL, setPlayingURL] = useState("");
   const [isPreparing, setIsPreparing] = useState(false);
+  const [timerCount, setTimerCount] = useState(0);
+  const [timerID, setTimerID] = useState(null);
 
   useEffect(() => {
     // no playing file
@@ -110,6 +112,35 @@ function AudioPlayer(props) {
       )}
 
       <br />
+
+      <span className="horizontal">
+        <input
+          className="number-input"
+          disabled={timerID !== null}
+          type="number"
+          value={timerCount}
+          onChange={(e) => {
+            setTimerCount(e.target.value);
+          }}
+        />
+        <button
+          onClick={() => {
+            if (timerID != null) {
+              clearInterval(timerID);
+              setTimerID(null);
+              return;
+            }
+            setTimerID(
+              setTimeout(() => {
+                props.setPlayingFile({});
+                setTimerID(null);
+              }, timerCount * 1000 * 60)
+            );
+          }}
+        >
+          Stop Timer
+        </button>
+      </span>
 
       <span>
         <input
