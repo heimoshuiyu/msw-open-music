@@ -13,7 +13,7 @@ function Manage() {
       body: JSON.stringify({
         token: token,
         root: walkPath,
-        pattern: [".wav", ".mp3"],
+        pattern: [".wav", ".mp3", ".flac", ".ogg", ".aac", ".mka"],
       }),
     })
       .then((res) => res.json())
