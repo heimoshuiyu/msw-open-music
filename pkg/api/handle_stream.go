@@ -68,11 +68,12 @@ func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
 	}
 	args := strings.Split(ffmpegConfig.Args, " ")
 	startArgs := []string{"-threads", strconv.FormatInt(api.APIConfig.FfmpegThreads, 10), "-i", path}
-	endArgs := []string{"-f", "webm", "-"}
+	endArgs := []string{"-f", ffmpegConfig.Format, "-"}
 	ffmpegArgs := append(startArgs, args...)
 	ffmpegArgs = append(ffmpegArgs, endArgs...)
 	cmd := exec.Command("ffmpeg", ffmpegArgs...)
 	cmd.Stdout = w
+	// cmd.Stderr = os.Stderr
 	err = cmd.Run()
 	if err != nil {
 		api.HandleError(w, r, err)
@@ -127,7 +128,7 @@ func (api *API) HandlePrepareFileStreamDirect(w http.ResponseWriter, r *http.Req
 		api.HandleErrorStringCode(w, r, `ffmpeg config not found`, 404)
 		return
 	}
-	objPath := api.Tmpfs.GetObjFilePath(prepareFileStreamDirectRequst.ID, prepareFileStreamDirectRequst.ConfigName)
+	objPath := api.Tmpfs.GetObjFilePath(prepareFileStreamDirectRequst.ID, ffmpegConfig)
 
 	// check obj file exists
 	exists := api.Tmpfs.Exits(objPath)
@@ -179,7 +180,13 @@ func (api *API) HandleGetFileStreamDirect(w http.ResponseWriter, r *http.Request
 	configs := q["config"]
 	configName := configs[0]
 
-	path := api.Tmpfs.GetObjFilePath(int64(id), configName)
+	ffmpegConfig, ok := api.GetFfmpegConfig(configName)
+	if !ok {
+		api.HandleErrorStringCode(w, r, `ffmpeg config not found`, 404)
+		return
+	}
+
+	path := api.Tmpfs.GetObjFilePath(int64(id), ffmpegConfig)
 	if api.Tmpfs.Exits(path) {
 		api.Tmpfs.Record(path)
 	}

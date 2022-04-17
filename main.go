@@ -5,6 +5,7 @@ import (
 	"flag"
 	"log"
 	"msw-open-music/pkg/api"
+	"msw-open-music/pkg/commonconfig"
 	"os"
 )
 
@@ -14,12 +15,11 @@ func init() {
 	flag.StringVar(&ConfigFilePath, "config", "config.json", "backend config file path")
 }
 
-
 func main() {
 	var err error
 	flag.Parse()
 
-	config := api.Config{}
+	config := commonconfig.Config{}
 	configFile, err := os.Open(ConfigFilePath)
 	if err != nil {
 		log.Fatal(err)

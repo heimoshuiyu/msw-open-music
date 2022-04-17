@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gorilla/sessions"
 	"msw-open-music/pkg/database"
+	"msw-open-music/pkg/commonconfig"
 	"msw-open-music/pkg/tmpfs"
 	"net/http"
 	"os"
@@ -12,32 +13,13 @@ type API struct {
 	Db                 *database.Database
 	Server             http.Server
 	token              string
-	APIConfig          APIConfig
+	APIConfig          commonconfig.APIConfig
 	Tmpfs              *tmpfs.Tmpfs
 	store              *sessions.CookieStore
 	defaultSessionName string
 }
 
-func NewAPIConfig() APIConfig {
-	apiConfig := APIConfig{}
-	return apiConfig
-}
-
-type APIConfig struct {
-	DatabaseName     string         `json:"database_name"`
-	SingleThread     bool           `json:"single_thread,default=true"`
-	Addr             string         `json:"addr"`
-	Token            string         `json:"token"`
-	FfmpegThreads    int64          `json:"ffmpeg_threads"`
-	FfmpegConfigList []FfmpegConfig `json:"ffmpeg_config_list"`
-}
-
-type Config struct {
-	APIConfig   APIConfig         `json:"api"`
-	TmpfsConfig tmpfs.TmpfsConfig `json:"tmpfs"`
-}
-
-func NewAPI(config Config) (*API, error) {
+func NewAPI(config commonconfig.Config) (*API, error) {
 	var err error
 
 	apiConfig := config.APIConfig
@@ -117,7 +99,6 @@ func NewAPI(config Config) (*API, error) {
 	// below needs token
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)
-	apiMux.HandleFunc("/add_ffmpeg_config", api.HandleAddFfmpegConfig)
 
 	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", apiMux))
 	mux.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("web/build"))))

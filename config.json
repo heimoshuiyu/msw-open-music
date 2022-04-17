@@ -6,16 +6,42 @@
     "token": "!! config your very strong token here !!",
     "ffmpeg_threads": 1,
     "ffmpeg_config_list": [
-      { "name": "OPUS 128k", "args": "-c:a libopus -ab 128k -vn" },
-      { "name": "OPUS 96k", "args": "-c:a libopus -ab 96k -vn" },
-      { "name": "OPUS 256k", "args": "-c:a libopus -ab 256k -vn" },
-      { "name": "OPUS 320k", "args": "-c:a libopus -ab 320k -vn" },
-      { "name": "OPUS 512k", "args": "-c:a libopus -ab 512k -vn" },
-      { "name": "AAC 128k", "args": "-c:a aac -ab 128k -vn" },
-      { "name": "AAC 256k", "args": "-c:a aac -ab 256k -vn" },
+      {
+        "name": "WEBM OPUS 128k",
+        "args": "-c:a libopus -ab 128k -vn",
+        "format": "webm"
+      },
+      {
+        "name": "WEBM OPUS 96k",
+        "args": "-c:a libopus -ab 96k -vn",
+        "format": "webm"
+      },
+      {
+        "name": "WEBM OPUS 256k",
+        "args": "-c:a libopus -ab 256k -vn",
+        "format": "webm"
+      },
+      {
+        "name": "WEBM OPUS 512k",
+        "args": "-c:a libopus -ab 512k -vn",
+        "format": "webm"
+      },
+      {
+        "name": "AAC 128k",
+        "args": "-c:a aac -ab 128k -vn",
+        "format": "adts"
+      },
+      {
+        "name": "AAC 256k",
+        "args": "-c:a aac -ab 256k -vn",
+        "format": "adts"
+      },
+      { "name": "MP3 128k", "args": "-c:a mp3 -ab 128k -vn", "format": "mp3" },
+      { "name": "MP3 320k", "args": "-c:a mp3 -ab 320k -vn", "format": "mp3" },
       { "name": "全损音质 32k", "args": "-c:a libopus -ab 32k -vn" },
       {
         "name": "video test",
+        "format": "webm",
         "args": "-c:a libopus -ab 128k -filter:v scale='min(640,iw)':min'(360,ih)':force_original_aspect_ratio=decrease -c:v libvpx -r 5"
       }
     ]
