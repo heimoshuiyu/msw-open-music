@@ -143,19 +143,23 @@ function AudioPlayer(props) {
       </span>
 
       <span>
-        <input
-          checked={loop}
-          onChange={(event) => setLoop(event.target.checked)}
-          type="checkbox"
-        />
-        <label>Loop</label>
+        <span>
+          <input
+            checked={loop}
+            onChange={(event) => setLoop(event.target.checked)}
+            type="checkbox"
+          />
+          <label>Loop</label>
+        </span>
 
-        <input
-          checked={raw}
-          onChange={(event) => setRaw(event.target.checked)}
-          type="checkbox"
-        />
-        <label>Raw</label>
+        <span>
+          <input
+            checked={raw}
+            onChange={(event) => setRaw(event.target.checked)}
+            type="checkbox"
+          />
+          <label>Raw</label>
+        </span>
 
         {!raw && (
           <span>
@@ -167,33 +171,17 @@ function AudioPlayer(props) {
             <label>Prepare</label>
           </span>
         )}
-
-        <input
-          type="checkbox"
-          onClick={(e) => {
-            const domVideoPlayer = document.getElementById("dom-video-player");
-            if (domVideoPlayer === null) {
-              return;
-            }
-            if (e.target.checked) {
-              domVideoPlayer.style.height = "auto";
-            } else {
-              domVideoPlayer.style.height = "39px";
-            }
-          }}
-        />
-        <label>Video</label>
       </span>
 
       {playingURL !== "" && (
-        <video
-          id="dom-video-player"
+        <audio
+          id="dom-player"
           controls
           autoPlay
           loop={loop}
           className="audio-player"
           src={playingURL}
-        ></video>
+        ></audio>
       )}
 
       <FfmpegConfig
