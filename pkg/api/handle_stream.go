@@ -6,6 +6,7 @@ import (
 	"log"
 	"msw-open-music/pkg/database"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"strconv"
@@ -66,6 +67,13 @@ func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
 		api.HandleErrorStringCode(w, r, `ffmpeg config not found`, 404)
 		return
 	}
+
+	// set headers for filename
+	filename := file.Filename + "." + ffmpegConfig.Name + "." + ffmpegConfig.Format
+	filename = url.PathEscape(filename)
+	// replace invalid characters
+	w.Header().Set("Content-Disposition", "inline; filename*=UTF-8''"+filename)
+
 	args := strings.Split(ffmpegConfig.Args, " ")
 	startArgs := []string{"-threads", strconv.FormatInt(api.APIConfig.FfmpegThreads, 10), "-i", path}
 	endArgs := []string{"-f", ffmpegConfig.Format, "-"}
@@ -190,6 +198,12 @@ func (api *API) HandleGetFileStreamDirect(w http.ResponseWriter, r *http.Request
 	if api.Tmpfs.Exits(path) {
 		api.Tmpfs.Record(path)
 	}
+
+	// set headers for filename
+	filename := ids[0] + "." + ffmpegConfig.Name + "." + ffmpegConfig.Format
+	filename = url.PathEscape(filename)
+	// replace invalid characters
+	w.Header().Set("Content-Disposition", "inline; filename*=UTF-8''"+filename)
 
 	log.Println("[api] Get direct cached file", path)
 

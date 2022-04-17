@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 )
@@ -110,6 +111,12 @@ func (api *API) HandleGetFileDirect(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
+
+	// set header for filename
+	filename := file.Filename
+	// encode filename to URL
+	filename = url.PathEscape(filename)
+	w.Header().Set("Content-Disposition", "inline; filename*=UTF-8''"+filename)
 
 	log.Println("[api] Get direct raw file", path)
 
