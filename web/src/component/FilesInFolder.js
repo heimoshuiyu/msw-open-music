@@ -116,10 +116,10 @@ function FilesInFolder(props) {
           value={newFoldername}
           onChange={(e) => setNewFoldername(e.target.value)}
         />
-    <div>
-        <button onClick={() => updateFoldername()}>Save</button>
-        <button onClick={() => resetFoldername()}>Reset</button>
-    </div>
+        <div>
+          <button onClick={() => updateFoldername()}>Save</button>
+          <button onClick={() => resetFoldername()}>Reset</button>
+        </div>
       </div>
     </div>
   );
