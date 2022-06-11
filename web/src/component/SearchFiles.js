@@ -1,10 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import FilesTable from "./FilesTable";
 
+function useQuery() {
+  const { search } = useLocation();
+  return useMemo(() => new URLSearchParams(search), [search]);
+}
+
 function SearchFiles(props) {
+  const navigator = useNavigate();
   const [files, setFiles] = useState([]);
-  const [filename, setFilename] = useState("");
-  const [offset, setOffset] = useState(0);
+  const [filenameInput, setFilenameInput] = useState("");
+  const query = useQuery();
+  const filename = query.get("q") || "";
+  const offset = parseInt(query.get("o")) || 0;
   const [isLoading, setIsLoading] = useState(false);
   const limit = 10;
 
@@ -37,7 +46,7 @@ function SearchFiles(props) {
   }
 
   function nextPage() {
-    setOffset(offset + limit);
+    navigator(`/files?q=${filenameInput}&o=${offset + limit}`);
   }
 
   function lastPage() {
@@ -45,29 +54,29 @@ function SearchFiles(props) {
     if (offsetValue < 0) {
       return;
     }
-    setOffset(offsetValue);
+    navigator(`/files?q=${filenameInput}&o=${offsetValue}`);
   }
 
-  useEffect(() => searchFiles(), [offset]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => searchFiles(), [offset, filename]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="page">
       <h3>Search Files</h3>
       <div className="search_toolbar">
         <input
-          onChange={(event) => setFilename(event.target.value)}
+          onChange={(event) => setFilenameInput(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
-              searchFiles();
+              navigator(`/files?q=${filenameInput}&o=0`);
             }
           }}
           type="text"
           placeholder="Enter filename"
+          value={filenameInput}
         />
         <button
           onClick={() => {
-            setOffset(0);
-            searchFiles();
+            navigator(`/files?q=${filenameInput}&o=0`);
           }}
         >
           {isLoading ? "Loading..." : "Search"}
