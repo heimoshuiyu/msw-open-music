@@ -27,7 +27,9 @@ function FilesInFolder(props) {
           alert(data.error);
         } else {
           setFiles(data.files);
-          setNewFoldername(data.files[0].foldername);
+          if (data.files.length > 0) {
+            setNewFoldername(data.files[0].foldername);
+          }
         }
       })
       .catch((error) => alert(error))
