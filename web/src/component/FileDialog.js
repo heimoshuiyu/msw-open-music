@@ -11,7 +11,17 @@ function FileDialog(props) {
 
   return (
     <dialog open={props.showStatus}>
-      <p>{props.file.filename}</p>
+      <p
+        style={{
+          cursor: "pointer",
+        }}
+        onClick={() => {
+          props.setPlayingFile(props.file);
+          props.setShowStatus(false);
+        }}
+      >
+        {props.file.filename}
+      </p>
       <p>
         Play: play using browser player.
         <br />
