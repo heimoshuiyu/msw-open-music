@@ -62,7 +62,12 @@ function SearchFolders() {
           type="text"
           placeholder="Enter folder name"
         />
-        <button onClick={searchFolder}>
+        <button
+          onClick={() => {
+            setOffset(0);
+            searchFolder();
+          }}
+        >
           {isLoading ? "Loading..." : "Search"}
         </button>
         <button onClick={lastPage}>Last page</button>

@@ -66,6 +66,7 @@ function SearchFiles(props) {
         />
         <button
           onClick={() => {
+            setOffset(0);
             searchFiles();
           }}
         >
