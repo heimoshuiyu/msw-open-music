@@ -1,12 +1,16 @@
 import { useParams } from "react-router";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "./Common";
 import FilesTable from "./FilesTable";
 
 function FilesInFolder(props) {
   let params = useParams();
+  const query = useQuery();
+  const navigator = useNavigate();
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [offset, setOffset] = useState(0);
+  const offset = parseInt(query.get("o")) || 0;
   const [newFoldername, setNewFoldername] = useState("");
   const limit = 10;
 
@@ -43,7 +47,7 @@ function FilesInFolder(props) {
   }, [params.id, offset]);
 
   function nextPage() {
-    setOffset(offset + limit);
+    navigator(`/folders/${params.id}?o=${offset + limit}`);
   }
 
   function lastPage() {
@@ -51,7 +55,7 @@ function FilesInFolder(props) {
     if (offsetValue < 0) {
       return;
     }
-    setOffset(offsetValue);
+    navigator(`/folders/${params.id}?o=${offsetValue}`);
   }
 
   function updateFoldername() {
