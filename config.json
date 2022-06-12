@@ -38,7 +38,7 @@
       },
       { "name": "MP3 128k", "args": "-c:a mp3 -ab 128k -vn", "format": "mp3" },
       { "name": "MP3 320k", "args": "-c:a mp3 -ab 320k -vn", "format": "mp3" },
-      { "name": "全损音质 32k", "args": "-c:a libopus -ab 32k -vn" },
+      { "name": "全损音质 8k", "args": "-c:a libopus -ab 8k -vn", "format": "webm" },
       {
         "name": "video test",
         "format": "webm",
