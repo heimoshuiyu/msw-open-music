@@ -71,8 +71,6 @@ func (tmpfs *Tmpfs) Cleaner() {
 				err = os.Remove(path)
 				if err != nil {
 					log.Println("[tmpfs] Failed to remove file", err)
-					lock.Unlock()
-					continue
 				}
 				log.Println("[tmpfs] Deleted file", path)
 				delete(tmpfs.record, path)
