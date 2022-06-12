@@ -31,6 +31,8 @@ func (api *API) HandleGetFileInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("[api] Get file info", getFileRequest.ID)
+
 	file, err := api.Db.GetFile(getFileRequest.ID)
 	if err != nil {
 		api.HandleError(w, r, err)

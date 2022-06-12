@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -19,6 +20,8 @@ func (api *API) HandleReset(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
+
+	log.Println("[api] Reset database")
 
 	// reset
 	err = api.Db.ResetFiles()
@@ -68,6 +71,8 @@ func (api *API) HandleWalk(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
+
+	log.Println("[api] Walk", walkRequest.Root, walkRequest.Pattern, walkRequest.TagIDs)
 
 	// walk
 	err = api.Db.Walk(walkRequest.Root, walkRequest.Pattern, walkRequest.TagIDs, userID)

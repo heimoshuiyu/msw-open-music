@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"msw-open-music/pkg/database"
 	"net/http"
 	"time"
@@ -23,6 +24,8 @@ func (api *API) HandleInsertReview(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
+
+	log.Println("[api] Insert review by", review.UserId, review.Content)
 
 	review.CreatedAt = time.Now().Unix()
 
@@ -58,6 +61,8 @@ func (api *API) HandleGetReviewsOnFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("[api] Get reviews on fileID", req.ID)
+
 	resp := &GetReviewsOnFileResponse{
 		Reviews: reviews,
 	}
@@ -91,6 +96,8 @@ func (api *API) HandleGetReview(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
+
+	log.Println("[api] Get review ID", req.ID)
 
 	ret := &GetReviewResponse{
 		Review: review,
@@ -144,6 +151,8 @@ func (api *API) HandleUpdateReview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("[api] Update review", req.ID, req.Content)
+
 	req.UpdatedAt = time.Now().Unix()
 
 	err = api.Db.UpdateReview(req)
@@ -173,6 +182,8 @@ func (api *API) HandleDeleteReview(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
+
+	log.Println("[api] Delete review ID", req.ID)
 
 	err = api.Db.DeleteReview(req.ID)
 	if err != nil {

@@ -39,7 +39,7 @@ func (api *API) HandlePutTagOnFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Put tag on file request:", req, "userID:", userID)
+	log.Println("[api] Put tag on file request:", req, "userID:", userID)
 
 	api.Db.PutTagOnFile(req.TagID, req.FileID, userID)
 
@@ -62,7 +62,7 @@ func (api *API) HandleGetTagsOnFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	log.Println("Get tags on file request:", req)
+	log.Println("[api] Get tags on file request:", req)
 
 	tags, err := api.Db.GetTagsOnFile(req.ID)
 	if err != nil {
@@ -107,7 +107,7 @@ func (api *API) HandleDeleteTagOnFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Delete tag on file request:", req)
+	log.Println("[api] Delete tag on file request:", req)
 
 	err = api.Db.DeleteTagOnFile(req.TagID, req.FileID)
 	if err != nil {

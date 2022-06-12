@@ -49,7 +49,6 @@ func (api *API) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	var user *database.User
 	var err error
 	session, _ := api.store.Get(r, api.defaultSessionName)
-	log.Println("Session:", session.Values)
 
 	// Get method will login current or anonymous user
 	if r.Method == "GET" {
@@ -62,16 +61,16 @@ func (api *API) HandleLogin(w http.ResponseWriter, r *http.Request) {
 					api.HandleError(w, r, err)
 					return
 				}
-				log.Println("User not found")
+				log.Println("[api] Warning: User not found")
 				// login as anonymous user
 				api.LoginAsAnonymous(w, r)
 				return
 			}
-			log.Println("User already logged in:", user)
+			log.Println("[api] User already logged in:", user)
 
 		} else {
 			// login as anonymous user
-			log.Println("Login as anonymous user")
+			log.Println("[api] Login as anonymous user")
 			api.LoginAsAnonymous(w, r)
 			return
 		}
@@ -132,7 +131,7 @@ func (api *API) HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Register user", request.Username)
+	log.Println("[api] Register user", request.Username)
 
 	err = api.Db.Register(request.Username, request.Password, request.Role)
 	if err != nil {

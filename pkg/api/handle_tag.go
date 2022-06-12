@@ -18,7 +18,7 @@ func (api *API) HandleGetTags(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Successfully got tags")
+	log.Println("[api] Successfully got tags")
 
 	resp := &getTagsResponse{Tags: tags}
 
@@ -155,7 +155,7 @@ func (api *API) HandleDeleteTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Successfully deleted tag and its references", req.ID)
+	log.Println("[api] Successfully deleted tag and its references", req.ID)
 
 	api.HandleOK(w, r)
 }
