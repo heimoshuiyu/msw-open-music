@@ -9,11 +9,11 @@ function UserProfile(props) {
   const [newPassword, setNewPassword] = useState("");
   const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [user, setUser] = useState({
-    id: "",
+    id: 0,
     username: "",
-    role: "",
-    active: "",
-    avatar_id: "",
+    role: 0,
+    active: false,
+    avatar_id: 0,
   });
 
   function getReviews() {
@@ -101,7 +101,7 @@ function UserProfile(props) {
                 }
               });
           }}
-          disabled={props.user.id !== user.id || props.user.role === 1}
+          disabled={props.user.id !== user.id && props.user.role !== 1}
         >
           Save Username
         </button>
@@ -149,9 +149,9 @@ function UserProfile(props) {
               });
           }}
           disabled={
-            (props.user.id !== user.id ||
-            props.user.role !== 1) &&
-            newPassword !== newPasswordConfirm
+            (props.user.id !== user.id && props.user.role !== 1) ||
+            newPassword !== newPasswordConfirm ||
+            newPassword.length === 0
           }
         >
           Change Password
