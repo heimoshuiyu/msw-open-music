@@ -42,6 +42,13 @@ func NewTmpfs(config commonconfig.TmpfsConfig) *Tmpfs {
 		Config:      config,
 		recordLocks: make(map[string]*sync.Mutex),
 	}
+	// check if the directory exists
+	if _, err := os.Stat(tmpfs.Config.Root); os.IsNotExist(err) {
+		err = os.MkdirAll(tmpfs.Config.Root, 0755)
+		if err != nil {
+			log.Fatalln("[tmpfs] Failed to create directory", tmpfs.Config.Root)
+		}
+	}
 	tmpfs.wg.Add(1)
 	go tmpfs.Cleaner()
 	return tmpfs
