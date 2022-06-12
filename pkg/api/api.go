@@ -2,11 +2,10 @@ package api
 
 import (
 	"github.com/gorilla/sessions"
-	"msw-open-music/pkg/database"
 	"msw-open-music/pkg/commonconfig"
+	"msw-open-music/pkg/database"
 	"msw-open-music/pkg/tmpfs"
 	"net/http"
-	"os"
 )
 
 type API struct {
@@ -29,7 +28,7 @@ func NewAPI(config commonconfig.Config) (*API, error) {
 		return nil, err
 	}
 
-	store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+	store := sessions.NewCookieStore([]byte(config.APIConfig.SECRET))
 
 	mux := http.NewServeMux()
 	apiMux := http.NewServeMux()

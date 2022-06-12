@@ -1,5 +1,6 @@
 {
   "api": {
+    "secret": "CHANGE_YOUR_SECRET_HERE",
     "database_name": "music.sqlite3",
     "single_thread": true,
     "addr": ":8080",

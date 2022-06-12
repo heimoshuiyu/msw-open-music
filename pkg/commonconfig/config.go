@@ -11,6 +11,7 @@ type APIConfig struct {
 	Addr             string         `json:"addr"`
 	FfmpegThreads    int64          `json:"ffmpeg_threads"`
 	FfmpegConfigList []FfmpegConfig `json:"ffmpeg_config_list"`
+	SECRET           string         `json:"secret"`
 }
 
 type FfmpegConfigList struct {
