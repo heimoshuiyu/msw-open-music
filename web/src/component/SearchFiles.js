@@ -6,9 +6,9 @@ import FilesTable from "./FilesTable";
 function SearchFiles(props) {
   const navigator = useNavigate();
   const [files, setFiles] = useState([]);
-  const [filenameInput, setFilenameInput] = useState("");
   const query = useQuery();
   const filename = query.get("q") || "";
+  const [filenameInput, setFilenameInput] = useState(filename);
   const offset = parseInt(query.get("o")) || 0;
   const [isLoading, setIsLoading] = useState(false);
   const limit = 10;
