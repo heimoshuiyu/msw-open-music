@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "./Common";
 import FilesTable from "./FilesTable";
 
 function GetRandomFiles(props) {
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [tags, setTags] = useState([]);
-  const [selectedTag, setSelectedTag] = useState("");
+  const navigator = useNavigate();
+  const query = useQuery();
+  const selectedTag = query.get("t") || "";
 
   function getRandomFiles() {
     setIsLoading(true);
@@ -85,8 +89,9 @@ function GetRandomFiles(props) {
         <select
           className="tag_select"
           onChange={(event) => {
-            setSelectedTag(event.target.value);
+            navigator(`/?t=${event.target.value}`);
           }}
+          value={selectedTag}
         >
           <option value="">All</option>
           {tags.map((tag) => (
