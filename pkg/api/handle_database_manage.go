@@ -11,19 +11,9 @@ type WalkRequest struct {
 	TagIDs  []int64  `json:"tag_ids"`
 }
 
-type ResetRequest struct {
-	Token string `json:"token"`
-}
-
 func (api *API) HandleReset(w http.ResponseWriter, r *http.Request) {
-	resetRequest := &ResetRequest{}
-	err := json.NewDecoder(r.Body).Decode(resetRequest)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
-	// check token
+	var err error
+	// check admin
 	err = api.CheckAdmin(w, r)
 	if err != nil {
 		api.HandleError(w, r, err)
@@ -53,7 +43,7 @@ func (api *API) HandleWalk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check token match
+	// check admin
 	err = api.CheckAdmin(w, r)
 	if err != nil {
 		api.HandleError(w, r, err)

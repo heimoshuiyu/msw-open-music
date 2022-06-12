@@ -9,7 +9,6 @@ type APIConfig struct {
 	DatabaseName     string         `json:"database_name"`
 	SingleThread     bool           `json:"single_thread,default=true"`
 	Addr             string         `json:"addr"`
-	Token            string         `json:"token"`
 	FfmpegThreads    int64          `json:"ffmpeg_threads"`
 	FfmpegConfigList []FfmpegConfig `json:"ffmpeg_config_list"`
 }

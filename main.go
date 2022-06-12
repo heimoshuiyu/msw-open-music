@@ -37,7 +37,6 @@ func main() {
 	log.Println("Starting",
 		config.APIConfig.DatabaseName,
 		config.APIConfig.Addr,
-		config.APIConfig.Token,
 	)
 	log.Fatal(api.Server.ListenAndServe())
 }

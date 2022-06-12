@@ -12,7 +12,6 @@ import (
 type API struct {
 	Db                 *database.Database
 	Server             http.Server
-	token              string
 	APIConfig          commonconfig.APIConfig
 	Tmpfs              *tmpfs.Tmpfs
 	store              *sessions.CookieStore
@@ -96,14 +95,12 @@ func NewAPI(config commonconfig.Config) (*API, error) {
 	apiMux.HandleFunc("/update_review", api.HandleUpdateReview)
 	apiMux.HandleFunc("/delete_review", api.HandleDeleteReview)
 	apiMux.HandleFunc("/get_reviews_by_user", api.HandleGetReviewsByUser)
-	// below needs token
+	// below needs admin
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)
 
 	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", apiMux))
 	mux.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("web/build"))))
-
-	api.token = apiConfig.Token
 
 	return api, nil
 }
