@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 function Database() {
   const [walkPath, setWalkPath] = useState("");
-  const [patternString, setPatternString] = useState("");
+  const [patternString, setPatternString] = useState("wav flac mp3 ogg m4a mka");
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [updating, setUpdating] = useState(false);
