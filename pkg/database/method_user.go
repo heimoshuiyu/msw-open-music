@@ -1,5 +1,10 @@
 package database
 
+import (
+	"golang.org/x/crypto/bcrypt"
+	"log"
+)
+
 func (database *Database) Login(username string, password string) (*User, error) {
 	database.singleThreadLock.Lock()
 	defer database.singleThreadLock.Unlock()
@@ -7,10 +12,17 @@ func (database *Database) Login(username string, password string) (*User, error)
 	user := &User{}
 
 	// get user from database
-	err := database.stmt.getUser.QueryRow(username, password).Scan(&user.ID, &user.Username, &user.Role, &user.Active, &user.AvatarId)
+	err := database.stmt.getUser.QueryRow(username).Scan(&user.ID, &user.Username, &user.Password, &user.Role, &user.Active, &user.AvatarId)
 	if err != nil {
 		return user, err
 	}
+
+	// validate password
+	err = database.ComparePassword(user.Password, password)
+	if err != nil {
+		return user, err
+	}
+
 	return user, nil
 }
 
@@ -43,6 +55,9 @@ func (database *Database) Register(username string, password string, usertype in
 	if usertype == 2 {
 		active = true
 	}
+
+	// encrypt password
+	password = database.EncryptPassword(password)
 
 	database.singleThreadLock.Lock()
 	defer database.singleThreadLock.Unlock()
@@ -130,9 +145,27 @@ func (database *Database) UpdateUserPassword(id int64, password string) error {
 	database.singleThreadLock.Lock()
 	defer database.singleThreadLock.Unlock()
 
+	// encrypt password
+	password = database.EncryptPassword(password)
+
 	_, err := database.stmt.updateUserPassword.Exec(password, id)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (database *Database) EncryptPassword(password string) string {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Println("[database] Failed to hash password, using plaintext password")
+		return password
+	}
+
+	return string(hash)
+}
+
+func (database *Database) ComparePassword(hashedPassword string, plainTextPassword string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainTextPassword))
+	return err
 }

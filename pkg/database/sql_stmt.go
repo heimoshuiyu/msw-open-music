@@ -193,7 +193,7 @@ var countUserQuery = `SELECT count(*) FROM users;`
 
 var countAdminQuery = `SELECT count(*) FROM users WHERE role= 1;`
 
-var getUserQuery = `SELECT id, username, role, active, avatar_id FROM users WHERE username = ? AND password = ? LIMIT 1;`
+var getUserQuery = `SELECT id, username, password, role, active, avatar_id FROM users WHERE username = ? LIMIT 1;`
 
 var getUsersQuery = `SELECT id, username, role, active, avatar_id FROM users;`
 
