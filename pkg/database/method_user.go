@@ -156,7 +156,7 @@ func (database *Database) UpdateUserPassword(id int64, password string) error {
 }
 
 func (database *Database) EncryptPassword(password string) string {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	if err != nil {
 		log.Println("[database] Failed to hash password, using plaintext password")
 		return password
