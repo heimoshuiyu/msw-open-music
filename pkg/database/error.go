@@ -5,6 +5,6 @@ import (
 )
 
 var (
-	ErrNotFound = errors.New("object not found")
+	ErrNotFound    = errors.New("object not found")
 	ErrTagNotFound = errors.New("tag not found")
 )

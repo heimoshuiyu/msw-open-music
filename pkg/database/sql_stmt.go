@@ -759,7 +759,7 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// init updateFilename
 	stmt.updateFilename, err = sqlConn.Prepare(updateFilenameQuery)
 	if err != nil {

@@ -57,7 +57,7 @@ func (database *Database) GetTags() ([]*Tag, error) {
 	return tags, nil
 }
 
-func (database *Database) UpdateTag(tag *Tag) (error) {
+func (database *Database) UpdateTag(tag *Tag) error {
 	database.singleThreadLock.Lock()
 	defer database.singleThreadLock.Unlock()
 

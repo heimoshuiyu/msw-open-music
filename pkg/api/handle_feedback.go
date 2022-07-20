@@ -105,6 +105,5 @@ func (api *API) HandleDeleteFeedback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	api.HandleOK(w, r)
 }

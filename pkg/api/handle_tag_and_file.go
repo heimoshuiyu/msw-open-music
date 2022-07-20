@@ -61,7 +61,7 @@ func (api *API) HandleGetTagsOnFile(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
-	
+
 	log.Println("[api] Get tags on file request:", req)
 
 	tags, err := api.Db.GetTagsOnFile(req.ID)

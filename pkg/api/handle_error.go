@@ -2,22 +2,22 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
-	"errors"
 )
 
 var (
-	ErrNotLoggedIn = errors.New("not logged in")
-	ErrNotAdmin = errors.New("not admin")
-	ErrEmpty = errors.New("Empty field detected, please fill in all fields")
-	ErrAnonymous = errors.New("Anonymous user detected, please login")
-	ErrNotActive = errors.New("User is not active")
+	ErrNotLoggedIn   = errors.New("not logged in")
+	ErrNotAdmin      = errors.New("not admin")
+	ErrEmpty         = errors.New("Empty field detected, please fill in all fields")
+	ErrAnonymous     = errors.New("Anonymous user detected, please login")
+	ErrNotActive     = errors.New("User is not active")
 	ErrWrongPassword = errors.New("Wrong password")
 )
 
 type Error struct {
-  Error string `json:"error,omitempty"`
+	Error string `json:"error,omitempty"`
 }
 
 func (api *API) HandleError(w http.ResponseWriter, r *http.Request, err error) {

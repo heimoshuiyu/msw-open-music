@@ -8,20 +8,20 @@ import (
 )
 
 type Database struct {
-	sqlConn *sql.DB
-	stmt    *Stmt
+	sqlConn          *sql.DB
+	stmt             *Stmt
 	singleThreadLock SingleThreadLock
 }
 
 func NewSingleThreadLock(enabled bool) SingleThreadLock {
 	return SingleThreadLock{
-		lock: sync.Mutex{},
+		lock:    sync.Mutex{},
 		enabled: enabled,
 	}
 }
 
 type SingleThreadLock struct {
-	lock sync.Mutex
+	lock    sync.Mutex
 	enabled bool
 }
 
@@ -54,8 +54,8 @@ func NewDatabase(dbName string, singleThread bool) (*Database, error) {
 
 	// new database
 	database := &Database{
-		sqlConn: sqlConn,
-		stmt:    stmt,
+		sqlConn:          sqlConn,
+		stmt:             stmt,
 		singleThreadLock: NewSingleThreadLock(singleThread),
 	}
 

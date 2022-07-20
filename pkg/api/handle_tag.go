@@ -67,7 +67,7 @@ func (api *API) HandleInsertTag(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := &InsertTagResponse{Tag: tag}
-	
+
 	err = json.NewEncoder(w).Encode(resp)
 	if err != nil {
 		api.HandleError(w, r, err)
@@ -159,4 +159,3 @@ func (api *API) HandleDeleteTag(w http.ResponseWriter, r *http.Request) {
 
 	api.HandleOK(w, r)
 }
-
