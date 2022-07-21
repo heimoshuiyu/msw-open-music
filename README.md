@@ -1,5 +1,7 @@
 # MSW Open Music Project
 
+[![CI](https://github.com/heimoshuiyu/msw-open-music/actions/workflows/build.yml/badge.svg)](https://github.com/heimoshuiyu/msw-open-music/actions/workflows/build.yml)
+
 ## Introduction
 
 A light weight personal music streaming platform.
