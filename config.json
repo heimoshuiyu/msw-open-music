@@ -38,8 +38,39 @@
       },
       { "name": "MP3 128k", "args": "-c:a mp3 -ab 128k -vn", "format": "mp3" },
       { "name": "MP3 320k", "args": "-c:a mp3 -ab 320k -vn", "format": "mp3" },
-      { "name": "全损音质 8k", "args": "-c:a libopus -ab 8k -vn", "format": "webm" }
-    ]
+      {
+        "name": "全损音质 8k",
+        "args": "-c:a libopus -ab 8k -vn",
+        "format": "webm"
+      }
+    ],
+    "permission": {
+      "/register": 0,
+      "/get_file": 0,
+      "/get_file_direct": 0,
+      "/get_file_stream": 0,
+      "/prepare_file_stream_direct": 0,
+      "/get_file_stream_direct": 0,
+      "/walk": 1,
+      "/reset": 1,
+      "/update_user_active": 1,
+      "/get_feedbacks": 1,
+      "/delete_feedback": 1,
+      "/delete_file": 1,
+      "/update_filename": 1,
+      "/reset_filename": 1,
+      "/reset_foldername": 1,
+      "/update_foldername": 1,
+      "/insert_tag": 1,
+      "/update_tag": 1,
+      "/delete_tag": 1,
+      "/put_tag_on_file": 1,
+      "/delete_tag_on_file": 1,
+      "/delete_review": 2,
+      "/update_review": 2,
+      "/update_user_password": 2,
+      "/update_username": 2
+    }
   },
   "tmpfs": {
     "file_life_time": 600,

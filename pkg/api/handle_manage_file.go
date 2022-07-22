@@ -11,15 +11,8 @@ type DeleteFileRequest struct {
 }
 
 func (api *API) HandleDeleteFile(w http.ResponseWriter, r *http.Request) {
-	// check admin
-	err := api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
 	req := &DeleteFileRequest{}
-	err = json.NewDecoder(r.Body).Decode(req)
+	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
@@ -42,15 +35,8 @@ type UpdateFilenameRequest struct {
 }
 
 func (api *API) HandleUpdateFilename(w http.ResponseWriter, r *http.Request) {
-	// check admin
-	err := api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
 	req := &UpdateFilenameRequest{}
-	err = json.NewDecoder(r.Body).Decode(req)
+	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
@@ -72,15 +58,8 @@ type ResetFilenameRequest struct {
 }
 
 func (api *API) HandleResetFilename(w http.ResponseWriter, r *http.Request) {
-	// check admin
-	err := api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
 	req := &ResetFilenameRequest{}
-	err = json.NewDecoder(r.Body).Decode(req)
+	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return

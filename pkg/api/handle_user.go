@@ -142,44 +142,6 @@ func (api *API) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	api.HandleOK(w, r)
 }
 
-func (api *API) CheckAdmin(w http.ResponseWriter, r *http.Request) error {
-	session, _ := api.store.Get(r, api.defaultSessionName)
-	userId, ok := session.Values["userId"]
-	if !ok {
-		return ErrNotLoggedIn
-	}
-
-	user, err := api.Db.GetUserById(userId.(int64))
-	if err != nil {
-		return err
-	}
-
-	if user.Role != database.RoleAdmin {
-		return ErrNotAdmin
-	}
-
-	return nil
-}
-
-func (api *API) CheckNotAnonymous(w http.ResponseWriter, r *http.Request) error {
-	session, _ := api.store.Get(r, api.defaultSessionName)
-	userId, ok := session.Values["userId"]
-	if !ok {
-		return ErrNotLoggedIn
-	}
-
-	user, err := api.Db.GetUserById(userId.(int64))
-	if err != nil {
-		return err
-	}
-
-	if user.Role == database.RoleAnonymous {
-		return ErrAnonymous
-	}
-
-	return nil
-}
-
 func (api *API) GetUserID(w http.ResponseWriter, r *http.Request) (int64, error) {
 	session, _ := api.store.Get(r, api.defaultSessionName)
 	userId, ok := session.Values["userId"]
@@ -218,14 +180,8 @@ type UpdateUserActiveRequest struct {
 }
 
 func (api *API) HandleUpdateUserActive(w http.ResponseWriter, r *http.Request) {
-	err := api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
 	req := &UpdateUserActiveRequest{}
-	err = json.NewDecoder(r.Body).Decode(req)
+	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
@@ -245,16 +201,11 @@ type UpdateUsernameRequest struct {
 }
 
 func (api *API) HandleUpdateUsername(w http.ResponseWriter, r *http.Request) {
-	// reject anonymous user
-	err := api.CheckNotAnonymous(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
+	// middileware reject anonymous user
 
 	req := &UpdateUsernameRequest{}
 
-	err = json.NewDecoder(r.Body).Decode(req)
+	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
@@ -326,15 +277,10 @@ type UpdateUserPasswordRequest struct {
 }
 
 func (api *API) HandleUpdateUserPassword(w http.ResponseWriter, r *http.Request) {
-	// reject anonymous user
-	err := api.CheckNotAnonymous(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
+	// middleware reject anonymous user
 
 	req := &UpdateUserPasswordRequest{}
-	err = json.NewDecoder(r.Body).Decode(req)
+	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return

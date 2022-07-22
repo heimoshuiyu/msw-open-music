@@ -56,13 +56,6 @@ type GetFeedbacksResponse struct {
 }
 
 func (api *API) HandleGetFeedbacks(w http.ResponseWriter, r *http.Request) {
-	// check if admin
-	err := api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
 	feedbacks, err := api.Db.GetFeedbacks()
 	if err != nil {
 		api.HandleError(w, r, err)
@@ -85,15 +78,8 @@ type DeleteFeedbackRequest struct {
 }
 
 func (api *API) HandleDeleteFeedback(w http.ResponseWriter, r *http.Request) {
-	// check if admin
-	err := api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
 	req := &DeleteFeedbackRequest{}
-	err = json.NewDecoder(r.Body).Decode(req)
+	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return

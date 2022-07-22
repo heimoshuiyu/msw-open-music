@@ -13,15 +13,8 @@ type PutTagOnFileRequest struct {
 }
 
 func (api *API) HandlePutTagOnFile(w http.ResponseWriter, r *http.Request) {
-	// check if the user is admin
-	err := api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
 	req := &PutTagOnFileRequest{}
-	err = json.NewDecoder(r.Body).Decode(req)
+	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
@@ -87,15 +80,8 @@ type DeleteTagOnFileRequest struct {
 }
 
 func (api *API) HandleDeleteTagOnFile(w http.ResponseWriter, r *http.Request) {
-	// check if the user is admin
-	err := api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
 	req := &DeleteTagOnFileRequest{}
-	err = json.NewDecoder(r.Body).Decode(req)
+	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return

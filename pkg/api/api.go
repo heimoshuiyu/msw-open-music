@@ -94,11 +94,11 @@ func NewAPI(config commonconfig.Config) (*API, error) {
 	apiMux.HandleFunc("/update_review", api.HandleUpdateReview)
 	apiMux.HandleFunc("/delete_review", api.HandleDeleteReview)
 	apiMux.HandleFunc("/get_reviews_by_user", api.HandleGetReviewsByUser)
-	// below needs admin
+	// database
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)
 
-	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", apiMux))
+	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", api.PermissionMiddleware(apiMux)))
 	mux.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("web/build"))))
 
 	return api, nil

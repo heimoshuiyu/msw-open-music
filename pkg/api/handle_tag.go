@@ -34,15 +34,8 @@ type InsertTagResponse struct {
 }
 
 func (api *API) HandleInsertTag(w http.ResponseWriter, r *http.Request) {
-	// check if user is admin
-	err := api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
 	req := &database.Tag{}
-	err = json.NewDecoder(r.Body).Decode(&req)
+	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
@@ -107,15 +100,8 @@ func (api *API) HandleGetTagInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) HandleUpdateTag(w http.ResponseWriter, r *http.Request) {
-	// check if user is admin
-	err := api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
 	req := &database.Tag{}
-	err = json.NewDecoder(r.Body).Decode(req)
+	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
@@ -135,15 +121,8 @@ type DeleteTagRequest struct {
 }
 
 func (api *API) HandleDeleteTag(w http.ResponseWriter, r *http.Request) {
-	// check if user is admin
-	err := api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
 	req := &DeleteTagRequest{}
-	err = json.NewDecoder(r.Body).Decode(req)
+	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return

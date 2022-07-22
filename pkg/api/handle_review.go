@@ -116,13 +116,8 @@ func (api *API) CheckUserCanModifyReview(w http.ResponseWriter, r *http.Request,
 		return err
 	}
 
-	err = api.CheckNotAnonymous(w, r)
-	if err != nil {
-		return err
-	}
-
-	err = api.CheckAdmin(w, r)
-	if err != nil {
+	userLevel := api.GetUserLevel(r)
+	if userLevel != database.RoleAdmin {
 		userID, err := api.GetUserID(w, r)
 		if err != nil {
 			return err

@@ -14,12 +14,6 @@ type WalkRequest struct {
 
 func (api *API) HandleReset(w http.ResponseWriter, r *http.Request) {
 	var err error
-	// check admin
-	err = api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
 
 	log.Println("[api] Reset database")
 
@@ -41,13 +35,6 @@ func (api *API) HandleReset(w http.ResponseWriter, r *http.Request) {
 func (api *API) HandleWalk(w http.ResponseWriter, r *http.Request) {
 	walkRequest := &WalkRequest{}
 	err := json.NewDecoder(r.Body).Decode(walkRequest)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
-	// check admin
-	err = api.CheckAdmin(w, r)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return

@@ -62,6 +62,17 @@ Go to register page, select the role to admin, and register the first admin acco
 - `file_life_time` integer type (second). Life time for temporary file. If the temporary file is not accessed for more than this time, back-end server will delete this file.
 - `cleaner_internal` integer type (second). Interval for `tmpfs` checking temporary file.
 - `root` string type. Directory to store temporary files. Default is `/tmp`, **please modify this directory if you are using Windows.** Directory will be created if not exists.
+- `permission`. Specify each API's permission level.
+  - `0` for no permission required.
+  - `1` require admin level (highest level) permission.
+  - `2` require normal user level permission. That is, both admins and registered users can access to this URL, except anonymous users.
+  - If you want to avoid abuse of the playback API, you can adjust the permission level for these 5 playback-related APIs.
+    - `/get_file` get file with `io.copy()` method
+    - `/get_file_direct` get file with `http.serveFile()` method
+    - `/get_file_stream` call ffmpeg and stream its `stdout` output
+    - `/prepare_file_stream_direct` call ffmpeg to convert a file
+    - `/get_file_stream_direct` get the converted file with `http.serveFile()`
+  - Other URLs not metion in `config.json` will have `0` permission level by default.
 
 For windows user, make sure you have `ffmpeg` installed.
 
@@ -99,7 +110,7 @@ API does not need to respond any data will return the following JSON object.
 
 ```json
 {
-    "status": "OK"
+  "status": "OK"
 }
 ```
 
@@ -107,7 +118,7 @@ Sometime errors happen, server will return the following JSON object, which `err
 
 ```json
 {
-    "error": "Wrong password"
+  "error": "Wrong password"
 }
 ```
 

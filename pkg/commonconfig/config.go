@@ -6,12 +6,13 @@ type Config struct {
 }
 
 type APIConfig struct {
-	DatabaseName     string         `json:"database_name"`
-	SingleThread     bool           `json:"single_thread,default=true"`
-	Addr             string         `json:"addr"`
-	FfmpegThreads    int64          `json:"ffmpeg_threads"`
-	FfmpegConfigList []FfmpegConfig `json:"ffmpeg_config_list"`
-	SECRET           string         `json:"secret"`
+	DatabaseName     string           `json:"database_name"`
+	SingleThread     bool             `json:"single_thread,default=true"`
+	Addr             string           `json:"addr"`
+	FfmpegThreads    int64            `json:"ffmpeg_threads"`
+	FfmpegConfigList []FfmpegConfig   `json:"ffmpeg_config_list"`
+	SECRET           string           `json:"secret"`
+	Permission       map[string]int64 `json:"permission"`
 }
 
 type FfmpegConfigList struct {

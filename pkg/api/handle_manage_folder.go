@@ -11,15 +11,8 @@ type ResetFoldernameRequest struct {
 }
 
 func (api *API) HandleResetFoldername(w http.ResponseWriter, r *http.Request) {
-	// check admin
-	err := api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
 	req := &ResetFoldernameRequest{}
-	err = json.NewDecoder(r.Body).Decode(req)
+	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -46,13 +39,6 @@ func (api *API) HandleUpdateFoldername(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// check is admin
-	err = api.CheckAdmin(w, r)
-	if err != nil {
-		api.HandleError(w, r, err)
 		return
 	}
 
