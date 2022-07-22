@@ -17,8 +17,11 @@ body {
 }
 .title {
   margin-left: 1em;
+  margin-right: 1em;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  color: white;
 }
 .title-text {
   margin-left: 1em;
@@ -91,4 +94,20 @@ dialog {
 .ffmpeg-config {
   display: flex;
   justify-content: space-between;
+}
+.horizontal {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.vertical {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+.warp-word {
+  overflow-wrap: anywhere;
+}
+.number-input {
+  width: 5em;
 }

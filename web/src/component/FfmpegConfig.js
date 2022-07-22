@@ -33,7 +33,7 @@ function FfmpegConfig(props) {
           <option key={ffmpegConfig.name}>{ffmpegConfig.name}</option>
         ))}
       </select>
-      <span>{props.selectedFfmpegConfig.args}</span>
+      <span className="warp-word">{props.selectedFfmpegConfig.args}</span>
     </div>
   );
 }

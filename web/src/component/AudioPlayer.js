@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { CalcReadableFilesizeDetail } from "./Common";
 import FfmpegConfig from "./FfmpegConfig";
 import FileDialog from "./FileDialog";
+import { Tr } from "../translate";
 
 function AudioPlayer(props) {
   // props.playingFile
@@ -12,10 +13,14 @@ function AudioPlayer(props) {
   const [loop, setLoop] = useState(true);
   const [raw, setRaw] = useState(false);
   const [prepare, setPrepare] = useState(false);
-  const [selectedFfmpegConfig, setSelectedFfmpegConfig] = useState({});
+  const [selectedFfmpegConfig, setSelectedFfmpegConfig] = useState({
+    name: "",
+    args: "",
+  });
   const [playingURL, setPlayingURL] = useState("");
   const [isPreparing, setIsPreparing] = useState(false);
-  const [preparedFilesize, setPreparedFilesize] = useState(null);
+  const [timerCount, setTimerCount] = useState(0);
+  const [timerID, setTimerID] = useState(null);
 
   useEffect(() => {
     // no playing file
@@ -40,7 +45,12 @@ function AudioPlayer(props) {
         })
           .then((response) => response.json())
           .then((data) => {
-            setPreparedFilesize(data.filesize);
+            if (data.error) {
+              alert(data.error);
+              setIsPreparing(false);
+              return;
+            }
+            props.setPlayingFile(data.file);
             setIsPreparing(false);
             setPlayingURL(
               `/api/v1/get_file_stream_direct?id=${props.playingFile.id}&config=${selectedFfmpegConfig.name}`
@@ -57,8 +67,8 @@ function AudioPlayer(props) {
   let navigate = useNavigate();
 
   return (
-    <div>
-      <h5>Player status</h5>
+    <footer className="vertical">
+      <h5>{Tr("Player status")}</h5>
       {props.playingFile.id && (
         <span>
           <FileDialog
@@ -79,17 +89,13 @@ function AudioPlayer(props) {
           </button>
 
           <button
-            onClick={() =>
-              navigate(`/folders/${props.playingFile.folder_id}`)
-            }
+            onClick={() => navigate(`/folders/${props.playingFile.folder_id}`)}
           >
             {props.playingFile.foldername}
           </button>
 
           <button disabled>
-            {prepare
-              ? CalcReadableFilesizeDetail(preparedFilesize)
-              : CalcReadableFilesizeDetail(props.playingFile.filesize)}
+            {CalcReadableFilesizeDetail(props.playingFile.filesize)}
           </button>
 
           {isPreparing && <button disabled>Preparing...</button>}
@@ -100,7 +106,7 @@ function AudioPlayer(props) {
                 props.setPlayingFile({});
               }}
             >
-              Stop
+              {Tr("Stop")}
             </button>
           )}
         </span>
@@ -108,33 +114,69 @@ function AudioPlayer(props) {
 
       <br />
 
-      <input
-        checked={loop}
-        onChange={(event) => setLoop(event.target.checked)}
-        type="checkbox"
-      />
-      <label>Loop</label>
+      <span className="horizontal">
+        <input
+          className="number-input"
+          disabled={timerID !== null}
+          type="number"
+          value={timerCount}
+          onChange={(e) => {
+            setTimerCount(e.target.value);
+          }}
+        />
+        <button
+          onClick={() => {
+            if (timerID != null) {
+              clearInterval(timerID);
+              setTimerID(null);
+              return;
+            }
+            setTimerID(
+              setTimeout(() => {
+                props.setPlayingFile({});
+                setTimerID(null);
+              }, timerCount * 1000 * 60)
+            );
+          }}
+        >
+          {Tr("Stop Timer")}
+        </button>
+      </span>
 
-      <input
-        checked={raw}
-        onChange={(event) => setRaw(event.target.checked)}
-        type="checkbox"
-      />
-      <label>Raw</label>
-
-      {!raw && (
+      <span>
         <span>
           <input
-            checked={prepare}
-            onChange={(event) => setPrepare(event.target.checked)}
+            checked={loop}
+            onChange={(event) => setLoop(event.target.checked)}
             type="checkbox"
           />
-          <label>Prepare</label>
+          <label>{Tr("Loop")}</label>
         </span>
-      )}
+
+        <span>
+          <input
+            checked={raw}
+            onChange={(event) => setRaw(event.target.checked)}
+            type="checkbox"
+          />
+          <label>{Tr("Raw")}</label>
+        </span>
+
+        {!raw && (
+          <span>
+            <input
+              checked={prepare}
+              onChange={(event) => setPrepare(event.target.checked)}
+              type="checkbox"
+            />
+            <label>{Tr("Prepare")}</label>
+          </span>
+        )}
+      </span>
 
       {playingURL !== "" && (
         <audio
+          id="dom-player"
           controls
           autoPlay
           loop={loop}
@@ -147,7 +189,7 @@ function AudioPlayer(props) {
         selectedFfmpegConfig={selectedFfmpegConfig}
         setSelectedFfmpegConfig={setSelectedFfmpegConfig}
       />
-    </div>
+    </footer>
   );
 }
 

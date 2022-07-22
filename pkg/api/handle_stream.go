@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"msw-open-music/pkg/database"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"strconv"
@@ -65,13 +67,21 @@ func (api *API) HandleGetFileStream(w http.ResponseWriter, r *http.Request) {
 		api.HandleErrorStringCode(w, r, `ffmpeg config not found`, 404)
 		return
 	}
+
+	// set headers for filename
+	filename := file.Filename + "." + ffmpegConfig.Name + "." + ffmpegConfig.Format
+	filename = url.PathEscape(filename)
+	// replace invalid characters
+	w.Header().Set("Content-Disposition", "inline; filename*=UTF-8''"+filename)
+
 	args := strings.Split(ffmpegConfig.Args, " ")
 	startArgs := []string{"-threads", strconv.FormatInt(api.APIConfig.FfmpegThreads, 10), "-i", path}
-	endArgs := []string{"-vn", "-f", "ogg", "-"}
+	endArgs := []string{"-f", ffmpegConfig.Format, "-"}
 	ffmpegArgs := append(startArgs, args...)
 	ffmpegArgs = append(ffmpegArgs, endArgs...)
 	cmd := exec.Command("ffmpeg", ffmpegArgs...)
 	cmd.Stdout = w
+	// cmd.Stderr = os.Stderr
 	err = cmd.Run()
 	if err != nil {
 		api.HandleError(w, r, err)
@@ -85,7 +95,7 @@ type PrepareFileStreamDirectRequest struct {
 }
 
 type PrepareFileStreamDirectResponse struct {
-	Filesize int64 `json:"filesize"`
+	File *database.File `json:"file"`
 }
 
 // /prepare_file_stream_direct?id=1&config=ffmpeg_config_name
@@ -126,34 +136,29 @@ func (api *API) HandlePrepareFileStreamDirect(w http.ResponseWriter, r *http.Req
 		api.HandleErrorStringCode(w, r, `ffmpeg config not found`, 404)
 		return
 	}
-	objPath := api.Tmpfs.GetObjFilePath(prepareFileStreamDirectRequst.ID, prepareFileStreamDirectRequst.ConfigName)
+	objPath := api.Tmpfs.GetObjFilePath(prepareFileStreamDirectRequst.ID, ffmpegConfig)
 
 	// check obj file exists
 	exists := api.Tmpfs.Exits(objPath)
-	if exists {
-		fileInfo, err := os.Stat(objPath)
+	if !exists {
+		// lock the object
+		api.Tmpfs.Lock(objPath)
+
+		args := strings.Split(ffmpegConfig.Args, " ")
+		startArgs := []string{"-threads", strconv.FormatInt(api.APIConfig.FfmpegThreads, 10), "-i", srcPath}
+		endArgs := []string{"-y", objPath}
+		ffmpegArgs := append(startArgs, args...)
+		ffmpegArgs = append(ffmpegArgs, endArgs...)
+		cmd := exec.Command("ffmpeg", ffmpegArgs...)
+		err = cmd.Run()
 		if err != nil {
 			api.HandleError(w, r, err)
 			return
 		}
-		prepareFileStreamDirectResponse := &PrepareFileStreamDirectResponse{
-			Filesize: fileInfo.Size(),
-		}
-		json.NewEncoder(w).Encode(prepareFileStreamDirectResponse)
-		return
-	}
 
-	api.Tmpfs.Record(objPath)
-	args := strings.Split(ffmpegConfig.Args, " ")
-	startArgs := []string{"-threads", strconv.FormatInt(api.APIConfig.FfmpegThreads, 10), "-i", srcPath}
-	endArgs := []string{"-vn", "-y", objPath}
-	ffmpegArgs := append(startArgs, args...)
-	ffmpegArgs = append(ffmpegArgs, endArgs...)
-	cmd := exec.Command("ffmpeg", ffmpegArgs...)
-	err = cmd.Run()
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
+		api.Tmpfs.Record(objPath)
+		api.Tmpfs.Unlock(objPath)
+
 	}
 
 	fileInfo, err := os.Stat(objPath)
@@ -161,8 +166,11 @@ func (api *API) HandlePrepareFileStreamDirect(w http.ResponseWriter, r *http.Req
 		api.HandleError(w, r, err)
 		return
 	}
+
+	file.Filesize = fileInfo.Size()
+
 	prepareFileStreamDirectResponse := &PrepareFileStreamDirectResponse{
-		Filesize: fileInfo.Size(),
+		File: file,
 	}
 	json.NewEncoder(w).Encode(prepareFileStreamDirectResponse)
 }
@@ -180,10 +188,22 @@ func (api *API) HandleGetFileStreamDirect(w http.ResponseWriter, r *http.Request
 	configs := q["config"]
 	configName := configs[0]
 
-	path := api.Tmpfs.GetObjFilePath(int64(id), configName)
+	ffmpegConfig, ok := api.GetFfmpegConfig(configName)
+	if !ok {
+		api.HandleErrorStringCode(w, r, `ffmpeg config not found`, 404)
+		return
+	}
+
+	path := api.Tmpfs.GetObjFilePath(int64(id), ffmpegConfig)
 	if api.Tmpfs.Exits(path) {
 		api.Tmpfs.Record(path)
 	}
+
+	// set headers for filename
+	filename := ids[0] + "." + ffmpegConfig.Name + "." + ffmpegConfig.Format
+	filename = url.PathEscape(filename)
+	// replace invalid characters
+	w.Header().Set("Content-Disposition", "inline; filename*=UTF-8''"+filename)
 
 	log.Println("[api] Get direct cached file", path)
 

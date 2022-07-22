@@ -1,14 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "./Common";
 import FilesTable from "./FilesTable";
+import { Tr, tr, langCodeContext } from "../translate";
 
 function SearchFiles(props) {
+  const navigator = useNavigate();
   const [files, setFiles] = useState([]);
-  const [filename, setFilename] = useState("");
-  const [offset, setOffset] = useState(0);
+  const query = useQuery();
+  const filename = query.get("q") || "";
+  const [filenameInput, setFilenameInput] = useState(filename);
+  const offset = parseInt(query.get("o")) || 0;
   const [isLoading, setIsLoading] = useState(false);
   const limit = 10;
+  const { langCode } = useContext(langCodeContext);
 
   function searchFiles() {
+    // check empty filename
+    if (filename === "") {
+      return;
+    }
     setIsLoading(true);
     fetch("/api/v1/search_files", {
       method: "POST",
@@ -33,7 +44,7 @@ function SearchFiles(props) {
   }
 
   function nextPage() {
-    setOffset(offset + limit);
+    navigator(`/files?q=${filenameInput}&o=${offset + limit}`);
   }
 
   function lastPage() {
@@ -41,37 +52,38 @@ function SearchFiles(props) {
     if (offsetValue < 0) {
       return;
     }
-    setOffset(offsetValue);
+    navigator(`/files?q=${filenameInput}&o=${offsetValue}`);
   }
 
-  useEffect(() => searchFiles(), [offset]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => searchFiles(), [offset, filename]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="page">
-      <h3>Search Files</h3>
+      <h3>{Tr("Search Files")}</h3>
       <div className="search_toolbar">
         <input
-          onChange={(event) => setFilename(event.target.value)}
+          onChange={(event) => setFilenameInput(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
-              searchFiles();
+              navigator(`/files?q=${filenameInput}&o=0`);
             }
           }}
           type="text"
-          placeholder="Enter filename"
+          placeholder={tr("Enter filename", langCode)}
+          value={filenameInput}
         />
         <button
           onClick={() => {
-            searchFiles();
+            navigator(`/files?q=${filenameInput}&o=0`);
           }}
         >
-          {isLoading ? "Loading..." : "Search"}
+          {isLoading ? Tr("Loading...") : Tr("Search")}
         </button>
-        <button onClick={lastPage}>Last page</button>
+        <button onClick={lastPage}>{Tr("Last page")}</button>
         <button disabled>
           {offset} - {offset + files.length}
         </button>
-        <button onClick={nextPage}>Next page</button>
+        <button onClick={nextPage}>{Tr("Next page")}</button>
       </div>
       <FilesTable setPlayingFile={props.setPlayingFile} files={files} />
     </div>

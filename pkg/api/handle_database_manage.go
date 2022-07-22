@@ -2,32 +2,26 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
 type WalkRequest struct {
-	Token   string   `json:"token"`
 	Root    string   `json:"root"`
 	Pattern []string `json:"pattern"`
-}
-
-type ResetRequest struct {
-	Token string `json:"token"`
+	TagIDs  []int64  `json:"tag_ids"`
 }
 
 func (api *API) HandleReset(w http.ResponseWriter, r *http.Request) {
-	resetRequest := &ResetRequest{}
-	err := json.NewDecoder(r.Body).Decode(resetRequest)
+	var err error
+	// check admin
+	err = api.CheckAdmin(w, r)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
 	}
 
-	// check token
-	err = api.CheckToken(w, r, resetRequest.Token)
-	if err != nil {
-		return
-	}
+	log.Println("[api] Reset database")
 
 	// reset
 	err = api.Db.ResetFiles()
@@ -52,9 +46,10 @@ func (api *API) HandleWalk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check token match
-	err = api.CheckToken(w, r, walkRequest.Token)
+	// check admin
+	err = api.CheckAdmin(w, r)
 	if err != nil {
+		api.HandleError(w, r, err)
 		return
 	}
 
@@ -70,8 +65,17 @@ func (api *API) HandleWalk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get userID
+	userID, err := api.GetUserID(w, r)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	log.Println("[api] Walk", walkRequest.Root, walkRequest.Pattern, walkRequest.TagIDs)
+
 	// walk
-	err = api.Db.Walk(walkRequest.Root, walkRequest.Pattern)
+	err = api.Db.Walk(walkRequest.Root, walkRequest.Pattern, walkRequest.TagIDs, userID)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return

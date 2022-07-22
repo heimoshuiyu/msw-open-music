@@ -1,49 +1,85 @@
-import { useState } from "react";
+import { useNavigate } from "react-router";
+import Database from "./Database";
 
-function Manage() {
-  const [token, setToken] = useState("");
-  const [walkPath, setWalkPath] = useState("");
+import { Tr, langCodeContext, LANG_OPTIONS } from "../translate";
+import { useContext } from "react";
 
-  function updateDatabase() {
-    fetch("/api/v1/walk", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        token: token,
-        root: walkPath,
-        pattern: [".wav", ".mp3", ".flac", ".ogg", ".aac", ".mka"],
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-      });
-  }
+function Manage(props) {
+  let navigate = useNavigate();
+  const { langCode, setLangCode } = useContext(langCodeContext);
+  const codes = Object.keys(LANG_OPTIONS);
 
   return (
-    <div>
-      <h2>Manage</h2>
-      <input
-        type="text"
-        value={token}
-        placeholder="token"
-        onChange={(e) => setToken(e.target.value)}
-      />
-      <input
-        type="text"
-        value={walkPath}
-        placeholder="walk path"
-        onChange={(e) => setWalkPath(e.target.value)}
-      />
-      <button
-        onClick={() => {
-          updateDatabase();
+    <div className="page">
+      <h2>{Tr("Manage")}</h2>
+      <p>
+        {Tr("Hi")}, {props.user.username}
+      </p>
+
+      <select
+        onChange={(event) => {
+          setLangCode(codes[event.target.selectedIndex]);
         }}
       >
-        Update Database
-      </button>
+        {codes.map((code) => {
+          const langOption = LANG_OPTIONS[code];
+          return <option key={code}>{langOption.name}</option>;
+        })}
+      </select>
+
+      {props.user.role === 0 && (
+        <div>
+          <button
+            onClick={() => {
+              navigate("/manage/login");
+            }}
+          >
+            {Tr("Login")}
+          </button>
+          <button
+            onClick={() => {
+              navigate("/manage/register");
+            }}
+          >
+            {Tr("Register")}
+          </button>
+        </div>
+      )}
+      {props.user.role !== 0 && (
+        <div className="horizontal">
+          <button
+            onClick={() => {
+              navigate(`/manage/users/${props.user.id}`);
+            }}
+          >
+            {Tr("Profile")}
+          </button>
+          <button
+            onClick={() => {
+              fetch("/api/v1/logout")
+                .then((res) => res.json())
+                .then((data) => {
+                  if (data.error) {
+                    alert(data.error);
+                  } else {
+                    props.setUser(data.user);
+                  }
+                });
+            }}
+          >
+            {Tr("Logout")}
+          </button>
+        </div>
+      )}
+      <hr />
+      <div className="horizontal">
+        <button onClick={() => navigate("/manage/tags")}>{Tr("Tags")}</button>
+        <button onClick={() => navigate("/manage/users")}>{Tr("Users")}</button>
+        <button onClick={() => navigate("/manage/feedbacks")}>
+          {Tr("Feedbacks")}
+        </button>
+      </div>
+      <Database />
     </div>
   );
 }

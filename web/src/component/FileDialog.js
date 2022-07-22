@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import { Tr } from "../translate";
 
 function FileDialog(props) {
   // props.showStatus
@@ -9,37 +10,41 @@ function FileDialog(props) {
 
   let navigate = useNavigate();
 
-  const downloadURL = "/api/v1/get_file_direct?id=" + props.file.id;
-
   return (
     <dialog open={props.showStatus}>
-      <p>{props.file.filename}</p>
-      <p>
-        Download 使用浏览器下载原文件
-        <br />
-        Play 调用网页播放器播放
-        <br />
+      <p
+        style={{
+          cursor: "pointer",
+        }}
+        onClick={() => {
+          props.setPlayingFile(props.file);
+          props.setShowStatus(false);
+        }}
+      >
+        {props.file.filename}
       </p>
-      <a href={downloadURL} download>
-        <button>Download</button>
-      </a>
+      <p>
+        {Tr("Play: play using browser player.")}
+        <br />
+        {Tr("Info for more actions.")}
+      </p>
+      <button
+        onClick={() => {
+          navigate(`/files/${props.file.id}`);
+          props.setShowStatus(false);
+        }}
+      >
+        {Tr("Info")}
+      </button>
       <button
         onClick={() => {
           props.setPlayingFile(props.file);
           props.setShowStatus(false);
         }}
       >
-        Play
+        {Tr("Play")}
       </button>
-      <button
-        onClick={() => {
-          navigate(`/files/${props.file.id}/share`);
-          props.setShowStatus(false);
-        }}
-      >
-        Share
-      </button>
-      <button onClick={() => props.setShowStatus(false)}>Close</button>
+      <button onClick={() => props.setShowStatus(false)}>{Tr("Close")}</button>
     </dialog>
   );
 }

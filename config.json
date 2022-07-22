@@ -1,23 +1,49 @@
 {
-	"api": {
-		"database_name": "music.sqlite3",
-		"addr": ":8080",
-		"token": "!! config your very strong token here !!",
-		"ffmpeg_threads": 1,
-		"ffmpeg_config_list": [
-			{"name": "OPUS 128k", "args": "-c:a libopus -ab 128k"},
-			{"name": "OPUS 96k", "args": "-c:a libopus -ab 96k"},
-			{"name": "OPUS 256k", "args": "-c:a libopus -ab 256k"},
-			{"name": "OPUS 320k", "args": "-c:a libopus -ab 320k"},
-			{"name": "OPUS 512k", "args": "-c:a libopus -ab 512k"},
-			{"name": "AAC 128k", "args": "-c:a aac -ab 128k"},
-			{"name": "AAC 256k", "args": "-c:a aac -ab 256k"},
-			{"name": "全损音质 32k", "args": "-c:a libopus -ab 32k"}
-		]
-	},
-	"tmpfs": {
-		"file_life_time": 600,
-		"cleaner_internal": 1,
-		"root": "/tmp/"
-	}
+  "api": {
+    "secret": "CHANGE_YOUR_SECRET_HERE",
+    "database_name": "music.sqlite3",
+    "single_thread": true,
+    "addr": ":8080",
+    "ffmpeg_threads": 1,
+    "ffmpeg_config_list": [
+      {
+        "name": "WEBM OPUS 128k",
+        "args": "-c:a libopus -ab 128k -vn",
+        "format": "webm"
+      },
+      {
+        "name": "WEBM OPUS 96k",
+        "args": "-c:a libopus -ab 96k -vn",
+        "format": "webm"
+      },
+      {
+        "name": "WEBM OPUS 256k",
+        "args": "-c:a libopus -ab 256k -vn",
+        "format": "webm"
+      },
+      {
+        "name": "WEBM OPUS 512k",
+        "args": "-c:a libopus -ab 512k -vn",
+        "format": "webm"
+      },
+      {
+        "name": "AAC 128k",
+        "args": "-c:a aac -ab 128k -vn",
+        "format": "adts"
+      },
+      {
+        "name": "AAC 256k",
+        "args": "-c:a aac -ab 256k -vn",
+        "format": "adts"
+      },
+      { "name": "MP3 128k", "args": "-c:a mp3 -ab 128k -vn", "format": "mp3" },
+      { "name": "MP3 320k", "args": "-c:a mp3 -ab 320k -vn", "format": "mp3" },
+      { "name": "全损音质 8k", "args": "-c:a libopus -ab 8k -vn", "format": "webm" }
+    ]
+  },
+  "tmpfs": {
+    "file_life_time": 600,
+    "cleaner_internal": 1,
+    "root": "/tmp/"
+  }
 }

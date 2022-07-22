@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 )
@@ -29,6 +30,8 @@ func (api *API) HandleGetFileInfo(w http.ResponseWriter, r *http.Request) {
 		api.HandleErrorString(w, r, `"id" can't be none or negative`)
 		return
 	}
+
+	log.Println("[api] Get file info", getFileRequest.ID)
 
 	file, err := api.Db.GetFile(getFileRequest.ID)
 	if err != nil {
@@ -110,6 +113,12 @@ func (api *API) HandleGetFileDirect(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
+
+	// set header for filename
+	filename := file.Filename
+	// encode filename to URL
+	filename = url.PathEscape(filename)
+	w.Header().Set("Content-Disposition", "inline; filename*=UTF-8''"+filename)
 
 	log.Println("[api] Get direct raw file", path)
 

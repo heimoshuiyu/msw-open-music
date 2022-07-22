@@ -1,12 +1,19 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "./Common";
 import FoldersTable from "./FoldersTable";
+import { Tr, tr, langCodeContext } from "../translate";
 
 function SearchFolders() {
-  const [foldername, setFoldername] = useState("");
+  const navigator = useNavigate();
+  const query = useQuery();
+  const foldername = query.get("q") || "";
+  const [foldernameInput, setFoldernameInput] = useState(foldername);
   const [folders, setFolders] = useState([]);
-  const [offset, setOffset] = useState(0);
+  const offset = parseInt(query.get("o")) || 0;
   const [isLoading, setIsLoading] = useState(false);
   const limit = 10;
+  const { langCode } = useContext(langCodeContext);
 
   function searchFolder() {
     if (foldername === "") {
@@ -35,7 +42,7 @@ function SearchFolders() {
   }
 
   function nextPage() {
-    setOffset(offset + limit);
+    navigator(`/folders?q=${foldername}&o=${offset + limit}`);
   }
 
   function lastPage() {
@@ -43,33 +50,38 @@ function SearchFolders() {
     if (offsetValue < 0) {
       return;
     }
-    setOffset(offsetValue);
+    navigator(`/folders?q=${foldername}&o=${offsetValue}`);
   }
 
-  useEffect(() => searchFolder(), [offset]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => searchFolder(), [offset, foldername]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="page">
-      <h3>Search Folders</h3>
+      <h3>{Tr("Search Folders")}</h3>
       <div className="search_toolbar">
         <input
-          onChange={(event) => setFoldername(event.target.value)}
+          onChange={(event) => setFoldernameInput(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
-              searchFolder();
+              navigator(`/folders?q=${foldernameInput}&o=0`);
             }
           }}
           type="text"
-          placeholder="Enter folder name"
+          placeholder={tr("Enter folder name", langCode)}
+          value={foldernameInput}
         />
-        <button onClick={searchFolder}>
-          {isLoading ? "Loading..." : "Search"}
+        <button
+          onClick={() => {
+            navigator(`/folders?q=${foldernameInput}&o=0`);
+          }}
+        >
+          {isLoading ? Tr("Loading...") : Tr("Search")}
         </button>
-        <button onClick={lastPage}>Last page</button>
+        <button onClick={lastPage}>{Tr("Last page")}</button>
         <button disabled>
           {offset} - {offset + limit}
         </button>
-        <button onClick={nextPage}>Next page</button>
+        <button onClick={nextPage}>{Tr("Next page")}</button>
       </div>
       <FoldersTable folders={folders} />
     </div>
