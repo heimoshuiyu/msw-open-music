@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/heimoshuiyu/msw-open-music/actions/workflows/build.yml/badge.svg)](https://github.com/heimoshuiyu/msw-open-music/actions/workflows/build.yml)
 
+🔴 Demo: <https://msw-open-music.live>
+
 [中文文档](./README-cn.md)
 
 > The best way to search for a music is to load up a huge playlist and shuffle until you find it.

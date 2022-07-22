@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/heimoshuiyu/msw-open-music/actions/workflows/build.yml/badge.svg)](https://github.com/heimoshuiyu/msw-open-music/actions/workflows/build.yml)
 
+🔴 演示 Demo: <https://msw-open-music.live>
+
 > 找一首歌最好的方法是：打开一个超长的歌单，然后随机播放，直到你找到为止。
 
 一个 💪 轻量级 ⚡️ 高性能 🖥️ 跨平台的 个人音乐串流平台。管理你现有的音乐文件并在其他设备上播放。
