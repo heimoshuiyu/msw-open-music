@@ -7,7 +7,6 @@ import { useContext } from "react";
 function Manage(props) {
   let navigate = useNavigate();
   const { langCode, setLangCode } = useContext(langCodeContext);
-  const codes = Object.keys(LANG_OPTIONS);
 
   return (
     <div className="page">
@@ -17,13 +16,18 @@ function Manage(props) {
       </p>
 
       <select
+        value={langCode}
         onChange={(event) => {
-          setLangCode(codes[event.target.selectedIndex]);
+          setLangCode(event.target.value);
         }}
       >
-        {codes.map((code) => {
+        {Object.keys(LANG_OPTIONS).map((code) => {
           const langOption = LANG_OPTIONS[code];
-          return <option key={code}>{langOption.name}</option>;
+          return (
+            <option value={code} key={code}>
+              {langOption.name}
+            </option>
+          );
         })}
       </select>
 
