@@ -11,7 +11,12 @@ function FileDialog(props) {
   let navigate = useNavigate();
 
   return (
-    <dialog open={props.showStatus}>
+    <dialog
+      open={props.showStatus}
+      style={{
+        zIndex: 1,
+      }}
+    >
       <p
         style={{
           cursor: "pointer",
