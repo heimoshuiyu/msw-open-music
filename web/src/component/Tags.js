@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Tr } from "../translate";
 
 function Tags() {
   const [tags, setTags] = useState([]);
@@ -25,14 +26,14 @@ function Tags() {
 
   return (
     <div className="page">
-      <h3>Tags</h3>
+      <h3>{Tr("Tags")}</h3>
       <table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Created By</th>
-            <th>Actions</th>
+            <th>{Tr("Name")}</th>
+            <th>{Tr("Description")}</th>
+            <th>{Tr("Created by")}</th>
+            <th>{Tr("Action")}</th>
           </tr>
         </thead>
         <tbody>
@@ -46,25 +47,25 @@ function Tags() {
                 </Link>
               </td>
               <td>
-                <Link to={`/manage/tags/${tag.id}`}>Edit</Link>
+                <Link to={`/manage/tags/${tag.id}`}>{Tr("Edit")}</Link>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
       {!showAddTag && (
-        <button onClick={() => setShowAddTag(true)}>Add Tag</button>
+        <button onClick={() => setShowAddTag(true)}>{Tr("Add tag")}</button>
       )}
       {showAddTag && (
         <div>
-          <label htmlFor="newTagName">New Tag Name</label>
+          <label htmlFor="newTagName">{Tr("New Tag Name")}</label>
           <input
             type="text"
             id="newTagName"
             value={newTagName}
             onChange={(e) => setNewTagName(e.target.value)}
           />
-          <label htmlFor="newTagDescription">New Tag Description</label>
+          <label htmlFor="newTagDescription">{Tr("New Tag Description")}</label>
           <textarea
             id="newTagDescription"
             value={newTagDescription}
@@ -94,7 +95,7 @@ function Tags() {
                 });
             }}
           >
-            Create Tag
+        {Tr("Create tag")}
           </button>
         </div>
       )}

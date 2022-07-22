@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from "react-router";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { Tr, tr, langCodeContext } from "../translate";
 
 function FileInfo(props) {
   let navigate = useNavigate();
@@ -14,6 +15,7 @@ function FileInfo(props) {
   const [tags, setTags] = useState([]);
   const [tagsOnFile, setTagsOnFile] = useState([]);
   const [selectedTagID, setSelectedTagID] = useState("");
+  const { langCode } = useContext(langCodeContext);
 
   function refresh() {
     fetch(`/api/v1/get_file_info`, {
@@ -90,7 +92,9 @@ function FileInfo(props) {
 
   function deleteFile() {
     // show Warning
-    if (window.confirm("Are you sure you want to delete this file?")) {
+    if (
+      window.confirm(tr("Are you sure you want to delete this file?", langCode))
+    ) {
       fetch(`/api/v1/delete_file`, {
         method: "POST",
         headers: {
@@ -127,7 +131,7 @@ function FileInfo(props) {
         if (data.error) {
           alert(data.error);
         } else {
-          alert("Filename updated");
+          alert(tr("Filename updated", langCode));
           refresh();
         }
       });
@@ -163,42 +167,42 @@ function FileInfo(props) {
 
   return (
     <div className="page">
-      <h3>File Details</h3>
+      <h3>{Tr("File Details")}</h3>
       <div>
         <a href={downloadURL} download>
-          <button>Download</button>
+          <button>{Tr("Download")}</button>
         </a>
         <button
           onClick={() => {
             props.setPlayingFile(file);
           }}
         >
-          Play
+          {Tr("Play")}
         </button>
         <button
           onClick={() => {
             navigate(`/files/${params.id}/review`);
           }}
         >
-          Review
+          {Tr("Review")}
         </button>
         <button
           onClick={() => {
             navigate(`/files/${params.id}/share`);
           }}
         >
-          Share
+          {Tr("Share")}
         </button>
         <button
           onClick={() => {
             deleteFile();
           }}
         >
-          Delete
+          {Tr("Delete")}
         </button>
       </div>
       <div>
-        <label htmlFor="foldername">Folder Name:</label>
+        <label htmlFor="foldername">{Tr("Folder Name")}</label>
         <input
           type="text"
           id="foldername"
@@ -208,7 +212,7 @@ function FileInfo(props) {
           }}
           readOnly
         />
-        <label htmlFor="filename">File Name:</label>
+        <label htmlFor="filename">{Tr("Filename")}</label>
         <input
           type="text"
           id="filename"
@@ -220,15 +224,15 @@ function FileInfo(props) {
             });
           }}
         />
-        <label htmlFor="filesize">File Size:</label>
+        <label htmlFor="filesize">{Tr("File size")}</label>
         <input type="text" id="filesize" value={file.filesize} readOnly />
       </div>
       <div className="horizontal">
-        <button onClick={updateFilename}>Save</button>
-        <button onClick={resetFilename}>Reset</button>
+        <button onClick={updateFilename}>{Tr("Save")}</button>
+        <button onClick={resetFilename}>{Tr("Reset")}</button>
       </div>
       <div>
-        <label>Tags:</label>
+        <label>{Tr("Tags")}</label>
         <ul>
           {tagsOnFile.map((tag) => {
             return (
@@ -245,7 +249,7 @@ function FileInfo(props) {
                     removeTagOnFile(tag.id);
                   }}
                 >
-                  Remove
+                  {Tr("Remove")}
                 </button>
               </li>
             );
@@ -257,7 +261,7 @@ function FileInfo(props) {
               setSelectedTagID(e.target.value);
             }}
           >
-            <option value="">Select a tag</option>
+            <option value="">{tr("Select a tag", langCode)}</option>
             {tags.map((tag) => {
               return (
                 <option key={tag.id} value={tag.id}>
@@ -270,7 +274,7 @@ function FileInfo(props) {
             onClick={() => {
               // check empty
               if (selectedTagID === "") {
-                alert("Please select a tag");
+                alert(tr("Please select a tag", langCode));
                 return;
               }
               fetch(`/api/v1/put_tag_on_file`, {
@@ -293,7 +297,7 @@ function FileInfo(props) {
                 });
             }}
           >
-            Add Tag
+            {Tr("Add tag")}
           </button>
         </div>
       </div>

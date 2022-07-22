@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Tr } from "../translate";
 
 function ManageUser() {
   const [users, setUsers] = useState([]);
   const roleDict = {
     0: "Anonymous",
     1: "Admin",
-    2: "Normal User",
+    2: "User",
   };
 
   function getUsers() {
@@ -27,13 +28,13 @@ function ManageUser() {
 
   return (
     <div className="page">
-      <h3>Manage User</h3>
+      <h3>{Tr("Manage User")}</h3>
       <table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Role</th>
-            <th>Active</th>
+            <th>{Tr("Name")}</th>
+            <th>{Tr("Role")}</th>
+            <th>{Tr("Active")}</th>
           </tr>
         </thead>
         <tbody>
@@ -42,7 +43,7 @@ function ManageUser() {
               <td>
                 <Link to={`/manage/users/${user.id}`}>@{user.username}</Link>
               </td>
-              <td>{roleDict[user.role]}</td>
+              <td>{Tr(roleDict[user.role])}</td>
               <td>
                 <input
                   type="checkbox"
@@ -57,13 +58,15 @@ function ManageUser() {
                         id: user.id,
                         active: e.target.checked,
                       }),
-                    }).then((res) => res.json()).then((data) => {
-                      if (data.error) {
-                        alert(data.error);
-                      } else {
-                        getUsers();
-                      }
-                    });
+                    })
+                      .then((res) => res.json())
+                      .then((data) => {
+                        if (data.error) {
+                          alert(data.error);
+                        } else {
+                          getUsers();
+                        }
+                      });
                   }}
                 />
               </td>

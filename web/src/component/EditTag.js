@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router";
+import { tr, Tr, langCodeContext } from "../translate";
 
 function EditTag() {
   let params = useParams();
   let navigate = useNavigate();
+  const { langCode } = useContext(langCodeContext);
 
   const [tag, setTag] = useState({
     id: "",
@@ -54,7 +56,7 @@ function EditTag() {
         if (data.error) {
           alert(data.error);
         } else {
-          alert("Tag updated successfully");
+          alert(tr("Tag updated successfully", langCode));
           refreshTagInfo();
         }
       });
@@ -79,7 +81,7 @@ function EditTag() {
         if (data.error) {
           alert(data.error);
         } else {
-          alert("Tag deleted successfully");
+          alert(tr("Tag deleted successfully", langCode));
           navigate(-1);
         }
       });
@@ -87,9 +89,9 @@ function EditTag() {
 
   return (
     <div className="page">
-      <h3>Edit Tag</h3>
+      <h3>{Tr("Edit Tag")}</h3>
       <div>
-        <label htmlFor="id">ID</label>
+        <label htmlFor="id">{Tr("ID")}</label>
         <input
           type="text"
           disabled
@@ -98,7 +100,7 @@ function EditTag() {
           value={tag.id}
           onChange={(e) => setTag({ ...tag, id: e.target.value })}
         />
-        <label htmlFor="name">Created By</label>
+        <label htmlFor="name">{Tr("Created by")}</label>
         <input
           type="text"
           disabled
@@ -115,7 +117,7 @@ function EditTag() {
             })
           }
         />
-        <label htmlFor="name">Name</label>
+        <label htmlFor="name">{Tr("Name")}</label>
         <input
           type="text"
           name="name"
@@ -123,15 +125,15 @@ function EditTag() {
           value={tag.name}
           onChange={(e) => setTag({ ...tag, name: e.target.value })}
         />
-        <label htmlFor="description">Description</label>
+        <label htmlFor="description">{Tr("Description")}</label>
         <textarea
           name="description"
           id="description"
           value={tag.description}
           onChange={(e) => setTag({ ...tag, description: e.target.value })}
         />
-        <button onClick={deleteTag}>Delete</button>
-        <button onClick={() => updateTagInfo()}>Save</button>
+        <button onClick={deleteTag}>{Tr("Delete")}</button>
+        <button onClick={() => updateTagInfo()}>{Tr("Save")}</button>
       </div>
     </div>
   );

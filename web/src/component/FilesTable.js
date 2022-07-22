@@ -1,4 +1,5 @@
 import FileEntry from "./FileEntry";
+import { Tr } from "../translate";
 
 function FilesTable(props) {
   if (props.files.length === 0) {
@@ -8,9 +9,9 @@ function FilesTable(props) {
     <table>
       <thead>
         <tr>
-          <th>Filename</th>
-          <th>Folder Name</th>
-          <th>Size</th>
+          <th>{Tr("Filename")}</th>
+          <th>{Tr("Folder Name")}</th>
+          <th>{Tr("Size")}</th>
         </tr>
       </thead>
       <tbody>

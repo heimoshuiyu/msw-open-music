@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import FilesTable from "./FilesTable";
+import { Tr } from "../translate";
 
 function Share(props) {
   let params = useParams();
@@ -23,13 +24,14 @@ function Share(props) {
   }, [params]);
   return (
     <div className="page">
-      <h3>Share with others!</h3>
+      <h3>{Tr("Share with others!")}</h3>
       <p>
-        👇 Click the filename below to enjoy music!
-        <br />
+        {Tr("Share link")}:{" "}
+        <a href={window.location.href}>{window.location.href}</a>
       </p>
       <p>
-        Share link: <a href={window.location.href}>{window.location.href}</a>
+        👇 {Tr("Click the filename below to enjoy music!")}
+        <br />
       </p>
       <FilesTable setPlayingFile={props.setPlayingFile} files={file} />
     </div>

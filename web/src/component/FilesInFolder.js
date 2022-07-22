@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "./Common";
 import FilesTable from "./FilesTable";
+import { Tr } from "../translate";
 
 function FilesInFolder(props) {
   let params = useParams();
@@ -107,13 +108,15 @@ function FilesInFolder(props) {
 
   return (
     <div className="page">
-      <h3>Files in Folder</h3>
+      <h3>{Tr("Files in Folder")}</h3>
       <div className="search_toolbar">
-        <button onClick={lastPage}>Last page</button>
+        <button onClick={lastPage}>{Tr("Last page")}</button>
         <button disabled>
-          {isLoading ? "Loading..." : `${offset} - ${offset + files.length}`}
+          {isLoading
+            ? Tr("Loading...")
+            : `${offset} - ${offset + files.length}`}
         </button>
-        <button onClick={nextPage}>Next page</button>
+        <button onClick={nextPage}>{Tr("Next page")}</button>
       </div>
       <FilesTable setPlayingFile={props.setPlayingFile} files={files} />
       <div>
@@ -123,8 +126,8 @@ function FilesInFolder(props) {
           onChange={(e) => setNewFoldername(e.target.value)}
         />
         <div>
-          <button onClick={() => updateFoldername()}>Save</button>
-          <button onClick={() => resetFoldername()}>Reset</button>
+          <button onClick={() => updateFoldername()}>{Tr("Save")}</button>
+          <button onClick={() => resetFoldername()}>{Tr("Reset")}</button>
         </div>
       </div>
     </div>

@@ -1,14 +1,16 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { Tr, tr, langCodeContext } from "../translate";
 
 function Login(props) {
   let navigate = useNavigate();
   let [username, setUsername] = useState("");
   let [password, setPassword] = useState("");
+  const { langCode } = useContext(langCodeContext);
 
   function login() {
     if (!username || !password) {
-      alert("Please enter username and password");
+      alert(tr("Please enter username and password", langCode));
       return;
     }
     fetch("/api/v1/login", {
@@ -34,15 +36,15 @@ function Login(props) {
 
   return (
     <div className="page">
-      <h2>Login</h2>
-      <label htmlFor="username">Username</label>
+      <h2>{Tr("Login")}</h2>
+      <label htmlFor="username">{Tr("Username")}</label>
       <input
         type="text"
         id="username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
-      <label htmlFor="password">Password</label>
+      <label htmlFor="password">{Tr("Password")}</label>
       <input
         type="password"
         id="password"
@@ -56,13 +58,13 @@ function Login(props) {
         }}
       />
       <span>
-        <button onClick={login}>Login</button>
+        <button onClick={login}>{Tr("Login")}</button>
         <button
           onClick={() => {
             navigate("/manage/register");
           }}
         >
-          Register
+          {Tr("Register")}
         </button>
       </span>
     </div>

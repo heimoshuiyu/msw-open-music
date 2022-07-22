@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "./Common";
 import FoldersTable from "./FoldersTable";
+import { Tr, tr, langCodeContext } from "../translate";
 
 function SearchFolders() {
   const navigator = useNavigate();
@@ -12,6 +13,7 @@ function SearchFolders() {
   const offset = parseInt(query.get("o")) || 0;
   const [isLoading, setIsLoading] = useState(false);
   const limit = 10;
+  const { langCode } = useContext(langCodeContext);
 
   function searchFolder() {
     if (foldername === "") {
@@ -55,7 +57,7 @@ function SearchFolders() {
 
   return (
     <div className="page">
-      <h3>Search Folders</h3>
+      <h3>{Tr("Search Folders")}</h3>
       <div className="search_toolbar">
         <input
           onChange={(event) => setFoldernameInput(event.target.value)}
@@ -65,7 +67,7 @@ function SearchFolders() {
             }
           }}
           type="text"
-          placeholder="Enter folder name"
+          placeholder={tr("Enter folder name", langCode)}
           value={foldernameInput}
         />
         <button
@@ -73,13 +75,13 @@ function SearchFolders() {
             navigator(`/folders?q=${foldernameInput}&o=0`);
           }}
         >
-          {isLoading ? "Loading..." : "Search"}
+          {isLoading ? Tr("Loading...") : Tr("Search")}
         </button>
-        <button onClick={lastPage}>Last page</button>
+        <button onClick={lastPage}>{Tr("Last page")}</button>
         <button disabled>
           {offset} - {offset + limit}
         </button>
-        <button onClick={nextPage}>Next page</button>
+        <button onClick={nextPage}>{Tr("Next page")}</button>
       </div>
       <FoldersTable folders={folders} />
     </div>

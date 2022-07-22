@@ -1,13 +1,32 @@
 import { useNavigate } from "react-router";
 import Database from "./Database";
 
+import { Tr, langCodeContext, LANG_OPTIONS } from "../translate";
+import { useContext } from "react";
+
 function Manage(props) {
   let navigate = useNavigate();
+  const { langCode, setLangCode } = useContext(langCodeContext);
+  const codes = Object.keys(LANG_OPTIONS);
 
   return (
     <div className="page">
-      <h2>Manage</h2>
-      <p>Hi, {props.user.username}</p>
+      <h2>{Tr("Manage")}</h2>
+      <p>
+        {Tr("Hi")}, {props.user.username}
+      </p>
+
+      <select
+        onChange={(event) => {
+          setLangCode(codes[event.target.selectedIndex]);
+        }}
+      >
+        {codes.map((code) => {
+          const langOption = LANG_OPTIONS[code];
+          return <option key={code}>{langOption.name}</option>;
+        })}
+      </select>
+
       {props.user.role === 0 && (
         <div>
           <button
@@ -15,14 +34,14 @@ function Manage(props) {
               navigate("/manage/login");
             }}
           >
-            Login
+            {Tr("Login")}
           </button>
           <button
             onClick={() => {
               navigate("/manage/register");
             }}
           >
-            Register
+            {Tr("Register")}
           </button>
         </div>
       )}
@@ -33,7 +52,7 @@ function Manage(props) {
               navigate(`/manage/users/${props.user.id}`);
             }}
           >
-            Profile
+            {Tr("Profile")}
           </button>
           <button
             onClick={() => {
@@ -48,15 +67,17 @@ function Manage(props) {
                 });
             }}
           >
-            Logout
+            {Tr("Logout")}
           </button>
         </div>
       )}
       <hr />
       <div className="horizontal">
-        <button onClick={() => navigate("/manage/tags")}>Tags</button>
-        <button onClick={() => navigate("/manage/users")}>Users</button>
-        <button onClick={() => navigate("/manage/feedbacks")}>Feedbacks</button>
+        <button onClick={() => navigate("/manage/tags")}>{Tr("Tags")}</button>
+        <button onClick={() => navigate("/manage/users")}>{Tr("Users")}</button>
+        <button onClick={() => navigate("/manage/feedbacks")}>
+          {Tr("Feedbacks")}
+        </button>
       </div>
       <Database />
     </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import ReviewEntry from "./ReviewEntry";
+import { Tr } from "../translate";
 
 function ReviewPage(props) {
   let params = useParams();
@@ -55,7 +56,7 @@ function ReviewPage(props) {
 
   return (
     <div className="page">
-      <h3>Review Page</h3>
+      <h3>{Tr("Review Page")}</h3>
       <div>
         {reviews.map((review) => (
           <ReviewEntry key={review.id} review={review} user={props.user} />
@@ -66,7 +67,7 @@ function ReviewPage(props) {
           value={newReview}
           onChange={(e) => setNewReview(e.target.value)}
         />
-        <button onClick={() => submitReview()}>Submit</button>
+        <button onClick={() => submitReview()}>{Tr("Submit")}</button>
       </div>
     </div>
   );

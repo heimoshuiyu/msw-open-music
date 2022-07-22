@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { CalcReadableFilesizeDetail } from "./Common";
 import FfmpegConfig from "./FfmpegConfig";
 import FileDialog from "./FileDialog";
+import { Tr } from "../translate";
 
 function AudioPlayer(props) {
   // props.playingFile
@@ -67,7 +68,7 @@ function AudioPlayer(props) {
 
   return (
     <footer className="vertical">
-      <h5>Player status</h5>
+      <h5>{Tr("Player status")}</h5>
       {props.playingFile.id && (
         <span>
           <FileDialog
@@ -105,7 +106,7 @@ function AudioPlayer(props) {
                 props.setPlayingFile({});
               }}
             >
-              Stop
+              {Tr("Stop")}
             </button>
           )}
         </span>
@@ -138,7 +139,7 @@ function AudioPlayer(props) {
             );
           }}
         >
-          Stop Timer
+          {Tr("Stop Timer")}
         </button>
       </span>
 
@@ -149,7 +150,7 @@ function AudioPlayer(props) {
             onChange={(event) => setLoop(event.target.checked)}
             type="checkbox"
           />
-          <label>Loop</label>
+          <label>{Tr("Loop")}</label>
         </span>
 
         <span>
@@ -158,7 +159,7 @@ function AudioPlayer(props) {
             onChange={(event) => setRaw(event.target.checked)}
             type="checkbox"
           />
-          <label>Raw</label>
+          <label>{Tr("Raw")}</label>
         </span>
 
         {!raw && (
@@ -168,7 +169,7 @@ function AudioPlayer(props) {
               onChange={(event) => setPrepare(event.target.checked)}
               type="checkbox"
             />
-            <label>Prepare</label>
+            <label>{Tr("Prepare")}</label>
           </span>
         )}
       </span>

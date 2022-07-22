@@ -1,11 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { Tr, tr, langCodeContext } from "../translate";
 
 function Database() {
   const [walkPath, setWalkPath] = useState("");
-  const [patternString, setPatternString] = useState("wav flac mp3 ogg m4a mka");
+  const [patternString, setPatternString] = useState(
+    "wav flac mp3 ogg m4a mka"
+  );
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [updating, setUpdating] = useState(false);
+  const { langCode } = useContext(langCodeContext);
 
   function getTags() {
     fetch("/api/v1/get_tags")
@@ -60,21 +64,21 @@ function Database() {
   }
   return (
     <div>
-      <h3>Update Database</h3>
+      <h3>{Tr("Update Database")}</h3>
       <input
         type="text"
         value={walkPath}
-        placeholder="walk path"
+        placeholder={tr("walk path", langCode)}
         onChange={(e) => setWalkPath(e.target.value)}
       />
       <input
         type="text"
         value={patternString}
-        placeholder="pattern wav flac mp3"
+        placeholder={tr("pattern wav flac mp3", langCode)}
         onChange={(e) => setPatternString(e.target.value)}
       />
       <div>
-        <h4>Tags</h4>
+        <h4>{Tr("Tags")}</h4>
         {tags.map((tag) => (
           <div key={tag.id}>
             <input
@@ -101,7 +105,7 @@ function Database() {
         }}
         disabled={updating}
       >
-        {updating ? "Updating..." : "Update Database"}
+        {updating ? Tr("Updating...") : Tr("Update Database")}
       </button>
     </div>
   );

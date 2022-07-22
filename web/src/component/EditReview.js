@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
+import { tr, Tr, langCodeContext } from "../translate";
 
 function SingleReview() {
   let params = useParams();
   let navigate = useNavigate();
+  const { langCode } = useContext(langCodeContext)
 
   const [review, setReview] = useState({
     id: "",
@@ -50,7 +52,7 @@ function SingleReview() {
         if (data.error) {
           alert(data.error);
         } else {
-          alert("Review updated!");
+          alert(tr("Review updated", langCode));
           navigate(-1);
         }
       });
@@ -71,7 +73,7 @@ function SingleReview() {
         if (data.error) {
           alert(data.error);
         } else {
-          alert("Review deleted!");
+          alert(tr("Review deleted", langCode));
           navigate(-1);
         }
       });
@@ -83,14 +85,14 @@ function SingleReview() {
 
   return (
     <div className="page">
-      <h3>Edit Review</h3>
+      <h3>{Tr("Edit Review")}</h3>
       <textarea
         value={review.content}
         onChange={(e) => setReview({ ...review, content: e.target.value })}
       ></textarea>
       <div>
-        <button onClick={() => deleteReview()}>Delete</button>
-        <button onClick={() => save()}>Save</button>
+        <button onClick={() => deleteReview()}>{Tr("Delete")}</button>
+        <button onClick={() => save()}>{Tr("Save")}</button>
       </div>
     </div>
   );

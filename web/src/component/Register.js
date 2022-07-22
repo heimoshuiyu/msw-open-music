@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { tr, Tr, langCodeContext } from "../translate";
 
 function Register() {
   let navigate = useNavigate();
@@ -7,12 +8,13 @@ function Register() {
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [role, setRole] = useState("");
+  const { langCode } = useContext(langCodeContext);
 
   function register() {
     if (!username || !password || !password2 || !role) {
-      alert("Please fill out all fields");
+      alert(tr("Please fill out all fields", langCode));
     } else if (password !== password2) {
-      alert("Passwords do not match");
+      alert(tr("Password do not match", langCode));
     } else {
       fetch("/api/v1/register", {
         method: "POST",
@@ -38,22 +40,22 @@ function Register() {
 
   return (
     <div className="page">
-      <h2>Register</h2>
-      <label htmlFor="username">Username</label>
+      <h2>{Tr("Register")}</h2>
+      <label htmlFor="username">{Tr("Username")}</label>
       <input
         type="text"
         id="username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
-      <label htmlFor="password">Password</label>
+      <label htmlFor="password">{Tr("Password")}</label>
       <input
         type="password"
         id="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <label htmlFor="password2">Confirm Password</label>
+      <label htmlFor="password2">{Tr("Confirm Password")}</label>
       <input
         type="password"
         id="password2"
@@ -66,13 +68,13 @@ function Register() {
           }
         }}
       />
-      <label htmlFor="role">Role</label>
+      <label htmlFor="role">{Tr("Role")}</label>
       <select value={role} onChange={(e) => setRole(e.target.value)}>
-        <option value="">Select a role</option>
-        <option value="2">User</option>
-        <option value="1">Admin</option>
+        <option value="">{tr("Select a role", langCode)}</option>
+        <option value="2">{tr("User", langCode)}</option>
+        <option value="1">{tr("Admin", langCode)}</option>
       </select>
-      <button onClick={register}>Register</button>
+      <button onClick={register}>{Tr("Register")}</button>
     </div>
   );
 }

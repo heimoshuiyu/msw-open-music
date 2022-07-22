@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router";
 import ReviewEntry from "./ReviewEntry";
+import { Tr, tr, langCodeContext } from "../translate";
 
 function UserProfile(props) {
   let params = useParams();
@@ -15,6 +16,7 @@ function UserProfile(props) {
     active: false,
     avatar_id: 0,
   });
+  const { langCode } = useContext(langCodeContext);
 
   function getReviews() {
     fetch("/api/v1/get_reviews_by_user", {
@@ -63,7 +65,7 @@ function UserProfile(props) {
 
   return (
     <div className="page">
-      <h3>User Profile</h3>
+      <h3>{Tr("User Profile")}</h3>
       <div className="horizontal">
         <input
           type="text"
@@ -103,26 +105,26 @@ function UserProfile(props) {
           }}
           disabled={props.user.id !== user.id && props.user.role !== 1}
         >
-          Save Username
+          {Tr("Save username")}
         </button>
       </div>
       <div>
         <input
           type="password"
           value={oldPassword}
-          placeholder="Old Password"
+          placeholder={tr("Old password", langCode)}
           onChange={(e) => setOldPassword(e.target.value)}
         />
         <input
           type="password"
           value={newPassword}
-          placeholder="New Password"
+          placeholder={tr("New password", langCode)}
           onChange={(e) => setNewPassword(e.target.value)}
         />
         <input
           type="password"
           value={newPasswordConfirm}
-          placeholder="Confirm New Password"
+          placeholder={tr("Confirm new password", langCode)}
           onChange={(e) => setNewPasswordConfirm(e.target.value)}
         />
         <button
@@ -144,7 +146,7 @@ function UserProfile(props) {
                 if (data.error) {
                   alert(data.error);
                 } else {
-                  alert("Password updated successfully!");
+                  alert(tr("Password updated successfully!", langCode));
                 }
               });
           }}
@@ -154,10 +156,10 @@ function UserProfile(props) {
             newPassword.length === 0
           }
         >
-          Change Password
+          {Tr("Change password")}
         </button>
       </div>
-      <h4>Reviews</h4>
+      <h4>{Tr("Reviews")}</h4>
       {reviews.map((review) => (
         <ReviewEntry key={review.id} review={review} user={props.user} />
       ))}

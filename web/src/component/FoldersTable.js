@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import { Tr } from "../translate";
 
 function FoldersTable(props) {
   let navigate = useNavigate();
@@ -9,8 +10,8 @@ function FoldersTable(props) {
     <table>
       <thead>
         <tr>
-          <th>Folder name</th>
-          <th>Action</th>
+          <th>{Tr("Folder name")}</th>
+          <th>{Tr("Action")}</th>
         </tr>
       </thead>
       <tbody>
@@ -23,7 +24,7 @@ function FoldersTable(props) {
               {folder.foldername}
             </td>
             <td onClick={() => navigate(`/folders/${folder.id}`)}>
-              <button>View</button>
+              <button>{Tr("View")}</button>
             </td>
           </tr>
         ))}

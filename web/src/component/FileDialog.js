@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import { Tr } from "../translate";
 
 function FileDialog(props) {
   // props.showStatus
@@ -23,9 +24,9 @@ function FileDialog(props) {
         {props.file.filename}
       </p>
       <p>
-        Play: play using browser player.
+        {Tr("Play: play using browser player.")}
         <br />
-        Info for more actions.
+        {Tr("Info for more actions.")}
       </p>
       <button
         onClick={() => {
@@ -33,7 +34,7 @@ function FileDialog(props) {
           props.setShowStatus(false);
         }}
       >
-        Info
+        {Tr("Info")}
       </button>
       <button
         onClick={() => {
@@ -41,9 +42,9 @@ function FileDialog(props) {
           props.setShowStatus(false);
         }}
       >
-        Play
+        {Tr("Play")}
       </button>
-      <button onClick={() => props.setShowStatus(false)}>Close</button>
+      <button onClick={() => props.setShowStatus(false)}>{Tr("Close")}</button>
     </dialog>
   );
 }

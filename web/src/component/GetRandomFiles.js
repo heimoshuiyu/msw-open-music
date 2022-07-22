@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "./Common";
 import FilesTable from "./FilesTable";
+import { Tr, tr, langCodeContext } from "../translate";
 
 function GetRandomFiles(props) {
   const [files, setFiles] = useState([]);
@@ -10,6 +11,7 @@ function GetRandomFiles(props) {
   const navigator = useNavigate();
   const query = useQuery();
   const selectedTag = query.get("t") || "";
+  const { langCode } = useContext(langCodeContext);
 
   function getRandomFiles() {
     setIsLoading(true);
@@ -84,7 +86,7 @@ function GetRandomFiles(props) {
     <div className="page">
       <div className="search_toolbar">
         <button className="refresh" onClick={() => refresh(setFiles)}>
-          {isLoading ? "Loading..." : "Refresh"}
+          {isLoading ? Tr("Loading...") : Tr("Refresh")}
         </button>
         <select
           className="tag_select"
@@ -93,7 +95,7 @@ function GetRandomFiles(props) {
           }}
           value={selectedTag}
         >
-          <option value="">All</option>
+          <option value="">{tr("All", langCode)}</option>
           {tags.map((tag) => (
             <option key={tag.id} value={tag.id}>
               {tag.name}

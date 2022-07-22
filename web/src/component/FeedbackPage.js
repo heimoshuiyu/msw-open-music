@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { convertIntToDateTime } from "./Common";
+import { Tr } from "../translate";
 
 function FeedbackPage() {
   const [content, setContext] = useState("");
@@ -45,17 +46,17 @@ function FeedbackPage() {
 
   return (
     <div className="page">
-      <h3>Feedback</h3>
+      <h3>{Tr("Feedbacks")}</h3>
       <textarea value={content} onChange={(e) => setContext(e.target.value)} />
-      <button onClick={() => submitFeedback()}>Submit</button>
+      <button onClick={() => submitFeedback()}>{Tr("Submit")}</button>
       <div>
         <table>
           <thead>
             <tr>
-              <th>User</th>
-              <th>Feedback</th>
-              <th>Date</th>
-              <th>Action</th>
+              <th>{Tr("User")}</th>
+              <th>{Tr("Feedback")}</th>
+              <th>{Tr("Date")}</th>
+              <th>{Tr("Action")}</th>
             </tr>
           </thead>
           <tbody>
@@ -90,7 +91,7 @@ function FeedbackPage() {
                         });
                     }}
                   >
-                    Delete
+                    {Tr("Delete")}
                   </button>
                 </td>
               </tr>
