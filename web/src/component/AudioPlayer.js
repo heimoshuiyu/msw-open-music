@@ -98,7 +98,7 @@ function AudioPlayer(props) {
             {CalcReadableFilesizeDetail(props.playingFile.filesize)}
           </button>
 
-          {isPreparing && <button disabled>Preparing...</button>}
+          {isPreparing && <button disabled>{Tr("Preparing...")}</button>}
 
           {playingURL !== "" && (
             <button

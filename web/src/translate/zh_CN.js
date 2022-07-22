@@ -100,6 +100,7 @@ const LANG_zh_CN = {
   "filename updated": "已修改文件名",
   "please select a tag": "请选择一个标签",
   "files in folder": "文件夹内",
+  "preparing...": "转码中...",
 };
 
 export default LANG_zh_CN;
