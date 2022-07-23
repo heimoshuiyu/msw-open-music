@@ -101,6 +101,7 @@ const LANG_zh_CN = {
   "please select a tag": "请选择一个标签",
   "files in folder": "文件夹内",
   "preparing...": "转码中...",
+  "view source code on github": "在 Github 上查看源代码",
 };
 
 export default LANG_zh_CN;

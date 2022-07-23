@@ -84,6 +84,15 @@ function Manage(props) {
         </button>
       </div>
       <Database />
+      <p>
+        <a
+          href="https://github.com/heimoshuiyu/msw-open-music"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {Tr("View source code on Github")}
+        </a>
+      </p>
     </div>
   );
 }
