@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import FilesTable from "./FilesTable";
-import { Tr } from "../translate";
+import { Tr, tr, langCodeContext } from "../translate";
 
 function Share(props) {
   let params = useParams();
-  const [file, setFile] = useState([]);
+  const { langCode } = useContext(langCodeContext);
+
+  const [file, setFile] = useState({});
   useEffect(() => {
     fetch("/api/v1/get_file_info", {
       method: "POST",
@@ -16,12 +18,27 @@ function Share(props) {
     })
       .then((response) => response.json())
       .then((data) => {
-        setFile([data]);
+        setFile(data);
       })
       .catch((error) => {
         alert("get_file_info error: " + error);
       });
   }, [params]);
+
+  // change title
+  useEffect(() => {
+    const oldTitle = document.title;
+
+    document.title = `${tr("Share", langCode)}🎵: ${
+      file.filename
+    } - MSW Open Music`;
+
+    // set title back
+    return () => {
+      document.title = oldTitle;
+    };
+  }, [file]);
+
   return (
     <div className="page">
       <h3>{Tr("Share with others!")}</h3>
@@ -33,7 +50,7 @@ function Share(props) {
         👇 {Tr("Click the filename below to enjoy music!")}
         <br />
       </p>
-      <FilesTable setPlayingFile={props.setPlayingFile} files={file} />
+      <FilesTable setPlayingFile={props.setPlayingFile} files={[file]} />
     </div>
   );
 }
