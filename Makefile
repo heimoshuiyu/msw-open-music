@@ -1,3 +1,4 @@
+.PHONY: web linux windows
 web:
 	cd web && npm install
 	cd web && npm run build
