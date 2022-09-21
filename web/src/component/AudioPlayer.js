@@ -174,16 +174,14 @@ function AudioPlayer(props) {
         )}
       </span>
 
-      {playingURL !== "" && (
-        <audio
-          id="dom-player"
-          controls
-          autoPlay
-          loop={loop}
-          className="audio-player"
-          src={playingURL}
-        ></audio>
-      )}
+      <audio
+        id="dom-player"
+        controls
+        autoPlay
+        loop={loop}
+        className="audio-player"
+        src={playingURL}
+      ></audio>
 
       <FfmpegConfig
         selectedFfmpegConfig={selectedFfmpegConfig}
