@@ -4,7 +4,7 @@ import { Tr, tr, langCodeContext } from "../translate";
 function Database() {
   const [walkPath, setWalkPath] = useState("");
   const [patternString, setPatternString] = useState(
-    "wav flac mp3 ogg m4a mka"
+    "wav flac mp3 ogg m4a mka webm"
   );
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
