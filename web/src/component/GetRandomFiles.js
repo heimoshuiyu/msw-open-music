@@ -13,12 +13,17 @@ function GetRandomFiles(props) {
   const selectedTag = query.get("t") || "";
   const { langCode } = useContext(langCodeContext);
 
-  function getRandomFiles() {
+  const fetchRandomFiles = async () => {
+    const resp = await fetch("/api/v1/get_random_files");
+    const json = await resp.json();
+    return json.files;
+  };
+
+  async function getRandomFiles() {
     setIsLoading(true);
-    fetch("/api/v1/get_random_files")
-      .then((response) => response.json())
+    fetchRandomFiles()
       .then((data) => {
-        setFiles(data.files);
+        setFiles(data);
       })
       .catch((error) => {
         alert("get_random_files error: " + error);
@@ -28,9 +33,8 @@ function GetRandomFiles(props) {
       });
   }
 
-  function getRandomFilesWithTag() {
-    setIsLoading(true);
-    fetch("/api/v1/get_random_files_with_tag", {
+  const fetchRandomFilesWithTag = async (selectedTag) => {
+    const resp = await fetch("/api/v1/get_random_files_with_tag", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -38,14 +42,16 @@ function GetRandomFiles(props) {
       body: JSON.stringify({
         id: parseInt(selectedTag),
       }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error) {
-          alert(data.error);
-        } else {
-          setFiles(data.files);
-        }
+    });
+    const json = await resp.json();
+    return json.files;
+  };
+
+  function getRandomFilesWithTag() {
+    setIsLoading(true);
+    fetchRandomFilesWithTag(selectedTag)
+      .then((files) => {
+        setFiles(files);
       })
       .catch((error) => {
         alert("get_random_files_with_tag error: " + error);
