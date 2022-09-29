@@ -22,20 +22,7 @@ function AudioPlayer(props) {
   const [timerCount, setTimerCount] = useState(0);
   const [timerID, setTimerID] = useState(null);
 
-  // init mediaSession API
   useEffect(() => {
-    navigator.mediaSession.setActionHandler("stop", () => {
-      props.setPlayingFile({});
-    });
-  }, []);
-
-  useEffect(() => {
-    // media session related staff
-    navigator.mediaSession.metadata = new window.MediaMetadata({
-      title: props.playingFile.filename,
-      album: props.playingFile.foldername,
-      artwork: [{ src: "/favicon.png", type: "image/png" }],
-    });
     // no playing file
     if (props.playingFile.id === undefined) {
       setPlayingURL("");
@@ -75,7 +62,7 @@ function AudioPlayer(props) {
         );
       }
     }
-  }, [props.playingFile, raw, prepare, selectedFfmpegConfig]);
+  }, [props.playingFile.id, raw, prepare, selectedFfmpegConfig]);
 
   let navigate = useNavigate();
 
