@@ -75,7 +75,7 @@ function AudioPlayer(props) {
         );
       }
     }
-  }, [props.playingFile, raw, prepare, selectedFfmpegConfig]);
+  }, [props.playingFile.id, raw, prepare, selectedFfmpegConfig]);
 
   let navigate = useNavigate();
 
