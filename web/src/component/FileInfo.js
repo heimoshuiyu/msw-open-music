@@ -1,6 +1,6 @@
-import { useNavigate, useParams } from "react-router";
-import { useContext, useEffect, useState } from "react";
-import { Tr, tr, langCodeContext } from "../translate";
+import {useNavigate, useParams} from "react-router";
+import {useContext, useEffect, useState} from "react";
+import {Tr, tr, langCodeContext} from "../translate";
 
 function FileInfo(props) {
   let navigate = useNavigate();
@@ -15,7 +15,8 @@ function FileInfo(props) {
   const [tags, setTags] = useState([]);
   const [tagsOnFile, setTagsOnFile] = useState([]);
   const [selectedTagID, setSelectedTagID] = useState("");
-  const { langCode } = useContext(langCodeContext);
+  const {langCode} = useContext(langCodeContext);
+  const [ffprobeInfo, setFfprobeInfo] = useState("");
 
   function refresh() {
     fetch(`/api/v1/get_file_info`, {
@@ -301,6 +302,27 @@ function FileInfo(props) {
           </button>
         </div>
       </div>
+
+      <button onClick={async () => {
+        const resp = await fetch(`/api/v1/get_file_ffprobe_info`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: parseInt(params.id),
+          }),
+        });
+        const text = await resp.text();
+        setFfprobeInfo(text);
+      }}>FFprobe</button>
+
+      {ffprobeInfo && <textarea
+        style={{
+          height: "30em",
+        }}
+      >{ffprobeInfo}</textarea>}
+
     </div>
   );
 }
