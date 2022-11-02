@@ -14,7 +14,8 @@ type GetFilesInFolderRequest struct {
 }
 
 type GetFilesInFolderResponse struct {
-	Files *[]database.File `json:"files"`
+	Files  *[]database.File `json:"files"`
+	Folder string           `json:"folder"`
 }
 
 func (api *API) HandleGetFilesInFolder(w http.ResponseWriter, r *http.Request) {
@@ -34,14 +35,15 @@ func (api *API) HandleGetFilesInFolder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files, err := api.Db.GetFilesInFolder(getFilesInFolderRequest.Folder_id, getFilesInFolderRequest.Limit, getFilesInFolderRequest.Offset)
+	files, folder, err := api.Db.GetFilesInFolder(getFilesInFolderRequest.Folder_id, getFilesInFolderRequest.Limit, getFilesInFolderRequest.Offset)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
 	}
 
 	getFilesInFolderResponse := &GetFilesInFolderResponse{
-		Files: &files,
+		Files:  &files,
+		Folder: folder,
 	}
 
 	log.Println("[api] Get files in folder", getFilesInFolderRequest.Folder_id)

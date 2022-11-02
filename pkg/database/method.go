@@ -53,28 +53,29 @@ func (database *Database) GetRandomFilesWithTag(tagID, limit int64) ([]File, err
 	return files, nil
 }
 
-func (database *Database) GetFilesInFolder(folder_id int64, limit int64, offset int64) ([]File, error) {
+func (database *Database) GetFilesInFolder(folder_id int64, limit int64, offset int64) ([]File, string, error) {
 	database.singleThreadLock.Lock()
 	defer database.singleThreadLock.Unlock()
 
 	rows, err := database.stmt.getFilesInFolder.Query(folder_id, limit, offset)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	defer rows.Close()
 	files := make([]File, 0)
+	folder := ""
 	for rows.Next() {
 		file := File{
 			Db:        database,
 			Folder_id: folder_id,
 		}
-		err = rows.Scan(&file.ID, &file.Filename, &file.Filesize, &file.Foldername)
+		err = rows.Scan(&file.ID, &file.Filename, &file.Filesize, &file.Foldername, &folder)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 		files = append(files, file)
 	}
-	return files, nil
+	return files, folder, nil
 }
 
 func (database *Database) SearchFolders(foldername string, limit int64, offset int64) ([]Folder, error) {

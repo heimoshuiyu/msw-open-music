@@ -150,7 +150,7 @@ ORDER BY foldername
 LIMIT ? OFFSET ?;`
 
 var getFilesInFolderQuery = `SELECT
-files.id, files.filename, files.filesize, folders.foldername
+files.id, files.filename, files.filesize, folders.foldername, folders.folder
 FROM files
 JOIN folders ON files.folder_id = folders.id
 WHERE folder_id = ?
