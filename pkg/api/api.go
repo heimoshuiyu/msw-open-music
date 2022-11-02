@@ -57,6 +57,7 @@ func NewAPI(config commonconfig.Config) (*API, error) {
 	apiMux.HandleFunc("/get_file_stream", api.HandleGetFileStream)
 	apiMux.HandleFunc("/get_ffmpeg_config_list", api.HandleGetFfmpegConfigs)
 	apiMux.HandleFunc("/get_file_info", api.HandleGetFileInfo)
+	apiMux.HandleFunc("/get_file_ffprobe_info", api.HandleGetFileFfprobeInfo)
 	apiMux.HandleFunc("/get_file_stream_direct", api.HandleGetFileStreamDirect)
 	apiMux.HandleFunc("/prepare_file_stream_direct", api.HandlePrepareFileStreamDirect)
 	apiMux.HandleFunc("/delete_file", api.HandleDeleteFile)

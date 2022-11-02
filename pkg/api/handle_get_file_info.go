@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"strconv"
 )
 
@@ -40,6 +41,45 @@ func (api *API) HandleGetFileInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = json.NewEncoder(w).Encode(file)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+}
+
+func (api *API) HandleGetFileFfprobeInfo(w http.ResponseWriter, r *http.Request) {
+	getFileRequest := &GetFileRequest {
+		ID: -1,
+	}
+
+	err := json.NewDecoder(r.Body).Decode(getFileRequest)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	// check empty
+	if getFileRequest.ID < 0 {
+		api.HandleErrorString(w, r, `"id" can't be none or negative`)
+		return
+	}
+
+	log.Println("[api] Get file Ffprobe info", getFileRequest.ID)
+
+	file, err := api.Db.GetFile(getFileRequest.ID)
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+
+	path, err := file.Path()
+	if err != nil {
+		api.HandleError(w, r, err)
+		return
+	}
+	cmd := exec.Command("ffprobe", "-i", path, "-hide_banner")
+	cmd.Stderr = w
+	err = cmd.Run()
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
