@@ -1,9 +1,9 @@
-import { useParams } from "react-router";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useQuery } from "./Common";
+import {useParams} from "react-router";
+import {useState, useEffect} from "react";
+import {useNavigate} from "react-router-dom";
+import {useQuery} from "./Common";
 import FilesTable from "./FilesTable";
-import { Tr } from "../translate";
+import {Tr} from "../translate";
 
 function FilesInFolder(props) {
   let params = useParams();
@@ -13,13 +13,14 @@ function FilesInFolder(props) {
   const [isLoading, setIsLoading] = useState(false);
   const offset = parseInt(query.get("o")) || 0;
   const [newFoldername, setNewFoldername] = useState("");
+  const [folderPath, setFolderPath] = useState("");
   const limit = 10;
 
   function refresh() {
     setIsLoading(true);
     fetch("/api/v1/get_files_in_folder", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
         folder_id: parseInt(params.id),
         offset: offset,
@@ -32,6 +33,7 @@ function FilesInFolder(props) {
           alert(data.error);
         } else {
           setFiles(data.files);
+          setFolderPath(data.folder);
           if (data.files.length > 0) {
             setNewFoldername(data.files[0].foldername);
           }
@@ -63,7 +65,7 @@ function FilesInFolder(props) {
     setIsLoading(true);
     fetch("/api/v1/update_foldername", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
         id: parseInt(params.id),
         foldername: newFoldername,
@@ -87,7 +89,7 @@ function FilesInFolder(props) {
     setIsLoading(true);
     fetch("/api/v1/reset_foldername", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
         id: parseInt(params.id),
       }),
@@ -119,6 +121,7 @@ function FilesInFolder(props) {
         <button onClick={nextPage}>{Tr("Next page")}</button>
       </div>
       <FilesTable setPlayingFile={props.setPlayingFile} files={files} />
+      <span>{folderPath}</span>
       <div>
         <input
           type="text"
