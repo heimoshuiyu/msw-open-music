@@ -86,26 +86,25 @@ func (api *API) HandleGetFileFfprobeInfo(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// /get_file
+// /api/v1/get_file?id=123
 // get raw file with io.Copy method
 func (api *API) HandleGetFile(w http.ResponseWriter, r *http.Request) {
-	getFileRequest := &GetFileRequest{
-		ID: -1,
-	}
-
-	err := json.NewDecoder(r.Body).Decode(getFileRequest)
+	q := r.URL.Query()
+	ids := q["id"]
+	_id, err := strconv.Atoi(ids[0])
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
 	}
+	id := int64(_id)
 
 	// check empty
-	if getFileRequest.ID < 0 {
+	if id < 0 {
 		api.HandleErrorString(w, r, `"id" can't be none or negative`)
 		return
 	}
 
-	file, err := api.Db.GetFile(getFileRequest.ID)
+	file, err := api.Db.GetFile(id)
 	if err != nil {
 		api.HandleError(w, r, err)
 		return
