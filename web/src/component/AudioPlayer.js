@@ -28,8 +28,11 @@ function AudioPlayer(props) {
     if (file_id === null) {
       return
     }
+    const player = document.getElementById('dom-player')
     const endPlayTime = new Date()
-    const duration = parseInt((endPlayTime - beginPlayTime) / 1000)
+    let duration = parseInt((endPlayTime - beginPlayTime) / 1000)
+    const maxDuration = parseInt(player.duration)
+    duration = duration < maxDuration ? duration : maxDuration
     setBeginPlayTime(endPlayTime)
     await fetch('/api/v1/record_playback', {
       method: "POST",
@@ -248,11 +251,7 @@ function AudioPlayer(props) {
           // 1 music finished
           recordPlaybackHistory(props.playingFile.id, 1)
         }}
-        onPause={() => {
-          // 4 music paused
-          recordPlaybackHistory(props.playingFile.id, 4)
-        }}
-        onPlay={() => {
+        onPlay={async () => {
           setBeginPlayTime(new Date());
         }}
       ></audio>
