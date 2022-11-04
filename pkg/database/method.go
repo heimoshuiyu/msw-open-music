@@ -160,7 +160,16 @@ func (database *Database) Walk(root string, pattern []string, tagIDs []int64, us
 		tags = append(tags, tag)
 	}
 
-	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	tx, err := database.sqlConn.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+	insertFolderStmt := tx.Stmt(database.stmt.insertFolder)
+	insertFileStmt := tx.Stmt(database.stmt.insertFile)
+	putTagOnFileStmt := tx.Stmt(database.stmt.putTagOnFile)
+	findFolderStmt := tx.Stmt(database.stmt.findFolder)
+
+	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -175,20 +184,47 @@ func (database *Database) Walk(root string, pattern []string, tagIDs []int64, us
 			return nil
 		}
 
-		// insert file, folder will aut created
-		fileID, err := database.Insert(path, info.Size())
+		// insert file and folder
+		// fileID, err := database.Insert(path, info.Size())
+		// if err != nil {
+		// 			return err
+		// 		}
+
+		var folderID int64
+		folder, filename := filepath.Split(path)
+		err = findFolderStmt.QueryRow(folder).Scan(&folderID)
+		if err != nil {
+			result, err := insertFolderStmt.Exec(folder, filepath.Base(folder))
+			if err != nil {
+				return err
+			}
+			folderID, err = result.LastInsertId()
+			if err != nil {
+				return err
+			}
+		}
+		result, err := insertFileStmt.Exec(folderID, filename, filename, info.Size())
+		if err != nil {
+			return err
+		}
+		fileID, err := result.LastInsertId()
 		if err != nil {
 			return err
 		}
 
 		for _, tag := range tags {
-			err = database.PutTagOnFile(tag.ID, fileID, userID)
+			_, err := putTagOnFileStmt.Exec(tag.ID, fileID, userID)
 			if err != nil {
 				return err
 			}
 		}
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
 func (database *Database) GetFolder(folderId int64) (*Folder, error) {
