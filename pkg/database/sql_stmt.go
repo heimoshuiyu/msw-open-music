@@ -10,12 +10,13 @@ var initFilesTableQuery = `CREATE TABLE IF NOT EXISTS files (
 	folder_id INTEGER NOT NULL REFERENCES folders(id),
 	realname TEXT NOT NULL,
 	filename TEXT NOT NULL,
-	filesize INTEGER NOT NULL
+	filesize INTEGER NOT NULL,
+	UNIQUE (folder_id, realname)
 );`
 
 var initFoldersTableQuery = `CREATE TABLE IF NOT EXISTS folders (
 	id SERIAL PRIMARY KEY,
-	folder TEXT NOT NULL,
+	folder TEXT NOT NULL UNIQUE,
 	foldername TEXT NOT NULL
 );`
 
@@ -102,6 +103,7 @@ var initTmpfsTableQuery = `CREATE TABLE IF NOT EXISTS tmpfs (
 
 var insertFolderQuery = `INSERT INTO folders (folder, foldername)
 VALUES ($1, $2)
+ON CONFLICT DO NOTHING
 RETURNING id;
 ;`
 
@@ -111,6 +113,7 @@ var findFileQuery = `SELECT id FROM files WHERE folder_id = $1 AND realname = $2
 
 var insertFileQuery = `INSERT INTO files (folder_id, realname, filename, filesize)
 VALUES ($1, $2, $3, $4)
+ON CONFLICT DO NOTHING
 RETURNING id;`
 
 var searchFilesQuery = `SELECT
