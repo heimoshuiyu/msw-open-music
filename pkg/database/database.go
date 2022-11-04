@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"sync"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/lib/pq"
 )
 
 type Database struct {
@@ -41,7 +41,7 @@ func NewDatabase(dbName string, singleThread bool) (*Database, error) {
 	var err error
 
 	// open database
-	sqlConn, err := sql.Open("sqlite3", dbName)
+	sqlConn, err := sql.Open("postgres", dbName)
 	if err != nil {
 		return nil, err
 	}

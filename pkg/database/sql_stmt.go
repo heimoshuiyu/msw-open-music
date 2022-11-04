@@ -2,25 +2,25 @@ package database
 
 import (
 	"database/sql"
+	"log"
 )
 
 var initFilesTableQuery = `CREATE TABLE IF NOT EXISTS files (
-	id INTEGER PRIMARY KEY,
-	folder_id INTEGER NOT NULL,
+	id SERIAL PRIMARY KEY,
+	folder_id INTEGER NOT NULL REFERENCES folders(id),
 	realname TEXT NOT NULL,
 	filename TEXT NOT NULL,
-	filesize INTEGER NOT NULL,
-	FOREIGN KEY(folder_id) REFERENCES folders(id)
+	filesize INTEGER NOT NULL
 );`
 
 var initFoldersTableQuery = `CREATE TABLE IF NOT EXISTS folders (
-	id INTEGER PRIMARY KEY,
+	id SERIAL PRIMARY KEY,
 	folder TEXT NOT NULL,
 	foldername TEXT NOT NULL
 );`
 
 var initFeedbacksTableQuery = `CREATE TABLE IF NOT EXISTS feedbacks (
-	id INTEGER PRIMARY KEY,
+	id SERIAL PRIMARY KEY,
 	time INTEGER NOT NULL,
 	content TEXT NOT NULL,
 	user_id INTEGER NOT NULL,
@@ -29,107 +29,98 @@ var initFeedbacksTableQuery = `CREATE TABLE IF NOT EXISTS feedbacks (
 
 // User table schema definition
 // role: 0 - Anonymous User, 1 - Admin, 2 - User
+// postgres avatar references problem
 var initUsersTableQuery = `CREATE TABLE IF NOT EXISTS users (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	id SERIAL PRIMARY KEY,
 	username TEXT NOT NULL UNIQUE,
 	password TEXT NOT NULL,
 	role INTEGER NOT NULL,
 	active BOOLEAN NOT NULL,
-	avatar_id INTEGER NOT NULL,
-	FOREIGN KEY(avatar_id) REFERENCES avatars(id)
+	avatar_id INTEGER NOT NULL DEFAULT 0
 );`
 
 var initAvatarsTableQuery = `CREATE TABLE IF NOT EXISTS avatars (
-	id INTEGER PRIMARY KEY,
+	id SERIAL PRIMARY KEY,
 	avatarname TEXT NOT NULL,
-	avatar BLOB NOT NULL
+	avatar BYTEA NOT NULL
 );`
 
 var initTagsTableQuery = `CREATE TABLE IF NOT EXISTS tags (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	id SERIAL PRIMARY KEY,
 	name TEXT NOT NULL UNIQUE,
 	description TEXT NOT NULL,
-	created_by_user_id INTEGER NOT NULL,
-	FOREIGN KEY(created_by_user_id) REFERENCES users(id)
+	created_by_user_id INTEGER NOT NULL REFERENCES users(id)
 );`
 
 var initFileHasTagTableQuery = `CREATE TABLE IF NOT EXISTS file_has_tag (
-	file_id INTEGER NOT NULL,
-	tag_id INTEGER NOT NULL,
-	user_id INTEGER NOT NULL,
-	PRIMARY KEY (file_id, tag_id),
-	FOREIGN KEY(user_id) REFERENCES users(id)
-	FOREIGN KEY (file_id) REFERENCES files(id),
-	FOREIGN KEY (tag_id) REFERENCES tags(id)
+	file_id INTEGER NOT NULL REFERENCES files(id),
+	tag_id INTEGER NOT NULL REFERENCES tags(id),
+	user_id INTEGER NOT NULL REFERENCES users(id),
+	PRIMARY KEY (file_id, tag_id)
 );`
 
 var initLikesTableQuery = `CREATE TABLE IF NOT EXISTS likes (
-	user_id INTEGER NOT NULL,
-	file_id INTEGER NOT NULL,
-	PRIMARY KEY (user_id, file_id),
-	FOREIGN KEY (user_id) REFERENCES users(id),
-	FOREIGN KEY (file_id) REFERENCES files(id)
+	user_id INTEGER NOT NULL REFERENCES users(id),
+	file_id INTEGER NOT NULL REFERENCES files(id),
+	PRIMARY KEY (user_id, file_id)
 );`
 
 var initReviewsTableQuery = `CREATE TABLE IF NOT EXISTS reviews (
-	id INTEGER PRIMARY KEY,
-	user_id INTEGER NOT NULL,
-	file_id INTEGER NOT NULL,
+	id SERIAL PRIMARY KEY,
+	user_id INTEGER NOT NULL REFERENCES users(id),
+	file_id INTEGER NOT NULL REFERENCES files(id),
 	created_at INTEGER NOT NULL,
 	updated_at INTEGER NOT NULL DEFAULT 0,
-	content TEXT NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES users(id),
-	FOREIGN KEY (file_id) REFERENCES files(id)
+	content TEXT NOT NULL
 );`
 
 var initPlaybacksTableQuery = `CREATE TABLE IF NOT EXISTS playbacks (
-	id INTEGER PRIMARY KEY,
-	user_id INTEGER NOT NULL,
-	file_id INTEGER NOT NULL,
+	id SERIAL PRIMARY KEY,
+	user_id INTEGER NOT NULL REFERENCES users(id),
+	file_id INTEGER NOT NULL REFERENCES files(id),
 	time INTEGER NOT NULL,
-	mothod INTEGER NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES users(id),
-	FOREIGN KEY (file_id) REFERENCES files(id)
+	mothod INTEGER NOT NULL
 );`
 
 var initLogsTableQuery = `CREATE TABLE IF NOT EXISTS logs (
-	id INTEGER PRIMARY KEY,
+	id SERIAL PRIMARY KEY,
 	time INTEGER NOT NULL,
 	message TEXT NOT NULL,
-	user_id INTEGER NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES users(id)
+	user_id INTEGER NOT NULL REFERENCES users(id)
 );`
 
 var initTmpfsTableQuery = `CREATE TABLE IF NOT EXISTS tmpfs (
-	id INTEGER PRIMARY KEY,
+	id SERIAL PRIMARY KEY,
 	path TEXT NOT NULL,
 	size INTEGER NOT NULL,
-	file_id INTEGER NOT NULL,
+	file_id INTEGER NOT NULL REFERENCES files(id),
 	ffmpeg_config TEXT NOT NULL,
 	created_time INTEGER NOT NULL,
-	accessed_time INTEGER NOT NULL,
-	FOREIGN KEY (file_id) REFERENCES files(id)
+	accessed_time INTEGER NOT NULL
 );`
 
 var insertFolderQuery = `INSERT INTO folders (folder, foldername)
-VALUES (?, ?);`
+VALUES ($1, $2)
+RETURNING id;
+;`
 
-var findFolderQuery = `SELECT id FROM folders WHERE folder = ? LIMIT 1;`
+var findFolderQuery = `SELECT id FROM folders WHERE folder = $1 LIMIT 1;`
 
-var findFileQuery = `SELECT id FROM files WHERE folder_id = ? AND realname = ? LIMIT 1;`
+var findFileQuery = `SELECT id FROM files WHERE folder_id = $1 AND realname = $2 LIMIT 1;`
 
 var insertFileQuery = `INSERT INTO files (folder_id, realname, filename, filesize)
-VALUES (?, ?, ?, ?);`
+VALUES ($1, $2, $3, $4)
+RETURNING id;`
 
 var searchFilesQuery = `SELECT
 files.id, files.folder_id, files.filename, folders.foldername, files.filesize
 FROM files
 JOIN folders ON files.folder_id = folders.id
-WHERE filename LIKE ?
+WHERE filename LIKE $1
 ORDER BY folders.foldername, files.filename
-LIMIT ? OFFSET ?;`
+LIMIT $2 OFFSET $3;`
 
-var getFolderQuery = `SELECT folder FROM folders WHERE id = ? LIMIT 1;`
+var getFolderQuery = `SELECT folder FROM folders WHERE id = $1 LIMIT 1;`
 
 var dropFilesQuery = `DROP TABLE files;`
 
@@ -139,42 +130,42 @@ var getFileQuery = `SELECT
 files.id, files.folder_id, files.realname, files.filename, folders.foldername, files.filesize
 FROM files
 JOIN folders ON files.folder_id = folders.id
-WHERE files.id = ?
+WHERE files.id = $1
 LIMIT 1;`
 
 var searchFoldersQuery = `SELECT
 id, folder, foldername
 FROM folders
-WHERE foldername LIKE ?
+WHERE foldername LIKE $1
 ORDER BY foldername
-LIMIT ? OFFSET ?;`
+LIMIT $2 OFFSET $3;`
 
 var getFilesInFolderQuery = `SELECT
 files.id, files.filename, files.filesize, folders.foldername, folders.folder
 FROM files
 JOIN folders ON files.folder_id = folders.id
-WHERE folder_id = ?
+WHERE folder_id = $1
 ORDER BY files.filename
-LIMIT ? OFFSET ?;`
+LIMIT $2 OFFSET $3;`
 
 var getRandomFilesQuery = `SELECT
 files.id, files.folder_id, files.filename, folders.foldername, files.filesize
 FROM files
 JOIN folders ON files.folder_id = folders.id
 ORDER BY RANDOM()
-LIMIT ?;`
+LIMIT $1;`
 
 var getRandomFilesWithTagQuery = `SELECT
 files.id, files.folder_id, files.filename, folders.foldername, files.filesize
 FROM file_has_tag
 JOIN files ON file_has_tag.file_id = files.id
 JOIN folders ON files.folder_id = folders.id
-WHERE file_has_tag.tag_id = ?
+WHERE file_has_tag.tag_id = $1
 ORDER BY RANDOM()
-LIMIT ?;`
+LIMIT $2;`
 
 var insertFeedbackQuery = `INSERT INTO feedbacks (time, content, user_id, header)
-VALUES (?, ?, ?, ?);`
+VALUES ($1, $2, $3, $4);`
 
 var getFeedbacksQuery = `SELECT
 feedbacks.id, feedbacks.time, feedbacks.content, feedbacks.header,
@@ -184,39 +175,39 @@ JOIN users ON feedbacks.user_id = users.id
 ORDER BY feedbacks.time
 ;`
 
-var deleteFeedbackQuery = `DELETE FROM feedbacks WHERE id = ?;`
+var deleteFeedbackQuery = `DELETE FROM feedbacks WHERE id = $1;`
 
 var insertUserQuery = `INSERT INTO users (username, password, role, active, avatar_id)
-VALUES (?, ?, ?, ?, ?);`
+VALUES ($1, $2, $3, $4, $5);`
 
 var countUserQuery = `SELECT count(*) FROM users;`
 
 var countAdminQuery = `SELECT count(*) FROM users WHERE role= 1;`
 
-var getUserQuery = `SELECT id, username, password, role, active, avatar_id FROM users WHERE username = ? LIMIT 1;`
+var getUserQuery = `SELECT id, username, password, role, active, avatar_id FROM users WHERE username = $1 LIMIT 1;`
 
 var getUsersQuery = `SELECT id, username, role, active, avatar_id FROM users;`
 
-var getUserByIdQuery = `SELECT id, username, role, active, avatar_id FROM users WHERE id = ? LIMIT 1;`
+var getUserByIdQuery = `SELECT id, username, role, active, avatar_id FROM users WHERE id = $1 LIMIT 1;`
 
-var updateUserActiveQuery = `UPDATE users SET active = ? WHERE id = ?;`
+var updateUserActiveQuery = `UPDATE users SET active = $1 WHERE id = $2;`
 
-var updateUsernameQuery = `UPDATE users SET username = ? WHERE id = ?;`
+var updateUsernameQuery = `UPDATE users SET username = $1 WHERE id = $2;`
 
-var updateUserPasswordQuery = `UPDATE users SET password = ? WHERE id = ?;`
+var updateUserPasswordQuery = `UPDATE users SET password = $1 WHERE id = $2;`
 
 var getAnonymousUserQuery = `SELECT id, username, role, avatar_id FROM users WHERE role = 0 LIMIT 1;`
 
-var insertTagQuery = `INSERT INTO tags (name, description, created_by_user_id) VALUES (?, ?, ?);`
+var insertTagQuery = `INSERT INTO tags (name, description, created_by_user_id) VALUES ($1, $2, $3) RETURNING id;`
 
-var deleteTagQuery = `DELETE FROM tags WHERE id = ?;`
+var deleteTagQuery = `DELETE FROM tags WHERE id = $1;`
 
 var getTagQuery = `SELECT
 tags.id, tags.name, tags.description,
 users.id, users.username, users.role, users.avatar_id
 FROM tags
 JOIN users ON tags.created_by_user_id = users.id
-WHERE tags.id = ? LIMIT 1;`
+WHERE tags.id = $1 LIMIT 1;`
 
 var getTagsQuery = `SELECT
 tags.id, tags.name, tags.description,
@@ -226,26 +217,27 @@ JOIN users ON tags.created_by_user_id = users.id
 ORDER BY tags.name
 ;`
 
-var updateTagQuery = `UPDATE tags SET name = ?, description = ? WHERE id = ?;`
+var updateTagQuery = `UPDATE tags SET name = $1, description = $2 WHERE id = $3;`
 
-var putTagOnFileQuery = `INSERT OR IGNORE INTO file_has_tag (tag_id, file_id, user_id) VALUES (?, ?, ?);`
+// postgres INSERT IGNORE
+var putTagOnFileQuery = `INSERT INTO file_has_tag (tag_id, file_id, user_id) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING;`
 
 var getTagsOnFileQuery = `SELECT
 tags.id, tags.name, tags.description, tags.created_by_user_id
 FROM file_has_tag
 JOIN tags ON file_has_tag.tag_id = tags.id
-WHERE file_has_tag.file_id = ?
+WHERE file_has_tag.file_id = $1
 ORDER BY tags.name
 ;`
 
-var deleteTagOnFileQuery = `DELETE FROM file_has_tag WHERE tag_id = ? AND file_id = ?;`
+var deleteTagOnFileQuery = `DELETE FROM file_has_tag WHERE tag_id = $1 AND file_id = $2;`
 
-var deleteTagReferenceInFileHasTagQuery = `DELETE FROM file_has_tag WHERE tag_id = ?;`
+var deleteTagReferenceInFileHasTagQuery = `DELETE FROM file_has_tag WHERE tag_id = $1;`
 
-var updateFoldernameQuery = `UPDATE folders SET foldername = ? WHERE id = ?;`
+var updateFoldernameQuery = `UPDATE folders SET foldername = $1 WHERE id = $2;`
 
 var insertReviewQuery = `INSERT INTO reviews (user_id, file_id, created_at, content)
-VALUES (?, ?, ?, ?);`
+VALUES ($1, $2, $3, $4);`
 
 var getReviewsOnFileQuery = `SELECT
 reviews.id, reviews.created_at, reviews.updated_at, reviews.content,
@@ -254,15 +246,15 @@ files.id, files.filename
 FROM reviews
 JOIN users ON reviews.user_id = users.id
 JOIN files ON reviews.file_id = files.id
-WHERE reviews.file_id = ?
+WHERE reviews.file_id = $1
 ORDER BY reviews.created_at
 ;`
 
-var getReviewQuery = `SELECT id, file_id, user_id, created_at, updated_at, content FROM reviews WHERE id = ? LIMIT 1;`
+var getReviewQuery = `SELECT id, file_id, user_id, created_at, updated_at, content FROM reviews WHERE id = $1 LIMIT 1;`
 
-var updateReviewQuery = `UPDATE reviews SET content = ?, updated_at = ? WHERE id = ?;`
+var updateReviewQuery = `UPDATE reviews SET content = $1, updated_at = $2 WHERE id = $3;`
 
-var deleteReviewQuery = `DELETE FROM reviews WHERE id = ?;`
+var deleteReviewQuery = `DELETE FROM reviews WHERE id = $1;`
 
 var getReviewsByUserQuery = `SELECT
 reviews.id, reviews.created_at, reviews.updated_at, reviews.content,
@@ -271,19 +263,19 @@ files.id, files.filename
 FROM reviews
 JOIN users ON reviews.user_id = users.id
 JOIN files ON reviews.file_id = files.id
-WHERE reviews.user_id = ?
+WHERE reviews.user_id = $1
 ORDER BY reviews.created_at
 ;`
 
-var deleteFileQuery = `DELETE FROM files WHERE id = ?;`
+var deleteFileQuery = `DELETE FROM files WHERE id = $1;`
 
-var deleteFileReferenceInFileHasTagQuery = `DELETE FROM file_has_tag WHERE file_id = ?;`
+var deleteFileReferenceInFileHasTagQuery = `DELETE FROM file_has_tag WHERE file_id = $1;`
 
-var deleteFileReferenceInReviewsQuery = `DELETE FROM reviews WHERE file_id = ?;`
+var deleteFileReferenceInReviewsQuery = `DELETE FROM reviews WHERE file_id = $1;`
 
-var updateFilenameQuery = `UPDATE files SET filename = ? WHERE id = ?;`
+var updateFilenameQuery = `UPDATE files SET filename = $1 WHERE id = $2;`
 
-var resetFilenameQuery = `UPDATE files SET filename = realname WHERE id = ?;`
+var resetFilenameQuery = `UPDATE files SET filename = realname WHERE id = $1;`
 
 type Stmt struct {
 	initFilesTable                  *sql.Stmt
@@ -352,26 +344,22 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	stmt := &Stmt{}
 
-	// init files table
-	stmt.initFilesTable, err = sqlConn.Prepare(initFilesTableQuery)
-	if err != nil {
-		return nil, err
-	}
-
 	// init folders table
 	stmt.initFoldersTable, err = sqlConn.Prepare(initFoldersTableQuery)
 	if err != nil {
 		return nil, err
 	}
-
-	// init feedbacks tables
-	stmt.initFeedbacksTable, err = sqlConn.Prepare(initFeedbacksTableQuery)
+	_, err = stmt.initFoldersTable.Exec()
 	if err != nil {
 		return nil, err
 	}
 
-	// init users table
-	stmt.initUsersTable, err = sqlConn.Prepare(initUsersTableQuery)
+	// init files table
+	stmt.initFilesTable, err = sqlConn.Prepare(initFilesTableQuery)
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initFilesTable.Exec()
 	if err != nil {
 		return nil, err
 	}
@@ -381,9 +369,37 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, err = stmt.initAvatarsTable.Exec()
+	if err != nil {
+		return nil, err
+	}
+
+	// init users table
+	stmt.initUsersTable, err = sqlConn.Prepare(initUsersTableQuery)
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initUsersTable.Exec()
+	if err != nil {
+		return nil, err
+	}
+
+	// init feedbacks tables
+	stmt.initFeedbacksTable, err = sqlConn.Prepare(initFeedbacksTableQuery)
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initFeedbacksTable.Exec()
+	if err != nil {
+		return nil, err
+	}
 
 	// init tags table
 	stmt.initTagsTable, err = sqlConn.Prepare(initTagsTableQuery)
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initTagsTable.Exec()
 	if err != nil {
 		return nil, err
 	}
@@ -393,9 +409,17 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, err = stmt.initFileHasTag.Exec()
+	if err != nil {
+		return nil, err
+	}
 
 	// init likes table
 	stmt.initLikesTable, err = sqlConn.Prepare(initLikesTableQuery)
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initLikesTable.Exec()
 	if err != nil {
 		return nil, err
 	}
@@ -405,9 +429,17 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, err = stmt.initReviewsTable.Exec()
+	if err != nil {
+		return nil, err
+	}
 
 	// init playbacks table
 	stmt.initPlaybacksTable, err = sqlConn.Prepare(initPlaybacksTableQuery)
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.initPlaybacksTable.Exec()
 	if err != nil {
 		return nil, err
 	}
@@ -417,55 +449,13 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, err = stmt.initLogsTable.Exec()
+	if err != nil {
+		return nil, err
+	}
 
 	// init tmpfs table
 	stmt.initTmpfsTable, err = sqlConn.Prepare(initTmpfsTableQuery)
-	if err != nil {
-		return nil, err
-	}
-
-	// run init statement
-	_, err = stmt.initFilesTable.Exec()
-	if err != nil {
-		return nil, err
-	}
-	_, err = stmt.initFoldersTable.Exec()
-	if err != nil {
-		return nil, err
-	}
-	_, err = stmt.initFeedbacksTable.Exec()
-	if err != nil {
-		return nil, err
-	}
-	_, err = stmt.initUsersTable.Exec()
-	if err != nil {
-		return nil, err
-	}
-	_, err = stmt.initAvatarsTable.Exec()
-	if err != nil {
-		return nil, err
-	}
-	_, err = stmt.initTagsTable.Exec()
-	if err != nil {
-		return nil, err
-	}
-	_, err = stmt.initFileHasTag.Exec()
-	if err != nil {
-		return nil, err
-	}
-	_, err = stmt.initLikesTable.Exec()
-	if err != nil {
-		return nil, err
-	}
-	_, err = stmt.initReviewsTable.Exec()
-	if err != nil {
-		return nil, err
-	}
-	_, err = stmt.initPlaybacksTable.Exec()
-	if err != nil {
-		return nil, err
-	}
-	_, err = stmt.initLogsTable.Exec()
 	if err != nil {
 		return nil, err
 	}
@@ -473,6 +463,8 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println("Init tables finished")
 
 	// init insert folder statement
 	stmt.insertFolder, err = sqlConn.Prepare(insertFolderQuery)
@@ -771,6 +763,8 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println("Init statements finished")
 
 	return stmt, err
 }

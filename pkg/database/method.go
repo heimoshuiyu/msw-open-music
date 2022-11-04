@@ -194,22 +194,27 @@ func (database *Database) Walk(root string, pattern []string, tagIDs []int64, us
 		folder, filename := filepath.Split(path)
 		err = findFolderStmt.QueryRow(folder).Scan(&folderID)
 		if err != nil {
-			result, err := insertFolderStmt.Exec(folder, filepath.Base(folder))
+			result, err := insertFolderStmt.Query(folder, filepath.Base(folder))
 			if err != nil {
 				return err
 			}
-			folderID, err = result.LastInsertId()
+			for result.Next() {
+				err = result.Scan(&folderID)
+				if err != nil {
+					return err
+				}
+			}
+		}
+		result, err := insertFileStmt.Query(folderID, filename, filename, info.Size())
+		if err != nil {
+			return err
+		}
+		var fileID int64
+		for result.Next() {
+			err = result.Scan(&fileID)
 			if err != nil {
 				return err
 			}
-		}
-		result, err := insertFileStmt.Exec(folderID, filename, filename, info.Size())
-		if err != nil {
-			return err
-		}
-		fileID, err := result.LastInsertId()
-		if err != nil {
-			return err
 		}
 
 		for _, tag := range tags {

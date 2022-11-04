@@ -1,7 +1,7 @@
 {
   "api": {
     "secret": "CHANGE_YOUR_SECRET_HERE",
-    "database_name": "music.sqlite3",
+    "database_name": "postgres://postgres:woshimima@localhost/postgres?sslmode=disable",
     "single_thread": true,
     "addr": ":8080",
     "ffmpeg_threads": 1,

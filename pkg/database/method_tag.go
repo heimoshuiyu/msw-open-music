@@ -6,11 +6,17 @@ func (database *Database) InsertTag(tag *Tag) (int64, error) {
 	database.singleThreadLock.Lock()
 	defer database.singleThreadLock.Unlock()
 
-	result, err := database.stmt.insertTag.Exec(tag.Name, tag.Description, tag.CreatedByUserId)
+	result, err := database.stmt.insertTag.Query(tag.Name, tag.Description, tag.CreatedByUserId)
 	if err != nil {
 		return 0, err
 	}
-	id, err := result.LastInsertId()
+	var id int64
+	for result.Next() {
+		err = result.Scan(&id)
+		if err != nil {
+			return 0, err
+		}
+	}
 	if err != nil {
 		return 0, err
 	}
