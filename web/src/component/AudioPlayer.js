@@ -22,6 +22,24 @@ function AudioPlayer(props) {
   const [timerCount, setTimerCount] = useState(0);
   const [timerID, setTimerID] = useState(null);
   const [beginPlayTime, setBeginPlayTime] = useState(null);
+  const [lastID, setLastID] = useState(null);
+
+  const recordPlaybackHistory = async (file_id, method, duration) => {
+    await fetch('/api/v1/record_playback', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        playback: {
+          file_id,
+          method,
+          duration,
+        },
+      })
+    })
+  }
+
 
   // init mediaSession API
   useEffect(() => {
@@ -42,6 +60,13 @@ function AudioPlayer(props) {
       setPlayingURL("");
       return;
     }
+    // crrently playing file, record interupt
+    if (playingURL) {
+      const endPlayTime = new Date()
+      const duration = parseInt((endPlayTime - beginPlayTime) / 1000)
+      recordPlaybackHistory(lastID, 2, duration)
+    }
+    setLastID(props.playingFile.id)
     // have playingFile, record begin time
     setBeginPlayTime(new Date())
     if (raw) {
@@ -120,6 +145,10 @@ function AudioPlayer(props) {
             <button
               onClick={() => {
                 props.setPlayingFile({});
+                const endPlayTime = new Date()
+                const duration = parseInt((endPlayTime - beginPlayTime) / 1000)
+                setBeginPlayTime(endPlayTime)
+                recordPlaybackHistory(props.playingFile.id, 3, duration)
               }}
             >
               {Tr("Stop")}
@@ -204,19 +233,7 @@ function AudioPlayer(props) {
           const endPlayTime = new Date()
           const duration = parseInt((endPlayTime - beginPlayTime) / 1000)
           setBeginPlayTime(endPlayTime)
-          await fetch('/api/v1/record_playback', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              playback: {
-                file_id: props.playingFile.id,
-                method: 1,
-                duration: parseInt(duration),
-              },
-            })
-          })
+          recordPlaybackHistory(props.playingFile.id, 1, duration)
         }}
       ></audio>
 
