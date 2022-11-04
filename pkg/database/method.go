@@ -168,6 +168,7 @@ func (database *Database) Walk(root string, pattern []string, tagIDs []int64, us
 	insertFileStmt := tx.Stmt(database.stmt.insertFile)
 	putTagOnFileStmt := tx.Stmt(database.stmt.putTagOnFile)
 	findFolderStmt := tx.Stmt(database.stmt.findFolder)
+	findFileStmt := tx.Stmt(database.stmt.findFile)
 
 	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -205,11 +206,25 @@ func (database *Database) Walk(root string, pattern []string, tagIDs []int64, us
 				}
 			}
 		}
-		result, err := insertFileStmt.Query(folderID, filename, filename, info.Size())
+
+		// try find file id
+		var fileID int64
+		result, err := findFileStmt.Query(folderID, filename)
 		if err != nil {
 			return err
 		}
-		var fileID int64
+		for result.Next() {
+			err = result.Scan(&fileID)
+			if err != nil {
+				return err
+			}
+		}
+
+		// insert new file
+		result, err = insertFileStmt.Query(folderID, filename, filename, info.Size())
+		if err != nil {
+			return err
+		}
 		for result.Next() {
 			err = result.Scan(&fileID)
 			if err != nil {
