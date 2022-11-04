@@ -24,7 +24,13 @@ function AudioPlayer(props) {
   const [beginPlayTime, setBeginPlayTime] = useState(null);
   const [lastID, setLastID] = useState(null);
 
-  const recordPlaybackHistory = async (file_id, method, duration) => {
+  const recordPlaybackHistory = async (file_id, method) => {
+    if (file_id === null) {
+      return
+    }
+    const endPlayTime = new Date()
+    const duration = parseInt((endPlayTime - beginPlayTime) / 1000)
+    setBeginPlayTime(endPlayTime)
     await fetch('/api/v1/record_playback', {
       method: "POST",
       headers: {
@@ -48,27 +54,10 @@ function AudioPlayer(props) {
     });
   }, []);
 
-  useEffect(() => {
-    // media session related staff
-    navigator.mediaSession.metadata = new window.MediaMetadata({
-      title: props.playingFile.filename,
-      album: props.playingFile.foldername,
-      artwork: [{src: "/favicon.png", type: "image/png"}],
-    });
-    // no playing file
+  const updatePlayMode = () => {
     if (props.playingFile.id === undefined) {
-      setPlayingURL("");
-      return;
+      return
     }
-    // crrently playing file, record interupt
-    if (playingURL) {
-      const endPlayTime = new Date()
-      const duration = parseInt((endPlayTime - beginPlayTime) / 1000)
-      recordPlaybackHistory(lastID, 2, duration)
-    }
-    setLastID(props.playingFile.id)
-    // have playingFile, record begin time
-    setBeginPlayTime(new Date())
     if (raw) {
       console.log("Play raw file");
       setPlayingURL("/api/v1/get_file_direct?id=" + props.playingFile.id);
@@ -103,7 +92,37 @@ function AudioPlayer(props) {
         );
       }
     }
-  }, [props.playingFile.id, raw, prepare, selectedFfmpegConfig]);
+  }
+
+  useEffect(() => {
+    // media session related staff
+    navigator.mediaSession.metadata = new window.MediaMetadata({
+      title: props.playingFile.filename,
+      album: props.playingFile.foldername,
+      artwork: [{src: "/favicon.png", type: "image/png"}],
+    });
+    // no playing file
+    if (props.playingFile.id === undefined) {
+      setPlayingURL("");
+      // 3 music stopped
+      recordPlaybackHistory(lastID, 3)
+      return;
+    }
+    // crrently playing file, record interupt
+    if (playingURL) {
+      // 2 music changed
+      recordPlaybackHistory(lastID, 2)
+    }
+    setLastID(props.playingFile.id)
+    // have playingFile, record begin time
+    setBeginPlayTime(new Date())
+    updatePlayMode()
+  }, [props.playingFile.id]);
+
+
+  useEffect(() => {
+    updatePlayMode()
+  }, [raw, prepare, selectedFfmpegConfig])
 
   let navigate = useNavigate();
 
@@ -145,10 +164,6 @@ function AudioPlayer(props) {
             <button
               onClick={() => {
                 props.setPlayingFile({});
-                const endPlayTime = new Date()
-                const duration = parseInt((endPlayTime - beginPlayTime) / 1000)
-                setBeginPlayTime(endPlayTime)
-                recordPlaybackHistory(props.playingFile.id, 3, duration)
               }}
             >
               {Tr("Stop")}
@@ -230,10 +245,15 @@ function AudioPlayer(props) {
           if (loop) {
             player.play()
           }
-          const endPlayTime = new Date()
-          const duration = parseInt((endPlayTime - beginPlayTime) / 1000)
-          setBeginPlayTime(endPlayTime)
-          recordPlaybackHistory(props.playingFile.id, 1, duration)
+          // 1 music finished
+          recordPlaybackHistory(props.playingFile.id, 1)
+        }}
+        onPause={() => {
+          // 4 music paused
+          recordPlaybackHistory(props.playingFile.id, 4)
+        }}
+        onPlay={() => {
+          setBeginPlayTime(new Date());
         }}
       ></audio>
 
