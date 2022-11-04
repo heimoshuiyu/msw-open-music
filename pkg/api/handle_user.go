@@ -17,23 +17,8 @@ type LoginResponse struct {
 	User *database.User `json:"user"`
 }
 
-func (api *API) LoginAsAnonymous(w http.ResponseWriter, r *http.Request) {
-	user, err := api.Db.LoginAsAnonymous()
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
-	session, _ := api.store.Get(r, api.defaultSessionName)
-
-	// save session
-	session.Values["userId"] = user.ID
-	err = session.Save(r, w)
-	if err != nil {
-		api.HandleError(w, r, err)
-		return
-	}
-
+func (api *API) HandleLoginAsAnonymous(w http.ResponseWriter, r *http.Request) {
+	user, err := api.LoginAsAnonymous(w, r)
 	resp := &LoginResponse{
 		User: user,
 	}
@@ -43,6 +28,25 @@ func (api *API) LoginAsAnonymous(w http.ResponseWriter, r *http.Request) {
 		api.HandleError(w, r, err)
 		return
 	}
+}
+
+func (api *API) LoginAsAnonymous(w http.ResponseWriter, r *http.Request) (*database.User, error) {
+	user, err := api.Db.LoginAsAnonymous()
+	if err != nil {
+		return nil, err
+	}
+
+	session, _ := api.store.Get(r, api.defaultSessionName)
+
+	// save session
+	session.Values["userId"] = user.ID
+	err = session.Save(r, w)
+	if err != nil {
+		return nil, err
+	}
+
+	// return user
+	return user, nil
 }
 
 func (api *API) HandleLogin(w http.ResponseWriter, r *http.Request) {

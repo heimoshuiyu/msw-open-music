@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"log"
 )
 
 var initFilesTableQuery = `CREATE TABLE IF NOT EXISTS files (
@@ -87,7 +88,8 @@ var initPlaybacksTableQuery = `CREATE TABLE IF NOT EXISTS playbacks (
 	user_id INTEGER NOT NULL,
 	file_id INTEGER NOT NULL,
 	time INTEGER NOT NULL,
-	mothod INTEGER NOT NULL,
+	method INTEGER NOT NULL,
+	duration INTEGER NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES users(id),
 	FOREIGN KEY (file_id) REFERENCES files(id)
 );`
@@ -285,6 +287,8 @@ var updateFilenameQuery = `UPDATE files SET filename = ? WHERE id = ?;`
 
 var resetFilenameQuery = `UPDATE files SET filename = realname WHERE id = ?;`
 
+var recordPlaybackQuery = `INSERT INTO playbacks (user_id, file_id, time, method, duration) VALUES ($1, $2, $3, $4, $5);`
+
 type Stmt struct {
 	initFilesTable                  *sql.Stmt
 	initFoldersTable                *sql.Stmt
@@ -345,6 +349,7 @@ type Stmt struct {
 	deleteFileReferenceInReviews    *sql.Stmt
 	updateFilename                  *sql.Stmt
 	resetFilename                   *sql.Stmt
+	recordPlaybackStmt              *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -771,6 +776,13 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	stmt.recordPlaybackStmt, err = sqlConn.Prepare(recordPlaybackQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("Init statements finished")
 
 	return stmt, err
 }

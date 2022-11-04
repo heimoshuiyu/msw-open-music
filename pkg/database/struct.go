@@ -2,6 +2,7 @@ package database
 
 import (
 	"path/filepath"
+	"time"
 )
 
 type File struct {
@@ -56,6 +57,15 @@ type Feedback struct {
 	Content string `json:"content"`
 	Header  string `json:"header"`
 	Time    int64  `json:"time"`
+}
+
+type Playback struct {
+	ID       int64         `json:"id"`
+	UserID   int64         `json:"user_id"`
+	FileID   int64         `json:"file_id"`
+	Time     time.Time     `json:"time"`
+	Method   int64         `json:"method"`
+	Duration time.Duration `json:"Duration"`
 }
 
 var (
