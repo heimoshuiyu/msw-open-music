@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { CalcReadableFilesizeDetail } from "./Common";
+import {useEffect, useState} from "react";
+import {useNavigate} from "react-router";
+import {CalcReadableFilesizeDetail} from "./Common";
 import FfmpegConfig from "./FfmpegConfig";
 import FileDialog from "./FileDialog";
-import { Tr } from "../translate";
+import {Tr} from "../translate";
 
 function AudioPlayer(props) {
   // props.playingFile
@@ -21,6 +21,7 @@ function AudioPlayer(props) {
   const [isPreparing, setIsPreparing] = useState(false);
   const [timerCount, setTimerCount] = useState(0);
   const [timerID, setTimerID] = useState(null);
+  const [beginPlayTime, setBeginPlayTime] = useState(null);
 
   // init mediaSession API
   useEffect(() => {
@@ -34,13 +35,15 @@ function AudioPlayer(props) {
     navigator.mediaSession.metadata = new window.MediaMetadata({
       title: props.playingFile.filename,
       album: props.playingFile.foldername,
-      artwork: [{ src: "/favicon.png", type: "image/png" }],
+      artwork: [{src: "/favicon.png", type: "image/png"}],
     });
     // no playing file
     if (props.playingFile.id === undefined) {
       setPlayingURL("");
       return;
     }
+    // have playingFile, record begin time
+    setBeginPlayTime(new Date())
     if (raw) {
       console.log("Play raw file");
       setPlayingURL("/api/v1/get_file_direct?id=" + props.playingFile.id);
@@ -50,7 +53,7 @@ function AudioPlayer(props) {
         setIsPreparing(true);
         fetch("/api/v1/prepare_file_stream_direct", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {"Content-Type": "application/json"},
           body: JSON.stringify({
             id: props.playingFile.id,
             config_name: selectedFfmpegConfig.name,
@@ -191,16 +194,37 @@ function AudioPlayer(props) {
         id="dom-player"
         controls
         autoPlay
-        loop={loop}
         className="audio-player"
         src={playingURL}
+        onEnded={async () => {
+          const player = document.getElementById('dom-player')
+          if (loop) {
+            player.play()
+          }
+          const endPlayTime = new Date()
+          const duration = parseInt((endPlayTime - beginPlayTime) / 1000)
+          setBeginPlayTime(endPlayTime)
+          await fetch('/api/v1/record_playback', {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              playback: {
+                file_id: props.playingFile.id,
+                method: 1,
+                duration: parseInt(duration),
+              },
+            })
+          })
+        }}
       ></audio>
 
       <FfmpegConfig
         selectedFfmpegConfig={selectedFfmpegConfig}
         setSelectedFfmpegConfig={setSelectedFfmpegConfig}
       />
-    </footer>
+    </footer >
   );
 }
 
