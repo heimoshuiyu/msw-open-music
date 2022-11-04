@@ -117,7 +117,7 @@ var searchFilesQuery = `SELECT
 files.id, files.folder_id, files.filename, folders.foldername, files.filesize
 FROM files
 JOIN folders ON files.folder_id = folders.id
-WHERE filename LIKE $1
+WHERE filename ILIKE $1
 ORDER BY folders.foldername, files.filename
 LIMIT $2 OFFSET $3;`
 
@@ -137,7 +137,7 @@ LIMIT 1;`
 var searchFoldersQuery = `SELECT
 id, folder, foldername
 FROM folders
-WHERE foldername LIKE $1
+WHERE foldername ILIKE $1
 ORDER BY foldername
 LIMIT $2 OFFSET $3;`
 
