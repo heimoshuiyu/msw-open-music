@@ -71,7 +71,7 @@ func NewAPI(config commonconfig.Config) (*API, error) {
 	// user
 	apiMux.HandleFunc("/login", api.HandleLogin)
 	apiMux.HandleFunc("/register", api.HandleRegister)
-	apiMux.HandleFunc("/logout", api.LoginAsAnonymous)
+	apiMux.HandleFunc("/logout", api.HandleLoginAsAnonymous)
 	apiMux.HandleFunc("/get_user_info", api.HandleGetUserInfo)
 	apiMux.HandleFunc("/get_users", api.HandleGetUsers)
 	apiMux.HandleFunc("/update_user_active", api.HandleUpdateUserActive)
@@ -95,6 +95,8 @@ func NewAPI(config commonconfig.Config) (*API, error) {
 	apiMux.HandleFunc("/update_review", api.HandleUpdateReview)
 	apiMux.HandleFunc("/delete_review", api.HandleDeleteReview)
 	apiMux.HandleFunc("/get_reviews_by_user", api.HandleGetReviewsByUser)
+	// statistic
+	apiMux.HandleFunc("/record_playback", api.HandleRecordPlayback)
 	// database
 	apiMux.HandleFunc("/walk", api.HandleWalk)
 	apiMux.HandleFunc("/reset", api.HandleReset)

@@ -78,8 +78,9 @@ var initPlaybacksTableQuery = `CREATE TABLE IF NOT EXISTS playbacks (
 	id SERIAL PRIMARY KEY,
 	user_id INTEGER NOT NULL REFERENCES users(id),
 	file_id INTEGER NOT NULL REFERENCES files(id),
-	time INTEGER NOT NULL,
-	mothod INTEGER NOT NULL
+	time TIMESTAMP NOT NULL,
+	method INTEGER NOT NULL,
+	duration INTERVAL NOT NULL
 );`
 
 var initLogsTableQuery = `CREATE TABLE IF NOT EXISTS logs (
@@ -277,6 +278,8 @@ var updateFilenameQuery = `UPDATE files SET filename = $1 WHERE id = $2;`
 
 var resetFilenameQuery = `UPDATE files SET filename = realname WHERE id = $1;`
 
+var recordPlaybackQuery = `INSERT INTO playbacks (user_id, file_id, time, method, duration) VALUES ($1, $2, $3, $4, $5);`
+
 type Stmt struct {
 	initFilesTable                  *sql.Stmt
 	initFoldersTable                *sql.Stmt
@@ -337,6 +340,7 @@ type Stmt struct {
 	deleteFileReferenceInReviews    *sql.Stmt
 	updateFilename                  *sql.Stmt
 	resetFilename                   *sql.Stmt
+	recordPlaybackStmt              *sql.Stmt
 }
 
 func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
@@ -760,6 +764,11 @@ func NewPreparedStatement(sqlConn *sql.DB) (*Stmt, error) {
 
 	// init resetFilename
 	stmt.resetFilename, err = sqlConn.Prepare(resetFilenameQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	stmt.recordPlaybackStmt, err = sqlConn.Prepare(recordPlaybackQuery)
 	if err != nil {
 		return nil, err
 	}
