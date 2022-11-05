@@ -49,12 +49,13 @@ function AudioPlayer(props) {
     })
   }
 
-
   // init mediaSession API
   useEffect(() => {
-    navigator.mediaSession.setActionHandler("stop", () => {
-      props.setPlayingFile({});
-    });
+    if (navigator.mediaSession) {
+      navigator.mediaSession.setActionHandler("stop", () => {
+        props.setPlayingFile({});
+      });
+    }
   }, []);
 
   const updatePlayMode = () => {
@@ -99,11 +100,13 @@ function AudioPlayer(props) {
 
   useEffect(() => {
     // media session related staff
-    navigator.mediaSession.metadata = new window.MediaMetadata({
-      title: props.playingFile.filename,
-      album: props.playingFile.foldername,
-      artwork: [{src: "/favicon.png", type: "image/png"}],
-    });
+    if (navigator.mediaSession) {
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: props.playingFile.filename,
+        album: props.playingFile.foldername,
+        artwork: [{src: "/favicon.png", type: "image/png"}],
+      });
+    }
     // no playing file
     if (props.playingFile.id === undefined) {
       setPlayingURL("");
