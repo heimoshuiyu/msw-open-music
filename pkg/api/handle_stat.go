@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"msw-open-music/pkg/database"
 	"net/http"
 	"time"
@@ -34,6 +35,12 @@ func (api *API) HandleRecordPlayback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	log.Println("[api] Record playback history",
+		recordPlaybackRequest.Playback.UserID,
+		recordPlaybackRequest.Playback.FileID,
+		recordPlaybackRequest.Playback.Duration,
+		recordPlaybackRequest.Playback.Method)
 
 	err = api.Db.RecordPlayback(recordPlaybackRequest.Playback)
 	if err != nil {
