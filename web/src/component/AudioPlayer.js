@@ -32,6 +32,10 @@ function AudioPlayer(props) {
     const endPlayTime = new Date()
     let duration = parseInt((endPlayTime - beginPlayTime) / 1000)
     const maxDuration = parseInt(player.duration)
+    // treat 85% of duration as finished
+    if (duration / maxDuration >= 0.85) {
+      method = 1
+    }
     duration = duration < maxDuration ? duration : maxDuration
     setBeginPlayTime(endPlayTime)
     await fetch('/api/v1/record_playback', {
@@ -106,9 +110,9 @@ function AudioPlayer(props) {
     });
     // no playing file
     if (props.playingFile.id === undefined) {
-      setPlayingURL("");
       // 3 music stopped
       recordPlaybackHistory(lastID, 3)
+      setPlayingURL("");
       return;
     }
     // crrently playing file, record interupt
