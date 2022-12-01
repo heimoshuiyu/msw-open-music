@@ -4,11 +4,16 @@ html {
 body {
   margin: auto;
   padding-top: 1rem;
-  background-color: var(--background, 33);
+  max-width: unset;
+}
+#root {
+  display: flex;
+  justify-content: center;
 }
 .base {
   display: grid;
   grid-row-gap: 1em;
+  max-width: 800px;
 }
 .header {
   color: white;
