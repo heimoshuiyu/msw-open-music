@@ -6,13 +6,14 @@ import (
 )
 
 type File struct {
-	Db         *Database `json:"-"`
-	ID         int64     `json:"id"`
-	Folder_id  int64     `json:"folder_id"`
-	Foldername string    `json:"foldername"`
-	Realname   string    `json:"-"`
-	Filename   string    `json:"filename"`
-	Filesize   int64     `json:"filesize"`
+	Db          *Database `json:"-"`
+	ID          int64     `json:"id"`
+	Folder_id   int64     `json:"folder_id"`
+	Foldername  string    `json:"foldername"`
+	Realname    string    `json:"-"`
+	Filename    string    `json:"filename"`
+	Filesize    int64     `json:"filesize"`
+	folderCache *Folder
 }
 
 type Folder struct {
@@ -75,9 +76,23 @@ var (
 )
 
 func (f *File) Path() (string, error) {
-	folder, err := f.Db.GetFolder(f.Folder_id)
+	var err error
+	if f.folderCache == nil {
+		f.folderCache, err = f.Db.GetFolder(f.Folder_id)
+	}
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(folder.Folder, f.Realname), nil
+	return filepath.Join(f.folderCache.Folder, f.Realname), nil
+}
+
+func (f *File) Dir() (string, error) {
+	var err error
+	if f.folderCache == nil {
+		f.folderCache, err = f.Db.GetFolder(f.Folder_id)
+	}
+	if err != nil {
+		return "", err
+	}
+	return f.folderCache.Folder, nil
 }
