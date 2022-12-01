@@ -5,6 +5,7 @@ body {
   margin: auto;
   padding-top: 1rem;
   max-width: unset;
+  min-height: 100vh;
 }
 #root {
   display: flex;
