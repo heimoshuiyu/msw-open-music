@@ -59,6 +59,7 @@ func NewAPI(config commonconfig.Config) (*API, error) {
 	apiMux.HandleFunc("/get_file_info", api.HandleGetFileInfo)
 	apiMux.HandleFunc("/get_file_ffprobe_info", api.HandleGetFileFfprobeInfo)
 	apiMux.HandleFunc("/get_file_stream_direct", api.HandleGetFileStreamDirect)
+	apiMux.HandleFunc("/get_file_avatar", api.HandelGetFileAvatar)
 	apiMux.HandleFunc("/prepare_file_stream_direct", api.HandlePrepareFileStreamDirect)
 	apiMux.HandleFunc("/delete_file", api.HandleDeleteFile)
 	apiMux.HandleFunc("/update_filename", api.HandleUpdateFilename)

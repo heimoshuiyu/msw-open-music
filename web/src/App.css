@@ -3,7 +3,8 @@ html {
 }
 body {
   margin: auto;
-  margin-top: 1rem;
+  padding-top: 1rem;
+  background-color: var(--background, 33);
 }
 .base {
   display: grid;

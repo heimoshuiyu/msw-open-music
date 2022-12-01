@@ -27,6 +27,27 @@ function App() {
   const [user, setUser] = useState({});
   const [langCode, setLangCode] = useState("en_US");
 
+  useEffect(() => {
+    if (playingFile.id === undefined) {
+      return;
+    }
+    const html = document.getElementsByTagName("html")[0];
+    const retStyle = html.style;
+    const bodyRetStyle = document.body.style
+    html.style = `
+      backdrop-filter: blur(10px);
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      background-image: url("/api/v1/get_file_avatar?id=${playingFile.id}");
+    `;
+    document.body.style.opacity = 0.88;
+    return () => {
+      html.style = retStyle;
+      document.body.style = bodyRetStyle;
+    };
+  }, [playingFile.id]);
+
   // select language
   useEffect(() => {
     const browserCode = window.navigator.language;
@@ -40,7 +61,7 @@ function App() {
       }
     }
     // fallback to english
-    setLangCode('en-US');
+    setLangCode("en-US");
   }, []);
 
   return (
