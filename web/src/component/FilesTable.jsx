@@ -1,3 +1,4 @@
+import * as React from 'react';
 import FileEntry from "./FileEntry";
 import { Tr } from "../translate";
 

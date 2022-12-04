@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {useNavigate, useParams} from "react-router";
 import {useContext, useEffect, useState} from "react";
 import {Tr, tr, langCodeContext} from "../translate";

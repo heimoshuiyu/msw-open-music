@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { CalcReadableFilesizeDetail } from "./Common";
+import * as React from 'react';
+import {useEffect, useState} from "react";
+import {useNavigate} from "react-router";
+import {CalcReadableFilesizeDetail} from "./Common";
 import FfmpegConfig from "./FfmpegConfig";
 import FileDialog from "./FileDialog";
 import { Tr } from "../translate";

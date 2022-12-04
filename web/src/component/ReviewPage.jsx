@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import ReviewEntry from "./ReviewEntry";

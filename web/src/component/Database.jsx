@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useState, useEffect, useContext } from "react";
 import { Tr, tr, langCodeContext } from "../translate";
 

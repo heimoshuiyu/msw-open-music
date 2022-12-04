@@ -1,4 +1,5 @@
-import { createContext, renderToString } from "react";
+import * as React from 'react';
+import { createContext } from "react";
 import MAP_zh_CN from "./zh_CN";
 
 const LANG_OPTIONS = {

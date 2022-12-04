@@ -1,42 +1,41 @@
-import { useState, useEffect, useContext } from "react";
+import * as React from 'react';
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "./Common";
-import FilesTable from "./FilesTable";
+import FoldersTable from "./FoldersTable";
 import { Tr, tr, langCodeContext } from "../translate";
 
-function SearchFiles(props) {
+function SearchFolders() {
   const navigator = useNavigate();
-  const [files, setFiles] = useState([]);
   const query = useQuery();
-  const filename = query.get("q") || "";
-  const [filenameInput, setFilenameInput] = useState(filename);
+  const foldername = query.get("q") || "";
+  const [foldernameInput, setFoldernameInput] = useState(foldername);
+  const [folders, setFolders] = useState([]);
   const offset = parseInt(query.get("o")) || 0;
   const [isLoading, setIsLoading] = useState(false);
   const limit = 10;
   const { langCode } = useContext(langCodeContext);
 
-  function searchFiles() {
-    // check empty filename
-    if (filename === "") {
+  function searchFolder() {
+    if (foldername === "") {
       return;
     }
     setIsLoading(true);
-    fetch("/api/v1/search_files", {
+    fetch("/api/v1/search_folders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        filename: filename,
+        foldername: foldername,
         limit: limit,
         offset: offset,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-        const files = data.files ? data.files : [];
-        setFiles(files);
+        setFolders(data.folders ? data.folders : []);
       })
       .catch((error) => {
-        alert("search_files error: " + error);
+        alert("search_folders error: " + error);
       })
       .finally(() => {
         setIsLoading(false);
@@ -44,7 +43,7 @@ function SearchFiles(props) {
   }
 
   function nextPage() {
-    navigator(`/files?q=${filenameInput}&o=${offset + limit}`);
+    navigator(`/folders?q=${foldername}&o=${offset + limit}`);
   }
 
   function lastPage() {
@@ -52,42 +51,42 @@ function SearchFiles(props) {
     if (offsetValue < 0) {
       return;
     }
-    navigator(`/files?q=${filenameInput}&o=${offsetValue}`);
+    navigator(`/folders?q=${foldername}&o=${offsetValue}`);
   }
 
-  useEffect(() => searchFiles(), [offset, filename]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => searchFolder(), [offset, foldername]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="page">
-      <h3>{Tr("Search Files")}</h3>
+      <h3>{Tr("Search Folders")}</h3>
       <div className="search_toolbar">
         <input
-          onChange={(event) => setFilenameInput(event.target.value)}
+          onChange={(event) => setFoldernameInput(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
-              navigator(`/files?q=${filenameInput}&o=0`);
+              navigator(`/folders?q=${foldernameInput}&o=0`);
             }
           }}
           type="text"
-          placeholder={tr("Enter filename", langCode)}
-          value={filenameInput}
+          placeholder={tr("Enter folder name", langCode)}
+          value={foldernameInput}
         />
         <button
           onClick={() => {
-            navigator(`/files?q=${filenameInput}&o=0`);
+            navigator(`/folders?q=${foldernameInput}&o=0`);
           }}
         >
           {isLoading ? Tr("Loading...") : Tr("Search")}
         </button>
         <button onClick={lastPage}>{Tr("Last page")}</button>
         <button disabled>
-          {offset} - {offset + files.length}
+          {offset} - {offset + limit}
         </button>
         <button onClick={nextPage}>{Tr("Next page")}</button>
       </div>
-      <FilesTable setPlayingFile={props.setPlayingFile} files={files} />
+      <FoldersTable folders={folders} />
     </div>
   );
 }
 
-export default SearchFiles;
+export default SearchFolders;

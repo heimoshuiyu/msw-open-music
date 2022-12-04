@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "./Common";

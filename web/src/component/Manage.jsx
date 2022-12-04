@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useNavigate } from "react-router";
 import Database from "./Database";
 

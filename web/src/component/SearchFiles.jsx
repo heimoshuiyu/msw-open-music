@@ -1,40 +1,43 @@
-import { useContext, useEffect, useState } from "react";
+import * as React from 'react';
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "./Common";
-import FoldersTable from "./FoldersTable";
+import FilesTable from "./FilesTable";
 import { Tr, tr, langCodeContext } from "../translate";
 
-function SearchFolders() {
+function SearchFiles(props) {
   const navigator = useNavigate();
+  const [files, setFiles] = useState([]);
   const query = useQuery();
-  const foldername = query.get("q") || "";
-  const [foldernameInput, setFoldernameInput] = useState(foldername);
-  const [folders, setFolders] = useState([]);
+  const filename = query.get("q") || "";
+  const [filenameInput, setFilenameInput] = useState(filename);
   const offset = parseInt(query.get("o")) || 0;
   const [isLoading, setIsLoading] = useState(false);
   const limit = 10;
   const { langCode } = useContext(langCodeContext);
 
-  function searchFolder() {
-    if (foldername === "") {
+  function searchFiles() {
+    // check empty filename
+    if (filename === "") {
       return;
     }
     setIsLoading(true);
-    fetch("/api/v1/search_folders", {
+    fetch("/api/v1/search_files", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        foldername: foldername,
+        filename: filename,
         limit: limit,
         offset: offset,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-        setFolders(data.folders ? data.folders : []);
+        const files = data.files ? data.files : [];
+        setFiles(files);
       })
       .catch((error) => {
-        alert("search_folders error: " + error);
+        alert("search_files error: " + error);
       })
       .finally(() => {
         setIsLoading(false);
@@ -42,7 +45,7 @@ function SearchFolders() {
   }
 
   function nextPage() {
-    navigator(`/folders?q=${foldername}&o=${offset + limit}`);
+    navigator(`/files?q=${filenameInput}&o=${offset + limit}`);
   }
 
   function lastPage() {
@@ -50,42 +53,42 @@ function SearchFolders() {
     if (offsetValue < 0) {
       return;
     }
-    navigator(`/folders?q=${foldername}&o=${offsetValue}`);
+    navigator(`/files?q=${filenameInput}&o=${offsetValue}`);
   }
 
-  useEffect(() => searchFolder(), [offset, foldername]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => searchFiles(), [offset, filename]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="page">
-      <h3>{Tr("Search Folders")}</h3>
+      <h3>{Tr("Search Files")}</h3>
       <div className="search_toolbar">
         <input
-          onChange={(event) => setFoldernameInput(event.target.value)}
+          onChange={(event) => setFilenameInput(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
-              navigator(`/folders?q=${foldernameInput}&o=0`);
+              navigator(`/files?q=${filenameInput}&o=0`);
             }
           }}
           type="text"
-          placeholder={tr("Enter folder name", langCode)}
-          value={foldernameInput}
+          placeholder={tr("Enter filename", langCode)}
+          value={filenameInput}
         />
         <button
           onClick={() => {
-            navigator(`/folders?q=${foldernameInput}&o=0`);
+            navigator(`/files?q=${filenameInput}&o=0`);
           }}
         >
           {isLoading ? Tr("Loading...") : Tr("Search")}
         </button>
         <button onClick={lastPage}>{Tr("Last page")}</button>
         <button disabled>
-          {offset} - {offset + limit}
+          {offset} - {offset + files.length}
         </button>
         <button onClick={nextPage}>{Tr("Next page")}</button>
       </div>
-      <FoldersTable folders={folders} />
+      <FilesTable setPlayingFile={props.setPlayingFile} files={files} />
     </div>
   );
 }
 
-export default SearchFolders;
+export default SearchFiles;

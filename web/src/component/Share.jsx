@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import FilesTable from "./FilesTable";
